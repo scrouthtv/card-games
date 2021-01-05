@@ -54,6 +54,16 @@ func (g *Game) playerID(player *Client) int {
 	return -1
 }
 
+func (g *Game) playerLeave(player *Client) bool {
+	var i int = g.playerID(player)
+	if i == -1 {
+		return false
+	}
+
+	delete(g.players, i)
+	return true
+}
+
 func (g *Game) playerJoin(player *Client) bool {
 	if g.info().Players >= g.info().Maxplayers {
 		log.Printf("Error: too many players joined")

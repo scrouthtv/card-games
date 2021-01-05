@@ -66,12 +66,9 @@ func (h *Hub) playerMessage(sender *Client, p *Packet) bool {
 	}
 
 	var c *Client
-	for _, g = range h.games {
-		for _, c = range g.players {
-			if c == sender {
-				return g.playerMove(c, p)
-			}
-		}
+	g = h.playerGame(sender)
+	if g != nil {
+		return g.playerMove(c, p)
 	}
 	log.Printf("Found no matching game for %s", sender)
 	return false
@@ -100,6 +97,19 @@ func (h *Hub) gameUUID() byte {
 	return uuid
 }
 
+func (h *Hub) playerGame(player *Client) *Game {
+	var g *Game
+	var c *Client
+	for _, g = range h.games {
+		for _, c = range g.players {
+			if c == player {
+				return g
+			}
+		}
+	}
+	return nil
+}
+
 func (h *Hub) gameByUUID(uuid byte) *Game {
 	var game *Game
 	for _, game = range h.games {
@@ -119,6 +129,11 @@ func (h *Hub) run() {
 		case c = <-h.register:
 			h.clients[c] = true
 		case c = <-h.unregister:
+			log.Printf("Unregistering %s", c)
+			var g *Game = h.playerGame(c)
+			if g != nil {
+				g.playerLeave(c)
+			}
 			if _, ok := h.clients[c]; ok {
 				delete(h.clients, c)
 				close(c.send)
