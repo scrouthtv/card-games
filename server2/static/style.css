@@ -67,6 +67,7 @@ h1 {
     transform-origin: bottom right;
     bottom: 10px;
     left: 50%;
+    cursor: pointer;
 }
 
 /*#gamescreen #hand .card:hover {

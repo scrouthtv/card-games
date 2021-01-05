@@ -88,25 +88,25 @@ class DokoGame {
     static fromBinary(buf) {
         /** @type{DokoGame} */
         var dg = new DokoGame();
-        var state = buf.getInt8() & 0b11
+        var stateInfo = buf.getInt8()
+        var state = stateInfo & 0b11
         switch (state) {
             case statePreparing:
                 dg.state = statePreparing;
-                console.log("We are preparing");
                 break;
             case statePlaying:
+                console.log(state);
                 dg.state = statePlaying;
-                console.log("We are playing");
+                dg.active = stateInfo & 0b00011100;
+                dg.me = stateInfo &     0b11100000;
                 dg.hand = Deck.fromBinary(buf);
                 dg.table = Deck.fromBinary(buf);
                 break;
             case stateEnded:
                 dg.state = stateEnded;
-                console.log("We have ended");
                 break;
             default:
                 dg.state = -1
-                console.log("Unknown state!");
                 break;
         }
 

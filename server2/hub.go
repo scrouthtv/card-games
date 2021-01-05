@@ -66,10 +66,9 @@ func (h *Hub) playerMessage(sender *Client, p *Packet) bool {
 		return false
 	}
 
-	var c *Client
 	g = h.playerGame(sender)
 	if g != nil {
-		return g.playerMove(c, p)
+		return g.playerMove(sender, p)
 	}
 	log.Printf("Found no matching game for %s", sender)
 	return false
@@ -77,6 +76,14 @@ func (h *Hub) playerMessage(sender *Client, p *Packet) bool {
 
 func (h *Hub) createGame(name string) *Game {
 	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h, StatePreparing, nil}
+	g.ruleset = NewDoko(&g)
+	h.games = append(h.games, &g)
+	h.logGames()
+	return &g
+}
+
+func (h *Hub) createGameWithID(id byte, name string) *Game {
+	var g Game = Game{id, make(map[int]*Client), name, h, StatePreparing, nil}
 	g.ruleset = NewDoko(&g)
 	h.games = append(h.games, &g)
 	h.logGames()

@@ -35,6 +35,12 @@ if (window["WebSocket"]) {
     alert("<b>Your browser does not support WebSockets.</b>");
 }
 
+function play(cint) {
+    var card = document.getElementById("hand" + cint).getCard();
+    console.log(card);
+    conn.send(`card ${card.toString().toLowerCase()}`);
+}
+
 /** @type {Game} */
 var game;
 
@@ -46,14 +52,17 @@ function redraw() {
         return;
     }
 
-    console.log("redrawing");
+    if (game.ruleset.active == game.ruleset.me) 
+        document.getElementById("textinfo").innerHTML = "It's your turn!";
+    else
+        document.getElementById("textinfo").innerHTML = "It's " + game.ruleset.active + "'s turn!";
 
     if (game.ruleset.state == statePlaying) {
-        console.log(game);
+        //console.log(game);
         var hand = game.ruleset.hand.cards;
-        console.log(hand);
+        //console.log(hand);
         for (var i = 0; i < hand.length; i++) {
-            document.getElementById("hand" + (i + 1)).src = "deck/card-deck-" + hand[i].toString().toLowerCase() + ".png";
+            document.getElementById("hand" + (i + 1)).setCard(hand[i])
         }
     } else {
         console.log("Not painting this state");

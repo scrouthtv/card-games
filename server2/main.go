@@ -57,8 +57,6 @@ func serveAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveDeck(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL.Path)
-
 	http.ServeFile(w, r, r.URL.Path[1:])
 }
 
@@ -73,9 +71,9 @@ func main() {
 	http.HandleFunc("/serialize-props.js", serveProps)
 	http.HandleFunc("/deck/", serveDeck)
 	http.HandleFunc("/", serveStatic)
-	hub.createGame("aa")
-	hub.createGame("bb")
-	hub.createGame("cc")
+	hub.createGameWithID(5, "aa")
+	//hub.createGame("bb")
+	//hub.createGame("cc")
 	log.Printf("Started http server")
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {

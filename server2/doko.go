@@ -53,10 +53,6 @@ func (d *Doko) Reset() bool {
 	var doko *Deck = NewDeck([]int{Ace, 9, 10, Jack, Queen, King}).Twice().Shuffle()
 	log.Println("Doko deck has ", doko.Length())
 	var dist []*Deck = doko.DistributeAll(4)
-	log.Println("First player gets ", dist[0].Length())
-	log.Println("First player gets ", dist[1].Length())
-	log.Println("First player gets ", dist[2].Length())
-	log.Println("Fourth player gets ", dist[3].Length())
 
 	var i int
 	for i = 0; i < len(dist); i++ {
@@ -89,25 +85,32 @@ func (d *Doko) TypeID() byte {
 // and returns whether the action was successful
 func (d *Doko) PlayerMove(player int, p *Packet) bool {
 	if player != d.active {
+		log.Println("Ignoring because this player is not active, active: ", d.active)
 		return false
 	}
 
 	switch p.Action() {
 	case "card":
+		log.Println("Before table contains:")
+		log.Println(d.table)
 		if d.g.state != StatePlaying {
+			log.Println("Ignoring because we are not playing")
 			return false
 		}
 		if len(p.Args()) < 1 {
+			log.Println("Ignoring because no card was specified")
 			return false
 		}
 		var c *Card
 		var ok bool
 		ok, c = CardFromShort(p.Args()[0])
 		if !ok {
+			log.Println("Ignoring because invalid card was specified")
 			return false
 		}
 		ok = d.hands[d.active].Remove(*c, 1) > 0
 		if !ok {
+			log.Println("Ignoring because the player does not own this card")
 			return false
 		}
 		d.table.AddAll(c)
@@ -131,9 +134,12 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 				d.g.state = StateEnded
 			}
 		} else {
+			log.Println("This trick is not finished, on the table:")
+			log.Println(d.table)
 			d.active++
 		}
 
+		d.g.hub.sendUpdates(d.g)
 		return true
 	}
 
