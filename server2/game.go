@@ -10,9 +10,17 @@ type Game struct {
 	hub     *Hub
 
 	// hands: maps #player to #slot to []item
-	hands map[int]Inventory
+	hands map[int]*Inventory
 	// table: maps #slot to []item
-	table Inventory
+	table *Inventory
+
+	ruleset Ruleset
+}
+
+// Ruleset implements all moves a game (type) should have
+type Ruleset interface {
+	Reset() bool
+	PlayerMove(p *Packet) bool
 }
 
 // GameInfo contains user-relevant information about a game
@@ -28,7 +36,7 @@ func (g *Game) sendHands() {
 	var i int
 	var c *Client
 	for i, c = range g.players {
-		var inv Inventory = g.hands[i]
+		var inv *Inventory = g.hands[i]
 		log.Printf("player %s should get %s", c, inv.Send())
 	}
 }

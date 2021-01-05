@@ -36,6 +36,17 @@ const (
 	King // 1 + 12
 )
 
+// CardsToItems converts a slice of cards to a slice of items
+func CardsToItems(cards []Card) []Item {
+	var items []Item = make([]Item, len(cards))
+	var i int
+	var c Card
+	for i, c = range cards {
+		items[i] = &c
+	}
+	return items
+}
+
 func (c *Card) String() string {
 	var out string
 	switch c.suit {
@@ -92,6 +103,47 @@ func (c *Card) Short() string {
 		out += strconv.Itoa(c.value)
 	}
 	return out
+}
+
+// CardFromShort tries to parse the card specified by short
+// If parsing was sucessful, the method returns true and a pointer to the card
+// If not, it returns false and nil
+func CardFromShort(short string) (bool, *Card) {
+	var c Card = Card{0, 0}
+
+	switch short[0:1] {
+	case "c":
+		c.suit = Clubs
+	case "d":
+		c.suit = Diamonds
+	case "h":
+		c.suit = Hearts
+	case "s":
+		c.suit = Spades
+	default:
+		return false, nil
+	}
+
+	switch short[1:] {
+	case "a":
+		c.value = Ace
+	case "j":
+		c.value = Jack
+	case "q":
+		c.value = Queen
+	case "k":
+		c.value = King
+	default:
+		var value int
+		var err error
+		value, err = strconv.Atoi(short[1:])
+		if err != nil {
+			return false, nil
+		}
+		c.value = value
+	}
+
+	return true, &c
 }
 
 // Deck is a collection of cards

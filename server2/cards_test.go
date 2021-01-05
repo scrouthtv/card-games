@@ -20,6 +20,24 @@ func TestCarcConsts(t *testing.T) {
 	}
 }
 
+func TestDeckSerialization(t *testing.T) {
+	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
+	var c Card
+	var copy *Card
+	var str string
+	var ok bool
+	for _, c = range *doko {
+		str = c.Short()
+		ok, copy = CardFromShort(str)
+		if !ok {
+			t.Errorf("Could not parse %s", str)
+		}
+		if *copy != c {
+			t.Errorf("Card %s serialized to %s deserialized to %s", c.String(), str, copy.String())
+		}
+	}
+}
+
 func TestDeckDistribution(t *testing.T) {
 	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
 	var dist [][]Card = doko.DistributeAll(4)
