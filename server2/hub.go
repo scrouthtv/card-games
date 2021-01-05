@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"time"
+	"strings"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -39,9 +40,15 @@ func newHub() *Hub {
 }
 
 // Returns a pointer to first game this player is part of
-func (h *Hub) playerMove(msg *clientMessage) {
+func (h *Hub) playerMessage(msg *clientMessage) {
 	var g *Game
 	var c *Client
+	if strings.Split(msg.msg, " ")[0] == "join" {
+		for _, g = range h.games {
+			if g.id == 
+		}
+	}
+
 	for _, g = range h.games {
 		for _, c = range g.players {
 			if c == msg.c {
@@ -100,16 +107,7 @@ func (h *Hub) run() {
 				close(c.send)
 			}
 		case msg = <-h.broadcast:
-			log.Printf("Got a message: %s", msg)
-			h.playerMove(msg)
-			/*for client := range h.clients {
-				select {
-				case client.send <- msg.msg: // send the current message to every client
-				default:
-					close(client.send)
-					delete(h.clients, client)
-				}
-			}*/
+			h.playerMessage(msg)
 		}
 	}
 }

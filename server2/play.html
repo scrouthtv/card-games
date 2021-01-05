@@ -41,7 +41,9 @@
             conn.onmessage = function (evt) {
                 console.log("Server sent" + evt.data);
             };
-            join(id);
+            conn.onopen = function (evt) {
+                join(id);
+            };
         } else {
             var item = document.createElement("div");
             item.innerHTML = "<b>Your browser does not support WebSockets.</b>";

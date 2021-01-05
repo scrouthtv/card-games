@@ -43,6 +43,10 @@ type Client struct {
 	send chan []byte
 }
 
+func (c *Client) String() string {
+	return c.conn.RemoteAddr().String()
+}
+
 // readPump pumps messages from the websocket connection to the hub.
 //
 // The application runs readPump in a per-connection goroutine. The application
@@ -64,6 +68,7 @@ func (c *Client) readPump() {
 			}
 			break
 		}
+		log.Printf("Got a message: %s", message)
 		c.hub.broadcast <- &clientMessage{c, message}
 	}
 }
