@@ -27,11 +27,9 @@ func TestTricks(t *testing.T) {
 	var trick string
 	var should, is int
 	var deck *Deck
-	var cards []*Card
 	for trick, should = range tricks {
 		deck = DeserializeDeck(trick)
-		cards = []*Card(*deck)
-		is = doko.trickWinner(cards)
+		is = doko.trickWinner(deck)
 		if should != is {
 			t.Errorf("Trick %s should win #%d, but instead #%d", trick, should, is)
 		}

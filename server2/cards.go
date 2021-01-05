@@ -193,6 +193,45 @@ func (d *Deck) Twice() *Deck {
 	return d
 }
 
+// AddAll appends all specified at the end of this deck
+func (d *Deck) AddAll(cards ...*Card) {
+	if *d == nil {
+		*d = cards
+	}
+	*d = append(*d, cards...)
+}
+
+// Merge merges another deck into this, leaving the other intact
+func (d *Deck) Merge(other *Deck) {
+	*d = append(*d, *other...)
+}
+
+// Length returns the amount of cards in this deck
+func (d *Deck) Length() int {
+	return len(*d)
+}
+
+// Remove removes the specified card at most n times from this deck,
+// returning how many cards were actually removed
+func (d *Deck) Remove(card Card, n int) int {
+	if n == 0 {
+		return 0
+	}
+
+	var i int
+	var deleted int = 0
+	for i = 0; i < len(*d); i++ {
+		if *(*d)[i] == card {
+			*d = append((*d)[:i], (*d)[i+1:]...)
+			deleted++
+			if deleted == n {
+				return deleted
+			}
+		}
+	}
+	return deleted
+}
+
 // Shuffle shuffles a deck
 // Returns the same pointer
 func (d *Deck) Shuffle() *Deck {

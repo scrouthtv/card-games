@@ -1,12 +1,7 @@
 package main
 
-import (
-	"fmt"
-	"strings"
-)
-
 // Inventory is a collection of int-identified slots which can hold multiple cards
-type Inventory map[int][]*Card
+type Inventory map[int]*Deck
 
 const idelim string = "-"
 const odelim string = "#"
@@ -16,65 +11,57 @@ const odelim string = "#"
 func NewInventory(items []*Card) *Inventory {
 	var inv Inventory = make(Inventory)
 
-	inv[0] = items
+	inv.Get(0).AddAll(items...)
 
 	return &inv
 }
 
-// RemoveItem removes a single item from this inventory
+// RemoveItem removes an item from this inventory
 // while keeping everything in order
 // It searches through the first slot first, afterwards the second, and so on
-// The first occurence is removed
-// Returns whether the item was removed ( = whether it was found)
-func (inv *Inventory) RemoveItem(itm *Card) bool {
-	var idx, jdx int
-	var oldslot []*Card
-	var item *Card
-	for idx, oldslot = range *inv {
-		for jdx, item = range oldslot {
-			if *item == *itm {
-				// remove this card:
-				(*inv)[idx] = append(oldslot[:jdx], oldslot[jdx+1:]...)
-				return true
-			}
+// The first n occurences is removed
+// Returns how many items were removed
+func (inv *Inventory) RemoveItem(card Card, n int) int {
+	var deleted int = 0
+	var deck *Deck
+	for _, deck = range *inv {
+		deleted += deck.Remove(card, n-deleted)
+		if deleted == n {
+			return deleted
 		}
 	}
-	return false
+	return deleted
 }
 
 // Get returns the item stack at the specified slot
-func (inv *Inventory) Get(slot int) []*Card {
+func (inv *Inventory) Get(slot int) *Deck {
+	if (*inv)[slot] == nil {
+		var deck Deck = make(Deck, 0)
+		return &deck
+	}
 	return (*inv)[slot]
 }
 
 // AddToSlot adds the specified item(s) to this inventory at the
 // given slot. If there are no cards at this slot yet, it is created.
 func (inv *Inventory) AddToSlot(slot int, items ...*Card) {
-	var oldslot []*Card = (*inv)[slot]
-	(*inv)[slot] = append(oldslot, items...)
+	inv.Get(slot).AddAll(items...)
 }
 
-// Send converts the inventory into a sendable string
-func (inv *Inventory) Send() string {
-	var out strings.Builder
-	var slot int
-	var items []*Card
+// Serialize converts the inventory into a sendable string
+func (inv *Inventory) Serialize() string {
+	panic("not impl")
+}
 
-	for slot, items = range *inv {
-		if out.Len() > 0 {
-			out.WriteString(odelim)
-		}
-		out.WriteString(fmt.Sprintf("%d:", slot))
-		var i int
-		var item *Card
-		for i, item = range items {
-			if i > 0 {
-				out.WriteString(idelim)
-			}
-			out.WriteString(item.Short())
-		}
-		out.WriteString(odelim)
+// Clear clears the specified slot, e. g. discards any cards in it
+func (inv *Inventory) Clear(slot int) {
+	(*inv)[slot] = nil
+}
+
+// ClearAll clears all slots by calling Clear() on them
+func (inv *Inventory) ClearAll() {
+	var i int
+	for i = 0; i < len(*inv); i++ {
+		inv.Clear(i)
 	}
-
-	return out.String()
 }

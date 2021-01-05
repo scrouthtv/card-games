@@ -7,16 +7,18 @@ type Doko struct {
 	g      *Game
 	active int
 
-	// hands: maps #player to #slot to []item
+	// hands: maps #player to inventory
 	hands map[int]*Inventory
-	// table: maps #slot to []item
+	// won: maps #player to Deck
+	won map[int]*Deck
+	// table: inventory
 	table *Inventory
 }
 
 // NewDoko generates a new Doppelkopf ruleset hosted by the
 // supplied game
 func NewDoko(host *Game) *Doko {
-	var d Doko = Doko{host, -1, nil, nil}
+	var d Doko = Doko{host, -1, nil, nil, nil}
 	d.Reset()
 	return &d
 }
@@ -25,6 +27,7 @@ func NewDoko(host *Game) *Doko {
 // and giving all players a new hand
 func (d *Doko) Reset() bool {
 	d.hands = make(map[int]*Inventory)
+	d.won = make(map[int]*Deck)
 
 	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
 	var dist [][]*Card = doko.DistributeAll(4)
@@ -56,14 +59,18 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 		if !ok {
 			return false
 		}
-		ok = d.hands[d.active].RemoveItem(c)
+		ok = d.hands[d.active].RemoveItem(*c, 1) > 0
 		if !ok {
 			return false
 		}
 		d.table.AddToSlot(0, c)
 
-		if len(d.table.Get(0)) == 4 {
-			log.Println("This trump is finished, calculating the winner:")
+		if len(*d.table.Get(0)) == 4 {
+			log.Println("This trick is finished, calculating the winner:")
+			var winner int = d.trickWinner(d.table.Get(0))
+			log.Printf("Winner is %d, giving them the trick", winner)
+			d.won[winner].Merge(d.table.Get(0))
+			d.table.ClearAll()
 		}
 
 		return true
@@ -84,15 +91,15 @@ func (d *Doko) Hands() map[int]Inventory {
 }
 
 // trickWinner calculates the winner # in this trick
-func (d *Doko) trickWinner(trick []*Card) int {
+func (d *Doko) trickWinner(trick *Deck) int {
 	var winner int = 0
-	var wCard = trick[0]
+	var wCard = (*trick)[0]
 
 	var i int
-	for i = 1; i < len(trick); i++ {
-		if d.beats(wCard, trick[i]) {
+	for i = 1; i < trick.Length(); i++ {
+		if d.beats(wCard, (*trick)[i]) {
 			winner = i
-			wCard = trick[i]
+			wCard = (*trick)[i]
 		}
 	}
 
