@@ -75,9 +75,7 @@ func (h *Hub) playerMessage(sender *Client, p *Packet) bool {
 }
 
 func (h *Hub) createGame(name string) *Game {
-	var table Inventory = make(Inventory)
-	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h,
-		make(map[int]*Inventory), &table, nil}
+	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h, nil}
 	g.ruleset = NewDoko(&g)
 	h.games = append(h.games, &g)
 	h.logGames()

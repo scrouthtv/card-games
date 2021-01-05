@@ -1,29 +1,39 @@
 package main
 
+import "log"
+
 // Doko is the ruleset for Doppelkopf
 type Doko struct {
 	g      *Game
 	active int
+
+	// hands: maps #player to #slot to []item
+	hands map[int]*Inventory
+	// table: maps #slot to []item
+	table *Inventory
 }
 
 // NewDoko generates a new Doppelkopf ruleset hosted by the
 // supplied game
 func NewDoko(host *Game) *Doko {
-	var d Doko = Doko{host, -1}
+	var d Doko = Doko{host, -1, nil, nil}
+	d.Reset()
 	return &d
 }
 
 // Reset resets this game by clearing everything
 // and giving all players a new hand
 func (d *Doko) Reset() bool {
+	d.hands = make(map[int]*Inventory)
+
 	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
 	var dist [][]*Card = doko.DistributeAll(4)
 
 	var i int
 	for i = 0; i < len(dist); i++ {
-		d.g.hands[i] = NewInventory(CardsToItems(dist[i]))
+		d.hands[i] = NewInventory(dist[i])
 	}
-	d.g.table = NewInventory([]Item{})
+	d.table = NewInventory([]*Card{})
 
 	return true
 }
@@ -46,20 +56,31 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 		if !ok {
 			return false
 		}
-		ok = d.g.hands[d.active].RemoveItem(c)
+		ok = d.hands[d.active].RemoveItem(c)
 		if !ok {
 			return false
 		}
-		d.g.table.AddToSlot(0, c)
+		d.table.AddToSlot(0, c)
 
-		if len(d.g.table.Get(0)) == 4 {
-
+		if len(d.table.Get(0)) == 4 {
+			log.Println("This trump is finished, calculating the winner:")
 		}
 
 		return true
 	}
 
 	return false
+}
+
+// Hands returns a map that maps each player to their inventory
+func (d *Doko) Hands() map[int]Inventory {
+	var hands map[int]Inventory = make(map[int]Inventory)
+
+	if true {
+		panic("not impl")
+	}
+
+	return hands
 }
 
 // trickWinner calculates the winner # in this trick

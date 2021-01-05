@@ -32,7 +32,7 @@ func TestDeckSerialization(t *testing.T) {
 		if !ok {
 			t.Errorf("Could not parse %s", str)
 		}
-		if copy != c {
+		if *copy != *c {
 			t.Errorf("Card %s serialized to %s deserialized to %s", c.String(), str, copy.String())
 		}
 	}
@@ -81,6 +81,11 @@ func sliceContainsEqualMembers(decks []*Deck) (int, int) {
 		}
 	}
 	return -1, -1
+}
+
+func TestGenerate(t *testing.T) {
+	t.Log("new deck:")
+	t.Log(NewDeck([]int{1, 9, 10}))
 }
 
 func TestDokoGenerator(t *testing.T) {

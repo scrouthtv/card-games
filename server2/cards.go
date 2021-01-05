@@ -37,17 +37,6 @@ const (
 	King // 1 + 12
 )
 
-// CardsToItems converts a slice of cards to a slice of items
-func CardsToItems(cards []*Card) []Item {
-	var items []Item = make([]Item, len(cards))
-	var i int
-	var c *Card
-	for i, c = range cards {
-		items[i] = c
-	}
-	return items
-}
-
 func (c *Card) String() string {
 	var out string
 	switch c.suit {
@@ -155,11 +144,9 @@ func NewDeck(values []int) *Deck {
 	var value int
 	var suit int
 	var deck Deck
-	var card Card
 	for _, value = range values {
 		for _, suit = range []int{Clubs, Diamonds, Hearts, Spades} {
-			card = Card{suit, value}
-			deck = append(deck, &card)
+			deck = append(deck, &Card{suit, value})
 		}
 	}
 
@@ -170,9 +157,9 @@ func NewDeck(values []int) *Deck {
 func DeserializeDeck(str string) *Deck {
 	var deck Deck
 	var cstr string
-	var card *Card
 	var ok bool
 	for _, cstr = range strings.Split(str, ", ") {
+		var card *Card
 		ok, card = CardFromShort(cstr)
 		if ok {
 			deck = append(deck, card)
@@ -225,7 +212,7 @@ func (d *Deck) Equal(other *Deck) bool {
 		return false
 	}
 	for i, c = range *d {
-		if c != (*other)[i] {
+		if *c != *(*other)[i] {
 			return false
 		}
 	}
