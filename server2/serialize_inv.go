@@ -3,7 +3,8 @@ package main
 import "bytes"
 
 const (
-	cardMaxSuit = 4
+	cardMaxSuit  = 4
+	dokoGameUUID = 1
 )
 
 var valueOrder []int = []int{
@@ -38,6 +39,23 @@ func (inv *Inventory) WriteBinary(buf *bytes.Buffer) {
 // WriteBinary writes the game's information
 // relevant to the specified player to the buffer
 func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
+	switch d.g.state {
+	case StatePreparing:
+		buf.WriteByte(StatePreparing)
+	case StatePlaying:
+		buf.WriteByte(StatePlaying & byte(d.active) << 2)
+		d.hands[player].WriteBinary(buf)
+		d.table.WriteBinary(buf)
+	case StateEnded:
+		buf.WriteByte(StateEnded)
+		var scores []int = d.Scores()
+		var score int
+		for _, score = range scores {
+			buf.WriteByte(byte(score))
+		}
+	default:
+		buf.WriteByte(0)
+	}
 
 }
 
@@ -45,5 +63,6 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 // It sends these fields:
 //
 func (g *Game) WriteBinary(player int, buf *bytes.Buffer) {
-
+	buf.WriteByte(g.ruleset.TypeID())
+	g.ruleset.WriteBinary(player, buf)
 }

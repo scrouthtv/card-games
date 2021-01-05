@@ -68,6 +68,11 @@ func (d *Doko) Info() GameInfo {
 	}
 }
 
+// TypeID returns a UUID for this ruleset
+func (d *Doko) TypeID() byte {
+	return dokoGameUUID
+}
+
 // PlayerMove applies the move specified by the given packet to this game
 // and returns whether the action was successful
 func (d *Doko) PlayerMove(player int, p *Packet) bool {

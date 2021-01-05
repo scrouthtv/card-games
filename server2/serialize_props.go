@@ -15,6 +15,10 @@ func serveProps(w http.ResponseWriter, r *http.Request) {
 	log.Print("Serving props.js")
 	w.Write([]byte(fmt.Sprintf("const cardMaxSuit = %d;\n", cardMaxSuit)))
 	w.Write([]byte(fmt.Sprintf("const valueOrder = %s;\n", intSliceToString(valueOrder))))
+	w.Write([]byte(fmt.Sprintf("const dokoGameUUID = %d;\n", dokoGameUUID)))
+	w.Write([]byte(fmt.Sprintf("const statePreparing = %d;\n", StatePreparing)))
+	w.Write([]byte(fmt.Sprintf("const statePlaying = %d;\n", StatePlaying)))
+	w.Write([]byte(fmt.Sprintf("const stateEnded = %d;\n", StateEnded)))
 }
 
 func intSliceToString(slice []int) string {

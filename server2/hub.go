@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"log"
 	"strconv"
 	"time"
@@ -92,8 +93,9 @@ func (h *Hub) sendUpdates(g *Game) {
 	var client *Client
 	for player, client = range g.players {
 		log.Printf("Sending update to #%d: %s", player, client)
-		// TODO byte buffer?
-		g.WriteBinary(player, nil)
+		var buf bytes.Buffer
+		g.WriteBinary(player, &buf)
+		client.send <- buf.Bytes()
 	}
 }
 

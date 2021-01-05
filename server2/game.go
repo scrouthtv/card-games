@@ -31,6 +31,7 @@ type Ruleset interface {
 	PlayerMove(player int, p *Packet) bool
 	WriteBinary(player int, buf *bytes.Buffer)
 	Info() GameInfo
+	TypeID() byte
 }
 
 // GameInfo contains user-relevant information about a game
