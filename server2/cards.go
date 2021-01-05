@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -110,6 +111,21 @@ func NewDeck(values []int) *Deck {
 	return &deck
 }
 
+func (d *Deck) String() string {
+	var out strings.Builder
+
+	var i int
+	var c Card
+	for i, c = range *d {
+		if i > 0 {
+			out.WriteString(", ")
+		}
+		out.WriteString(c.String())
+	}
+
+	return out.String()
+}
+
 // Twice combines this deck with itself, so that every card appears twice
 // Returns the same pointer
 func (d *Deck) Twice() *Deck {
@@ -141,4 +157,28 @@ func (d *Deck) Equal(other *Deck) bool {
 		}
 	}
 	return true
+}
+
+// Distribute creates slices which each contain cards cards
+// discarding the rest
+// If hands * decks is more than the amount of cards in the deck,
+// the function panics
+func (d *Deck) Distribute(hands int, cards int) [][]Card {
+	if hands*cards > len(*d) {
+		panic("Too few cards for distribution")
+	}
+
+	var distribution [][]Card = make([][]Card, hands)
+	var i int
+	for i = 0; i < hands; i++ {
+		distribution[i] = (*d)[i*cards : (i+1)*cards-1]
+	}
+
+	return distribution
+}
+
+// DistributeAll distributes all cards in this deck evenly to hands
+// amount players
+func (d *Deck) DistributeAll(hands int) [][]Card {
+	return d.Distribute(hands, len(*d)/hands)
 }

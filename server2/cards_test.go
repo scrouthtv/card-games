@@ -20,6 +20,16 @@ func TestCarcConsts(t *testing.T) {
 	}
 }
 
+func TestDeckDistribution(t *testing.T) {
+	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
+	var dist [][]Card = doko.DistributeAll(4)
+	t.Logf("Distributed %s to ", doko.String())
+	t.Log("1: ", dist[0])
+	t.Log("2: ", dist[1])
+	t.Log("3: ", dist[2])
+	t.Log("4: ", dist[3])
+}
+
 func TestDeckShuffle(t *testing.T) {
 	var unshuf1 *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
 	var unshuf2 *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
