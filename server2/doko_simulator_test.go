@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"strconv"
+	"strings"
+	"testing"
+)
 
 // GameStub is a game that is not connected to a hub or clients,
 // but instead saves no data besides the current state
@@ -38,8 +42,43 @@ func (g *GameStub) SendUpdates() {
 
 }
 
+type DokoSim struct {
+	doko *Doko
+}
+
+func (ds *DokoSim) Move(move string) bool {
+	var cm clientMessage = clientMessage{nil, []byte(move)}
+	var p *Packet = cm.toPacket()
+
+	return ds.doko.PlayerMove(ds.doko.active, p)
+}
+
+func (ds *DokoSim) String() string {
+	var out strings.Builder
+	out.WriteString("Current Player: ")
+	out.WriteString(strconv.Itoa(ds.doko.active))
+
+	var i int
+	var deck *Deck
+	for i, deck = range ds.doko.hands {
+		out.WriteString("\nHand ")
+		out.WriteString(strconv.Itoa(i))
+		out.WriteString(": ")
+		out.WriteString(deck.String())
+	}
+
+	out.WriteString("\nTable: ")
+	out.WriteString(ds.doko.table.String())
+
+	return out.String()
+}
+
 func TestStubGame(t *testing.T) {
 	var gs *GameStub = &GameStub{StatePreparing}
 	var doko *Doko = NewDoko(gs)
-	t.Log(doko)
+	var ds DokoSim = DokoSim{doko}
+
+	gs.state = StatePlaying
+
+	t.Log(ds.String())
 }
