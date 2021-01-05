@@ -139,6 +139,12 @@ func CardFromShort(short string) (bool, *Card) {
 // Deck is a collection of cards
 type Deck []*Card
 
+// EmptyDeck generates an empty deck
+func EmptyDeck() *Deck {
+	var d Deck
+	return &d
+}
+
 // NewDeck generates a deck with the cards specified via their values in each suit.
 func NewDeck(values []int) *Deck {
 	var value int
@@ -169,6 +175,13 @@ func DeserializeDeck(str string) *Deck {
 	}
 
 	return &deck
+}
+
+// Subdeck returns a pointer to the portion of the deck
+// if start or end are out of bounds, the function panics
+func (d *Deck) Subdeck(start int, end int) *Deck {
+	var subdeck Deck = (*d)[start:end]
+	return &subdeck
 }
 
 func (d *Deck) String() string {
@@ -295,15 +308,15 @@ func (d *Deck) Equal(other *Deck) bool {
 // discarding the rest
 // If hands * decks is more than the amount of cards in the deck,
 // the function panics
-func (d *Deck) Distribute(hands int, cards int) [][]*Card {
+func (d *Deck) Distribute(hands int, cards int) []*Deck {
 	if hands*cards > len(*d) {
 		panic("Too few cards for distribution")
 	}
 
-	var distribution [][]*Card = make([][]*Card, hands)
+	var distribution []*Deck = make([]*Deck, hands)
 	var i int
 	for i = 0; i < hands; i++ {
-		distribution[i] = (*d)[i*cards : (i+1)*cards-1]
+		distribution[i] = d.Subdeck(i*cards, (i+1)*cards-1)
 	}
 
 	return distribution
@@ -311,6 +324,6 @@ func (d *Deck) Distribute(hands int, cards int) [][]*Card {
 
 // DistributeAll distributes all cards in this deck evenly to hands
 // amount players
-func (d *Deck) DistributeAll(hands int) [][]*Card {
+func (d *Deck) DistributeAll(hands int) []*Deck {
 	return d.Distribute(hands, len(*d)/hands)
 }

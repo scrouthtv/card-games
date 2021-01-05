@@ -1,6 +1,9 @@
 package main
 
-import "log"
+import (
+	"bytes"
+	"log"
+)
 
 // Game contains server-relevant information about a game
 type Game struct {
@@ -26,8 +29,8 @@ const (
 type Ruleset interface {
 	Reset() bool
 	PlayerMove(player int, p *Packet) bool
-	Hands() map[int]*Inventory
-	Table() *Inventory
+	WriteBinary(player int, buf *bytes.Buffer)
+	Info() GameInfo
 }
 
 // GameInfo contains user-relevant information about a game
@@ -42,12 +45,6 @@ type GameInfo struct {
 // Start starts the game
 func (g *Game) Start() {
 	g.state = StatePlaying
-}
-
-func (g *Game) info() GameInfo {
-	return GameInfo{
-		g.id, g.name, "Doppelkopf", len(g.players), 4,
-	}
 }
 
 func (g *Game) playerMove(player *Client, move *Packet) bool {
@@ -76,7 +73,7 @@ func (g *Game) playerLeave(player *Client) bool {
 }
 
 func (g *Game) playerJoin(player *Client) bool {
-	if g.info().Players >= g.info().Maxplayers {
+	if g.ruleset.Info().Players >= g.ruleset.Info().Maxplayers {
 		log.Printf("Error: too many players joined")
 		return false
 	}

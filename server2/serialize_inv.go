@@ -35,8 +35,15 @@ func (inv *Inventory) WriteBinary(buf *bytes.Buffer) {
 	}
 }
 
+// WriteBinary writes the game's information
+// relevant to the specified player to the buffer
+func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
+
+}
+
 // WriteBinary appends the game to a bytes buffer
 // It sends these fields:
 //
-func (g *Game) WriteBinary(buf *bytes.Buffer) {
+func (g *Game) WriteBinary(player int, buf *bytes.Buffer) {
+
 }

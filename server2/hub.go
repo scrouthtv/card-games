@@ -87,13 +87,13 @@ func (h *Hub) sendUpdates(g *Game) {
 	if g == nil {
 		return
 	}
-	var hands map[int]*Inventory = g.ruleset.Hands()
 
 	var player int
 	var client *Client
 	for player, client = range g.players {
-		log.Println("Sending update to #%d: %s", player, client)
-		client.send
+		log.Printf("Sending update to #%d: %s", player, client)
+		// TODO byte buffer?
+		g.WriteBinary(player, nil)
 	}
 }
 
@@ -101,7 +101,8 @@ func (h *Hub) logGames() {
 	var g *Game
 	for _, g = range h.games {
 		log.Printf("%5d | %10s | %10s | %3d/%3d | %d",
-			g.id, g.info().Name, g.info().Game, g.info().Players, g.info().Maxplayers,
+			g.id, g.ruleset.Info().Name, g.ruleset.Info().Game,
+			g.ruleset.Info().Players, g.ruleset.Info().Maxplayers,
 			g.state)
 	}
 }

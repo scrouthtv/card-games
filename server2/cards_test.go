@@ -40,7 +40,7 @@ func TestDeckSerialization(t *testing.T) {
 
 func TestDeckDistribution(t *testing.T) {
 	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
-	var dist [][]*Card = doko.DistributeAll(4)
+	var dist []*Deck = doko.DistributeAll(4)
 	t.Logf("Distributed %s to ", doko.String())
 	t.Log("1: ", dist[0])
 	t.Log("2: ", dist[1])

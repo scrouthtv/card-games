@@ -8,13 +8,13 @@ type Doko struct {
 	active int
 
 	// start: maps #player to their initial inventory
-	start map[int]*Inventory
+	start map[int]*Deck
 	// hands: maps #player to inventory
-	hands map[int]*Inventory
-	// won: maps #player to Deck
+	hands map[int]*Deck
+	// won: maps #player to Deck, each trick they won
 	won map[int]*Deck
 	// table: inventory
-	table *Inventory
+	table *Deck
 }
 
 func dokoCardValue(c *Card) int {
@@ -44,21 +44,28 @@ func NewDoko(host *Game) *Doko {
 // Reset resets this game by clearing everything
 // and giving all players a new hand
 func (d *Doko) Reset() bool {
-	d.start = make(map[int]*Inventory)
-	d.hands = make(map[int]*Inventory)
+	d.start = make(map[int]*Deck)
+	d.hands = make(map[int]*Deck)
 	d.won = make(map[int]*Deck)
 
 	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
-	var dist [][]*Card = doko.DistributeAll(4)
+	var dist []*Deck = doko.DistributeAll(4)
 
 	var i int
 	for i = 0; i < len(dist); i++ {
-		d.hands[i] = NewInventory(dist[i])
-		d.start[i] = NewInventory(dist[i])
+		d.hands[i] = dist[i]
+		d.start[i] = dist[i]
 	}
-	d.table = NewInventory([]*Card{})
+	d.table = EmptyDeck()
 
 	return true
+}
+
+// Info returns the GameInfo for this Doppelkopf game
+func (d *Doko) Info() GameInfo {
+	return GameInfo{
+		d.g.id, d.g.name, "Doppelkopf", len(d.g.players), 4,
+	}
 }
 
 // PlayerMove applies the move specified by the given packet to this game
@@ -82,15 +89,15 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 		if !ok {
 			return false
 		}
-		ok = d.hands[d.active].Get(0).Remove(*c, 1) > 0
+		ok = d.hands[d.active].Remove(*c, 1) > 0
 		if !ok {
 			return false
 		}
-		d.table.AddToSlot(0, c)
+		d.table.AddAll(c)
 
-		if len(*d.table.Get(0)) == 4 {
+		if len(*d.table) == 4 {
 			log.Println("This trick is finished, calculating the winner:")
-			var winner int = d.trickWinner(d.table.Get(0))
+			var winner int = d.trickWinner(d.table)
 
 			// d.active placed the last card, d.active + 1 placed the first card
 			// winner is the # in the trick, not the # in the player array
@@ -100,8 +107,8 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 			if winner >= 4 {
 				winner -= 4
 			}
-			d.won[winner].Merge(d.table.Get(0))
-			d.table.ClearAll()
+			d.won[winner].Merge(d.table)
+			d.table = EmptyDeck()
 			d.active = winner
 			if len(*d.hands[d.active]) == 0 {
 				d.g.state = StateEnded
@@ -125,10 +132,10 @@ func (d *Doko) Scores() []int {
 
 	var player int
 	for _, player = range repair {
-		recards.Merge(d.start[player].Get(0))
+		recards.Merge(d.start[player])
 	}
 	for _, player = range contrapair {
-		contracards.Merge(d.start[player].Get(0))
+		contracards.Merge(d.start[player])
 	}
 
 	var revalue = recards.Value(dokoCardValue)
@@ -151,9 +158,9 @@ func (d *Doko) Scores() []int {
 func (d *Doko) Teams() ([]int, []int) {
 	var repair, contrapair []int
 	var i int
-	var inv *Inventory
+	var inv *Deck
 	for i, inv = range d.start {
-		if inv.Get(0).Contains(Card{Clubs, Queen}) {
+		if inv.Contains(Card{Clubs, Queen}) {
 			repair = append(repair, i)
 		} else {
 			contrapair = append(contrapair, i)
@@ -166,16 +173,6 @@ func (d *Doko) containsColor(deck *Deck, color int) bool {
 	return deck.ContainsAny(func(c *Card) bool {
 		return d.color(c) == color
 	})
-}
-
-// Hands returns a map that maps each player to their inventory
-func (d *Doko) Hands() map[int]*Inventory {
-	return d.hands
-}
-
-// Table returns the inventory off the table
-func (d *Doko) Table() *Inventory {
-	return d.table
 }
 
 // trickWinner calculates the winner # in this trick

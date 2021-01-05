@@ -37,7 +37,7 @@ func serveAPI(w http.ResponseWriter, r *http.Request) {
 		var games []GameInfo
 		var g *Game
 		for _, g = range hub.games {
-			games = append(games, g.info())
+			games = append(games, g.ruleset.Info())
 		}
 		jw.Encode(games)
 		return
