@@ -1,6 +1,9 @@
 package main
 
-import "bytes"
+import (
+	"bytes"
+	"log"
+)
 
 const (
 	cardMaxSuit  = 4
@@ -41,11 +44,13 @@ func (inv *Inventory) WriteBinary(buf *bytes.Buffer) {
 func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 	switch d.g.state {
 	case StatePreparing:
+		log.Printf("printing preparing info (%d)", StatePreparing)
 		buf.WriteByte(StatePreparing)
 	case StatePlaying:
 		buf.WriteByte(StatePlaying & byte(d.active) << 2)
 		d.hands[player].WriteBinary(buf)
 		d.table.WriteBinary(buf)
+		log.Println("printing playing info")
 	case StateEnded:
 		buf.WriteByte(StateEnded)
 		var scores []int = d.Scores()
@@ -53,6 +58,7 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 		for _, score = range scores {
 			buf.WriteByte(byte(score))
 		}
+		log.Println("printing ended info")
 	default:
 		buf.WriteByte(0)
 	}

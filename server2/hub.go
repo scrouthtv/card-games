@@ -92,6 +92,10 @@ func (h *Hub) sendUpdates(g *Game) {
 	var player int
 	var client *Client
 	for player, client = range g.players {
+		if client == nil {
+			log.Printf("Not sending updates to left client #%d", player)
+			continue
+		}
 		log.Printf("Sending update to #%d: %s", player, client)
 		var buf bytes.Buffer
 		g.WriteBinary(player, &buf)
@@ -102,14 +106,14 @@ func (h *Hub) sendUpdates(g *Game) {
 
 func (h *Hub) logGames() {
 	var g *Game
-	log.Print("-----------------------------")
+	log.Print("----------------------------------------------")
 	for _, g = range h.games {
 		log.Printf("%5d | %10s | %10s | %3d/%3d | %d",
 			g.id, g.ruleset.Info().Name, g.ruleset.Info().Game,
 			g.ruleset.Info().Players, g.ruleset.Info().Maxplayers,
 			g.state)
 	}
-	log.Print("-----------------------------")
+	log.Print("----------------------------------------------")
 }
 
 func (h *Hub) gameUUID() byte {

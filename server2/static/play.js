@@ -29,18 +29,19 @@ if (id == undefined) {
 
 if (window["WebSocket"]) {
     conn = new WebSocket("ws://" + document.location.host + "/ws");
+    conn.binaryType = "arraybuffer"
     conn.onclose = function (evt) {
         var item = document.createElement("div");
         item.innerHTML = "<b>Connection closed.</b>";
     };
     conn.onmessage = function (evt) {
-        console.log("Server sent" + evt.data);
+        console.log("Server sent" + evt.data + ":");
+        console.log(new Uint8Array(evt.data))
     };
     conn.onopen = function (evt) {
         console.log("Connection is open");
         join(id);
     };
 } else {
-    var item = document.createElement("div");
-    item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+    alert("<b>Your browser does not support WebSockets.</b>");
 }

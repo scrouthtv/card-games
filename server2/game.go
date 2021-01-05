@@ -43,9 +43,17 @@ type GameInfo struct {
 	Maxplayers int    `json:"maxplayers"`
 }
 
+// StartIfReady starts the game if enough players joined
+func (g *Game) StartIfReady() {
+	if g.ruleset.Info().Players == g.ruleset.Info().Maxplayers {
+		g.Start()
+	}
+}
+
 // Start starts the game
 func (g *Game) Start() {
 	g.state = StatePlaying
+	g.hub.sendUpdates(g)
 }
 
 func (g *Game) playerMove(player *Client, move *Packet) bool {
@@ -69,12 +77,13 @@ func (g *Game) playerLeave(player *Client) bool {
 		return false
 	}
 
-	g.players[i] = nil
+	delete(g.players, i)
 	return true
 }
 
 func (g *Game) playerJoin(player *Client) bool {
-	if g.ruleset.Info().Players >= g.ruleset.Info().Maxplayers {
+	var playerID int = g.freeID()
+	if playerID == -1 {
 		log.Printf("Error: too many players joined")
 		return false
 	}
@@ -83,8 +92,22 @@ func (g *Game) playerJoin(player *Client) bool {
 		return false
 	}
 
-	g.players[len(g.players)] = player
+	g.players[playerID] = player
 	g.hub.logGames()
 	g.hub.sendUpdates(g)
 	return true
+}
+
+// First free id, -1 if none are free
+func (g *Game) freeID() int {
+	var id int
+	var ok bool
+	for id = 0; id < g.ruleset.Info().Maxplayers; id++ {
+		_, ok = g.players[id]
+		if !ok {
+			return id
+		}
+	}
+
+	return -1
 }
