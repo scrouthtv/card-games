@@ -41,7 +41,7 @@ func (inv *Inventory) WriteBinary(buf *bytes.Buffer) {
 // WriteBinary writes the game's information
 // relevant to the specified player to the buffer
 func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
-	switch d.g.state {
+	switch d.g.State() {
 	case StatePreparing:
 		buf.WriteByte(StatePreparing)
 	case StatePlaying:

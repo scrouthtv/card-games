@@ -5,6 +5,18 @@ import (
 	"log"
 )
 
+// IGame is a game storage that connects each player# to a client
+// and stores the current game state.
+// It is mainly used for sending updates to the client
+type IGame interface {
+	ID() byte
+	Name() string
+	State() byte
+	SetState(state byte)
+	SendUpdates()
+	PlayerCount() int
+}
+
 // Game contains server-relevant information about a game
 type Game struct {
 	id      byte
@@ -49,6 +61,37 @@ func (g *Game) StartIfReady() {
 	if g.ruleset.Info().Players == g.ruleset.Info().Maxplayers {
 		g.Start()
 	}
+}
+
+// SendUpdates sends the current game data to all clients
+func (g *Game) SendUpdates() {
+	g.hub.sendUpdates(g)
+}
+
+// ID returns the uuid for this game
+func (g *Game) ID() byte {
+	return g.id
+}
+
+// Name returns the name for this game
+func (g *Game) Name() string {
+	return g.name
+}
+
+// State returns the state of this game, one of
+// StatePreparing, StateRunning or StateEnded
+func (g *Game) State() byte {
+	return g.state
+}
+
+// SetState sets the state to one of the possible states
+func (g *Game) SetState(state byte) {
+	g.state = state
+}
+
+// PlayerCount returns the amount of players currently in this game
+func (g *Game) PlayerCount() int {
+	return len(g.players)
 }
 
 // Start starts the game

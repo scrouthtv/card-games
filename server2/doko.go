@@ -6,12 +6,12 @@ import (
 
 // Doko is the ruleset for Doppelkopf
 type Doko struct {
-	g      *Game
+	g      IGame
 	active int
 
 	// start: maps #player to their initial inventory
 	start map[int]*Deck
-	// hands: maps #player to inventory
+	// hands: maps #player to inventoray
 	hands map[int]*Deck
 	// won: maps #player to Deck, each trick they won
 	won map[int]*Deck
@@ -37,7 +37,7 @@ func dokoCardValue(c *Card) int {
 
 // NewDoko generates a new Doppelkopf ruleset hosted by the
 // supplied game
-func NewDoko(host *Game) *Doko {
+func NewDoko(host IGame) *Doko {
 	var d Doko = Doko{host, -1, nil, nil, nil, nil}
 	d.Reset()
 	return &d
@@ -72,7 +72,7 @@ func (d *Doko) Start() {
 // Info returns the GameInfo for this Doppelkopf game
 func (d *Doko) Info() GameInfo {
 	return GameInfo{
-		d.g.id, d.g.name, "Doppelkopf", len(d.g.players), 4,
+		d.g.ID(), d.g.Name(), "Doppelkopf", d.g.PlayerCount(), 4,
 	}
 }
 
@@ -93,7 +93,7 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 	case "card":
 		log.Println("Before table contains:")
 		log.Println(d.table)
-		if d.g.state != StatePlaying {
+		if d.g.State() != StatePlaying {
 			log.Println("Ignoring because we are not playing")
 			return false
 		}
@@ -131,7 +131,7 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 			d.table = EmptyDeck()
 			d.active = winner
 			if len(*d.hands[d.active]) == 0 {
-				d.g.state = StateEnded
+				d.g.SetState(StateEnded)
 			}
 		} else {
 			log.Println("This trick is not finished, on the table:")
@@ -139,7 +139,7 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 			d.active++
 		}
 
-		d.g.hub.sendUpdates(d.g)
+		d.g.SendUpdates()
 		return true
 	}
 
