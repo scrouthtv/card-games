@@ -39,6 +39,7 @@ if (window["WebSocket"]) {
         console.log(Array.from(new Uint8Array(evt.data)).map(d => d.toString(10) + ": " + d.toString(2)).join("\n"))
         var g = Game.fromBinary(new ByteBuffer(evt.data));
         console.log(g);
+        console.log(g.ruleset.hand.cards.map(d => d.toString() + "\n").join(""))
     };
     conn.onopen = function (evt) {
         console.log("Connection is open");

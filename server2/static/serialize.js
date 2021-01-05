@@ -63,11 +63,11 @@ class Deck {
      */
     static fromBinary(buf) {
         var deck = new Deck();
-        dv.byteOffset = 1;
         var length = buf.getUint8();
         for (var i = 1; i <= length; i++) {
             deck.addCard(Card.fromBinary(buf.getUint8()));
         }
+        return deck;
     }
 }
 
@@ -97,6 +97,8 @@ class DokoGame {
             case statePlaying:
                 dg.state = statePlaying;
                 console.log("We are playing");
+                dg.hand = Deck.fromBinary(buf);
+                dg.table = Deck.fromBinary(buf);
                 break;
             case stateEnded:
                 dg.state = stateEnded;
