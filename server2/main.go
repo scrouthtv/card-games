@@ -64,6 +64,7 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
+	http.HandleFunc("/serialize-props.js", serveProps)
 	http.HandleFunc("/", serveStatic)
 	hub.createGame("aa")
 	hub.createGame("bb")

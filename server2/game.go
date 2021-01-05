@@ -8,7 +8,7 @@ type Game struct {
 	players map[int]*Client
 	name    string
 	hub     *Hub
-	state   int
+	state   byte
 
 	ruleset Ruleset
 }
@@ -26,7 +26,8 @@ const (
 type Ruleset interface {
 	Reset() bool
 	PlayerMove(player int, p *Packet) bool
-	Hands() map[int]Inventory
+	Hands() map[int]*Inventory
+	Table() *Inventory
 }
 
 // GameInfo contains user-relevant information about a game
@@ -41,17 +42,6 @@ type GameInfo struct {
 // Start starts the game
 func (g *Game) Start() {
 	g.state = StatePlaying
-}
-
-func (g *Game) sendHands() {
-	var i int
-	var c *Client
-	var hands map[int]Inventory = g.ruleset.Hands()
-
-	for i, c = range g.players {
-		log.Println(i, c, hands)
-		panic("Player should see hands")
-	}
 }
 
 func (g *Game) info() GameInfo {

@@ -82,6 +82,21 @@ func (h *Hub) createGame(name string) *Game {
 	return &g
 }
 
+func (h *Hub) sendUpdates(g *Game) {
+	log.Println("sending updates")
+	if g == nil {
+		return
+	}
+	var hands map[int]*Inventory = g.ruleset.Hands()
+
+	var player int
+	var client *Client
+	for player, client = range g.players {
+		log.Println("Sending update to #%d: %s", player, client)
+		client.send
+	}
+}
+
 func (h *Hub) logGames() {
 	var g *Game
 	for _, g = range h.games {
@@ -142,6 +157,7 @@ func (h *Hub) run() {
 			}
 		case msg = <-h.broadcast:
 			h.playerMessage(msg.c, msg.toPacket())
+			h.sendUpdates(h.playerGame(msg.c))
 		}
 	}
 }

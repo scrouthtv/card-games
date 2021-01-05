@@ -169,14 +169,13 @@ func (d *Doko) containsColor(deck *Deck, color int) bool {
 }
 
 // Hands returns a map that maps each player to their inventory
-func (d *Doko) Hands() map[int]Inventory {
-	var hands map[int]Inventory = make(map[int]Inventory)
+func (d *Doko) Hands() map[int]*Inventory {
+	return d.hands
+}
 
-	if true {
-		panic("not impl")
-	}
-
-	return hands
+// Table returns the inventory off the table
+func (d *Doko) Table() *Inventory {
+	return d.table
 }
 
 // trickWinner calculates the winner # in this trick

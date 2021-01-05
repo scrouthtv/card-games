@@ -3,9 +3,6 @@ package main
 // Inventory is a collection of int-identified slots which can hold multiple cards
 type Inventory map[int]*Deck
 
-const idelim string = "-"
-const odelim string = "#"
-
 // NewInventory creates a new inventory by placing
 // all provided items in the first (0th) slot
 func NewInventory(items []*Card) *Inventory {
@@ -31,9 +28,10 @@ func (inv *Inventory) AddToSlot(slot int, items ...*Card) {
 	inv.Get(slot).AddAll(items...)
 }
 
-// Serialize converts the inventory into a sendable string
-func (inv *Inventory) Serialize() string {
-	panic("not impl")
+// Length returns how many defined slots this inventory has,
+// they could also be empty
+func (inv *Inventory) Length() int {
+	return len(*inv)
 }
 
 // Clear clears the specified slot, e. g. discards any cards in it
