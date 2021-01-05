@@ -8,6 +8,11 @@ type Game struct {
 	players map[int]*Client
 	name    string
 	hub     *Hub
+
+	// hands: maps #player to #slot to []item
+	hands map[int]Inventory
+	// table: maps #slot to []item
+	table Inventory
 }
 
 // GameInfo contains user-relevant information about a game
@@ -17,6 +22,15 @@ type GameInfo struct {
 	Game       string `json:"game"`
 	Players    int    `json:"players"`
 	Maxplayers int    `json:"maxplayers"`
+}
+
+func (g *Game) sendHands() {
+	var i int
+	var c *Client
+	for i, c = range g.players {
+		var inv Inventory = g.hands[i]
+		log.Printf("player %s should get %s", c, inv.Send())
+	}
 }
 
 func (g *Game) info() GameInfo {

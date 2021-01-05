@@ -75,7 +75,8 @@ func (h *Hub) playerMessage(sender *Client, p *Packet) bool {
 }
 
 func (h *Hub) createGame(name string) *Game {
-	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h}
+	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h,
+		make(map[int]Inventory), make(Inventory)}
 	h.games = append(h.games, &g)
 	h.logGames()
 	return &g
