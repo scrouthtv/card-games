@@ -1,40 +1,83 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestCarcConsts(t *testing.T) {
-	if ace != 1 {
+	if Ace != 1 {
 		t.Error("Ace != 1")
 	}
-	if jack != 11 {
+	if Jack != 11 {
 		t.Error("Jack != 11")
 	}
-	if queen != 12 {
+	if Queen != 12 {
 		t.Error("Queen != 12")
 	}
-	if king != 13 {
+	if King != 13 {
 		t.Error("King != 13")
 	}
 }
 
-func TestDokoGenerator(t *testing.T) {
-	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13})
-	deckContains(t, doko, Card{clubs, jack}, true)
-	deckContains(t, doko, Card{clubs, ace}, true)
-	deckContains(t, doko, Card{clubs, 3}, false)
-	deckContains(t, doko, Card{diamonds, 9}, true)
-	deckContains(t, doko, Card{diamonds, queen}, true)
-	deckContains(t, doko, Card{diamonds, 8}, false)
-	t.Log("All cards sucessfully tested")
-}
+func TestDeckShuffle(t *testing.T) {
+	var unshuf1 *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
+	var unshuf2 *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
+	var shuf1 *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
+	time.Sleep(time.Millisecond) // have to wait some time for the rng to get a new seed
+	var shuf2 *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
+	time.Sleep(time.Millisecond)
+	var shuf3 *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
+	time.Sleep(time.Millisecond)
+	var shuf4 *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
 
-func deckContains(t *testing.T, deck *Deck, card Card, should bool) {
-	var c Card
-	for _, c = range *deck {
-		if (c == card) == should {
-			return
-		}
+	if !unshuf1.Equal(unshuf2) {
+		t.Error("The unshuffled decks are not equal")
 	}
 
-	t.Errorf("Deck should %t contain card %s, it does not", should, card.String())
+	var i, j int = sliceContainsEqualMembers([]*Deck{unshuf1, shuf1, shuf2, shuf3, shuf4})
+	if i != -1 {
+		t.Errorf("Decks #%d and #%d are equal, they shouldn't be:", i, j)
+		t.Error(shuf1)
+		t.Error(shuf2)
+	}
+}
+
+func sliceContainsEqualMembers(decks []*Deck) (int, int) {
+	var i, j int
+	for i = 0; i < len(decks)-1; i++ {
+		for j = i + 1; j < len(decks); j++ {
+			if decks[i].Equal(decks[j]) {
+				return i, j
+			}
+		}
+	}
+	return -1, -1
+}
+
+func TestDokoGenerator(t *testing.T) {
+	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
+	var should map[Card]int = make(map[Card]int)
+	should[Card{Clubs, Jack}] = 2
+	should[Card{Clubs, 3}] = 0
+	should[Card{Diamonds, 9}] = 2
+	should[Card{Diamonds, 8}] = 0
+	should[Card{Hearts, King}] = 2
+	should[Card{Hearts, 5}] = 0
+	should[Card{Spades, Ace}] = 2
+	should[Card{Spades, 7}] = 0
+
+	var is map[Card]int = make(map[Card]int)
+	var c Card
+	for _, c = range *doko {
+		is[c]++
+	}
+
+	var shouldAmount int
+	for c, shouldAmount = range should {
+		if is[c] != shouldAmount {
+			t.Errorf("Card %s should've appeared %d times, it did appear %d times",
+				c.String(), shouldAmount, is[c])
+		}
+	}
 }

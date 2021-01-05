@@ -1,36 +1,50 @@
 package main
 
-import "strconv"
+import (
+	"math/rand"
+	"strconv"
+	"time"
+)
 
+// Card is a french playing card of the suite clubs / diamonds / hearts / spades
+// and a value from [1 = ace, 2-10, 11 = jack, 12 = queen, 13 = king]
 type Card struct {
 	suit  int
 	value int
 }
 
 const (
-	clubs = iota
-	diamonds
-	hearts
-	spades
+	// Clubs is the first suit, aka Kreuz
+	Clubs = iota
+	// Diamonds is the second suit, aka Karo
+	Diamonds
+	// Hearts is the third suit, aka Herz
+	Hearts
+	// Spades is the fourth suit, aka Pik
+	Spades
 )
 
 const (
-	ace   = iota + 1  // 0 + 1
-	jack  = iota + 10 // 1 + 10
-	queen             // 1 + 11
-	king              // 1 + 12
+	// Ace is a constant for the ace card and equal to 1
+	Ace = iota + 1 // 0 + 1
+	// Jack is a constant for the jack card and equal to 11
+	Jack = iota + 10 // 1 + 10
+	// Queen is a constant for the queen card and equal to 12
+	Queen // 1 + 11
+	// King is a constant for the king card and equal to 13
+	King // 1 + 12
 )
 
 func (c *Card) String() string {
 	var out string
 	switch c.suit {
-	case clubs:
+	case Clubs:
 		out = "club "
-	case diamonds:
+	case Diamonds:
 		out = "diamond "
-	case hearts:
+	case Hearts:
 		out = "heart "
-	case spades:
+	case Spades:
 		out = "spade "
 	}
 
@@ -55,13 +69,13 @@ func (c *Card) String() string {
 func (c *Card) Short() string {
 	var out string
 	switch c.suit {
-	case clubs:
+	case Clubs:
 		out = "c"
-	case diamonds:
+	case Diamonds:
 		out = "d"
-	case hearts:
+	case Hearts:
 		out = "h"
-	case spades:
+	case Spades:
 		out = "s"
 	}
 	switch c.value {
@@ -88,7 +102,7 @@ func NewDeck(values []int) *Deck {
 	var suit int
 	var deck Deck
 	for _, value = range values {
-		for _, suit = range []int{clubs, diamonds, hearts, spades} {
+		for _, suit = range []int{Clubs, Diamonds, Hearts, Spades} {
 			deck = append(deck, Card{suit, value})
 		}
 	}
@@ -96,7 +110,35 @@ func NewDeck(values []int) *Deck {
 	return &deck
 }
 
-// Twice combines a deck with itself, so that every card appears twice
-func (d *Deck) Twice() {
+// Twice combines this deck with itself, so that every card appears twice
+// Returns the same pointer
+func (d *Deck) Twice() *Deck {
 	*d = append(*d, *d...)
+	return d
+}
+
+// Shuffle shuffles a deck
+// Returns the same pointer
+func (d *Deck) Shuffle() *Deck {
+	var deck Deck = *d
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(deck), func(i int, j int) {
+		deck[i], deck[j] = deck[j], deck[i]
+	})
+	return d
+}
+
+// Equal compares two decks if they contain the same cards in the same order
+func (d *Deck) Equal(other *Deck) bool {
+	var i int
+	var c Card
+	if len(*d) != len(*other) {
+		return false
+	}
+	for i, c = range *d {
+		if c != (*other)[i] {
+			return false
+		}
+	}
+	return true
 }
