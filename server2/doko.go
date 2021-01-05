@@ -1,7 +1,5 @@
 package main
 
-import "log"
-
 // Doko is the ruleset for Doppelkopf
 type Doko struct {
 	g      *Game
@@ -32,17 +30,27 @@ func (d *Doko) Reset() bool {
 
 // PlayerMove applies the move specified by the given packet to this game
 // and returns whether the action was successful
-func (d *Doko) PlayerMove(p *Packet) bool {
+func (d *Doko) PlayerMove(player int, p *Packet) bool {
+	if player != d.active {
+		return false
+	}
+
 	switch p.Action() {
 	case "card":
 		if len(p.Args()) < 1 {
 			return false
 		}
-		var i, j int = d.g.hands[d.active].ItemIndex(&Card{1, 1})
-		if i == -1 {
+		var c *Card
+		var ok bool
+		ok, c = CardFromShort(p.Args()[0])
+		if !ok {
 			return false
 		}
-		log.Printf("Using card @ #%d", j)
+		ok = d.g.hands[d.active].RemoveItem(c)
+		if !ok {
+			return false
+		}
+		d.g.table.AddToSlot(0, c)
 	}
 
 	return false

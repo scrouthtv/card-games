@@ -28,24 +28,39 @@ func NewInventory(items []Item) *Inventory {
 	return &inv
 }
 
-// ItemIndex searches this inventory for the specified item
-// and returns the pair of numbers (slot x position in slot)
-// this item first appears at.
-// Returns (-1, -1) if the item is not in this inventory
-func (inv *Inventory) ItemIndex(item Item) (int, int) {
+// RemoveItem removes a single item from this inventory
+// while keeping everything in order
+// It searches through the first slot first, afterwards the second, and so on
+// The first occurence is removed
+// Returns whether the item was removed ( = whether it was found)
+func (inv *Inventory) RemoveItem(itm Item) bool {
 	var idx, jdx int
-	var items []Item
-	var i Item
-	for idx, items = range *inv {
-		for jdx, i = range items {
-			if i == item {
-				return idx, jdx
+	var oldslot []Item
+	var item Item
+	for idx, oldslot = range *inv {
+		for jdx, item = range oldslot {
+			if item == itm {
+				// remove this card:
+				(*inv)[idx] = append(oldslot[:jdx], oldslot[jdx+1:]...)
+				return true
 			}
 		}
 	}
-
-	return -1, -1
+	return false
 }
+
+func (inv *Inventory) Length() int {
+	return len(*inv)
+}
+
+// AddToSlot adds the specified item(s) to this inventory at the
+// given slot. If there are no cards at this slot yet, it is created.
+func (inv *Inventory) AddToSlot(slot int, items ...Item) {
+	var oldslot []Item = (*inv)[slot]
+	(*inv)[slot] = append(oldslot, items...)
+}
+
+func (inv *Inventory)
 
 // Send converts the inventory into a sendable string
 func (inv *Inventory) Send() string {

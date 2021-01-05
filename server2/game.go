@@ -20,7 +20,7 @@ type Game struct {
 // Ruleset implements all moves a game (type) should have
 type Ruleset interface {
 	Reset() bool
-	PlayerMove(p *Packet) bool
+	PlayerMove(player int, p *Packet) bool
 }
 
 // GameInfo contains user-relevant information about a game
@@ -48,21 +48,7 @@ func (g *Game) info() GameInfo {
 }
 
 func (g *Game) playerMove(player *Client, move *Packet) bool {
-	var np int
-	var i int
-	var c *Client
-	for i, c = range g.players {
-		if c == player {
-			np = i + 1
-		}
-	}
-	if np >= len(g.players) {
-		np++
-	}
-
-	g.players[np].send <- []byte("Hello there, its ur turn")
-
-	return true
+	return g.ruleset.PlayerMove(g.playerID(player), move)
 }
 
 func (g *Game) playerID(player *Client) int {
