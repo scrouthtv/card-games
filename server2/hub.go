@@ -92,14 +92,8 @@ func (h *Hub) sendUpdates(g *Game) {
 	var player int
 	var client *Client
 	for player, client = range g.players {
-		if client == nil {
-			log.Printf("Not sending updates to left client #%d", player)
-			continue
-		}
-		log.Printf("Sending update to #%d: %s", player, client)
 		var buf bytes.Buffer
 		g.WriteBinary(player, &buf)
-		log.Printf("Player #%d got %s", player, buf.String())
 		client.send <- buf.Bytes()
 	}
 }
@@ -167,7 +161,7 @@ func (h *Hub) run() {
 			}
 		case msg = <-h.broadcast:
 			h.playerMessage(msg.c, msg.toPacket())
-			h.sendUpdates(h.playerGame(msg.c))
+			//h.sendUpdates(h.playerGame(msg.c))
 		}
 	}
 }

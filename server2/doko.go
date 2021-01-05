@@ -1,6 +1,8 @@
 package main
 
-import "log"
+import (
+	"log"
+)
 
 // Doko is the ruleset for Doppelkopf
 type Doko struct {
@@ -48,8 +50,13 @@ func (d *Doko) Reset() bool {
 	d.hands = make(map[int]*Deck)
 	d.won = make(map[int]*Deck)
 
-	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
+	var doko *Deck = NewDeck([]int{Ace, 9, 10, Jack, Queen, King}).Twice().Shuffle()
+	log.Println("Doko deck has ", doko.Length())
 	var dist []*Deck = doko.DistributeAll(4)
+	log.Println("First player gets ", dist[0].Length())
+	log.Println("First player gets ", dist[1].Length())
+	log.Println("First player gets ", dist[2].Length())
+	log.Println("Fourth player gets ", dist[3].Length())
 
 	var i int
 	for i = 0; i < len(dist); i++ {
@@ -59,6 +66,11 @@ func (d *Doko) Reset() bool {
 	d.table = EmptyDeck()
 
 	return true
+}
+
+// Start starts this game
+func (d *Doko) Start() {
+	d.active = 0
 }
 
 // Info returns the GameInfo for this Doppelkopf game

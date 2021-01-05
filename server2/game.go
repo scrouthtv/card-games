@@ -32,6 +32,7 @@ type Ruleset interface {
 	WriteBinary(player int, buf *bytes.Buffer)
 	Info() GameInfo
 	TypeID() byte
+	Start()
 }
 
 // GameInfo contains user-relevant information about a game
@@ -52,12 +53,18 @@ func (g *Game) StartIfReady() {
 
 // Start starts the game
 func (g *Game) Start() {
+	log.Printf("Starting game %d", g.id)
 	g.state = StatePlaying
+	g.ruleset.Start()
 	g.hub.sendUpdates(g)
 }
 
 func (g *Game) playerMove(player *Client, move *Packet) bool {
-	return g.ruleset.PlayerMove(g.playerID(player), move)
+	if g.ruleset.PlayerMove(g.playerID(player), move) {
+		g.hub.sendUpdates(g)
+		return true
+	}
+	return false
 }
 
 func (g *Game) playerID(player *Client) int {
@@ -94,6 +101,7 @@ func (g *Game) playerJoin(player *Client) bool {
 
 	g.players[playerID] = player
 	g.hub.logGames()
+	g.StartIfReady()
 	g.hub.sendUpdates(g)
 	return true
 }

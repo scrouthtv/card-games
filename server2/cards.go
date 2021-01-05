@@ -316,7 +316,7 @@ func (d *Deck) Distribute(hands int, cards int) []*Deck {
 	var distribution []*Deck = make([]*Deck, hands)
 	var i int
 	for i = 0; i < hands; i++ {
-		distribution[i] = d.Subdeck(i*cards, (i+1)*cards-1)
+		distribution[i] = d.Subdeck(i*cards, (i+1)*cards)
 	}
 
 	return distribution

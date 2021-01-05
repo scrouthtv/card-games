@@ -104,6 +104,7 @@ func (c *Client) writePump() {
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(<-c.send)
+				w.Write(newline)
 			}
 
 			if err := w.Close(); err != nil {

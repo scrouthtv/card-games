@@ -35,8 +35,10 @@ if (window["WebSocket"]) {
         item.innerHTML = "<b>Connection closed.</b>";
     };
     conn.onmessage = function (evt) {
-        console.log("Server sent" + evt.data + ":");
-        console.log(new Uint8Array(evt.data))
+        console.log(evt.data);
+        console.log(Array.from(new Uint8Array(evt.data)).map(d => d.toString(10) + ": " + d.toString(2)).join("\n"))
+        var g = Game.fromBinary(evt.data);
+        console.log(g);
     };
     conn.onopen = function (evt) {
         console.log("Connection is open");
