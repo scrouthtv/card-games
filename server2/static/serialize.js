@@ -37,6 +37,9 @@ class Card {
 
 }
 
+/**
+ * @class
+ */
 class Deck {
     constructor() {
         /** @type {Card} */
@@ -53,6 +56,19 @@ class Deck {
     toString() {
         return this.cards.toString()
     }
+
+    /**
+     * @param {ByteBuffer} buf
+     * @returns {Deck}
+     */
+    static fromBinary(buf) {
+        var deck = new Deck();
+        dv.byteOffset = 1;
+        var length = buf.getUint8();
+        for (var i = 1; i <= length; i++) {
+            deck.addCard(Card.fromBinary(buf.getUint8()));
+        }
+    }
 }
 
 /**
@@ -67,13 +83,12 @@ class Ruleset {
  */
 class DokoGame {
     /**
-     * @param {ArrayBuffer} buf 
+     * @param {ByteBuffer} buf 
      */
     static fromBinary(buf) {
         /** @type{DokoGame} */
         var dg = new DokoGame();
-        const dv = new DataView(buf)
-        var state = dv.getInt8(0) & 0b11
+        var state = buf.getInt8() & 0b11
         switch (state) {
             case statePreparing:
                 dg.state = statePreparing;
@@ -99,15 +114,14 @@ class DokoGame {
 
 class Game {
     /**
-     * @param {ArrayBuffer} buf 
+     * @param {ByteBuffer} buf 
      */
     static fromBinary(buf) {
         /** @type {Game} */
         var g = new Game();
-        const dv = new DataView(buf);
-        switch (dv.getInt8(0)) {
+        switch (buf.getInt8()) {
             case dokoGameUUID:
-                g.ruleset = DokoGame.fromBinary(buf.slice(1))
+                g.ruleset = DokoGame.fromBinary(buf)
                 break;
             default:
                 console.log("Unknown game")
@@ -115,5 +129,23 @@ class Game {
         }
 
         return g;
+    }
+}
+
+class ByteBuffer {
+    /**
+     * @param {ArrayBuffer} buf 
+     */
+    constructor(buf) {
+        this.dataView = new DataView(buf);
+        this.offset = 0;
+    }
+    
+    getInt8() {
+        return this.dataView.getInt8(this.offset++);
+    }
+
+    getUint8() {
+        return this.dataView.getUint8(this.offset++);
     }
 }

@@ -37,7 +37,7 @@ if (window["WebSocket"]) {
     conn.onmessage = function (evt) {
         console.log(evt.data);
         console.log(Array.from(new Uint8Array(evt.data)).map(d => d.toString(10) + ": " + d.toString(2)).join("\n"))
-        var g = Game.fromBinary(evt.data);
+        var g = Game.fromBinary(new ByteBuffer(evt.data));
         console.log(g);
     };
     conn.onopen = function (evt) {
