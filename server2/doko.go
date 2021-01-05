@@ -67,6 +67,7 @@ func (d *Doko) Reset() bool {
 // Start starts this game
 func (d *Doko) Start() {
 	d.active = 0
+	d.g.SetState(StatePlaying)
 }
 
 // Info returns the GameInfo for this Doppelkopf game

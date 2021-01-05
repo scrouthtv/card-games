@@ -78,7 +78,12 @@ func TestStubGame(t *testing.T) {
 	var doko *Doko = NewDoko(gs)
 	var ds DokoSim = DokoSim{doko}
 
-	gs.state = StatePlaying
+	ds.doko.Start()
 
 	t.Log(ds.String())
+
+	var card *Card = doko.hands[0].Get(0)
+	t.Log("Player 0 is going to play", card.String(), card.Short())
+	var ok bool = ds.Move("card " + card.Short())
+	t.Log("Success:", ok)
 }

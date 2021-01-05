@@ -177,6 +177,12 @@ func DeserializeDeck(str string) *Deck {
 	return &deck
 }
 
+// Get returns the card at the idx-th index in this deck
+// The function panics if idx is out of range
+func (d *Deck) Get(idx int) *Card {
+	return (*d)[idx]
+}
+
 // Subdeck returns a pointer to the portion of the deck
 // if start or end are out of bounds, the function panics
 func (d *Deck) Subdeck(start int, end int) *Deck {
