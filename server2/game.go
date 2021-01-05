@@ -69,7 +69,7 @@ func (g *Game) playerLeave(player *Client) bool {
 		return false
 	}
 
-	delete(g.players, i)
+	g.players[i] = nil
 	return true
 }
 
@@ -84,7 +84,7 @@ func (g *Game) playerJoin(player *Client) bool {
 	}
 
 	g.players[len(g.players)] = player
-	log.Printf("Player %s joined %d:", player, g.id)
 	g.hub.logGames()
+	g.hub.sendUpdates(g)
 	return true
 }

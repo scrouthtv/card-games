@@ -95,18 +95,21 @@ func (h *Hub) sendUpdates(g *Game) {
 		log.Printf("Sending update to #%d: %s", player, client)
 		var buf bytes.Buffer
 		g.WriteBinary(player, &buf)
+		log.Printf("Player #%d got %s", player, buf.String())
 		client.send <- buf.Bytes()
 	}
 }
 
 func (h *Hub) logGames() {
 	var g *Game
+	log.Print("-----------------------------")
 	for _, g = range h.games {
 		log.Printf("%5d | %10s | %10s | %3d/%3d | %d",
 			g.id, g.ruleset.Info().Name, g.ruleset.Info().Game,
 			g.ruleset.Info().Players, g.ruleset.Info().Maxplayers,
 			g.state)
 	}
+	log.Print("-----------------------------")
 }
 
 func (h *Hub) gameUUID() byte {

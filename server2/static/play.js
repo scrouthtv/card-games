@@ -37,6 +37,7 @@ if (window["WebSocket"]) {
         console.log("Server sent" + evt.data);
     };
     conn.onopen = function (evt) {
+        console.log("Connection is open");
         join(id);
     };
 } else {
