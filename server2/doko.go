@@ -17,6 +17,22 @@ type Doko struct {
 	table *Inventory
 }
 
+func dokoCardValue(c *Card) int {
+	switch c.value {
+	case Ace:
+		return 11
+	case 10:
+		return 10
+	case King:
+		return 4
+	case Queen:
+		return 3
+	case Jack:
+		return 2
+	}
+	return 0
+}
+
 // NewDoko generates a new Doppelkopf ruleset hosted by the
 // supplied game
 func NewDoko(host *Game) *Doko {
@@ -113,6 +129,16 @@ func (d *Doko) Scores() []int {
 	}
 	for _, player = range contrapair {
 		contracards.Merge(d.start[player].Get(0))
+	}
+
+	var revalue = recards.Value(dokoCardValue)
+	var contravalue = contracards.Value(dokoCardValue)
+
+	for _, player = range repair {
+		scores[player] = revalue
+	}
+	for _, player = range contrapair {
+		scores[player] = contravalue
 	}
 
 	return scores

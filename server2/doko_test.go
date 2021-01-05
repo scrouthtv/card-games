@@ -14,6 +14,15 @@ func TestValues(t *testing.T) {
 	}
 }
 
+func TestDokoSum(t *testing.T) {
+	var deck *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
+	var value int = deck.Value(dokoCardValue)
+
+	if value != 240 {
+		t.Errorf("Doko deck does not have a value of 240, it has %d instead", value)
+	}
+}
+
 func TestTricks(t *testing.T) {
 	var doko *Doko = NewDoko(nil)
 

@@ -186,6 +186,17 @@ func (d *Deck) String() string {
 	return out.String()
 }
 
+// Value calculates the value of this deck using
+// a specified function
+func (d *Deck) Value(value func(c *Card) int) int {
+	var sum int
+	var card *Card
+	for _, card = range *d {
+		sum += value(card)
+	}
+	return sum
+}
+
 // Twice combines this deck with itself, so that every card appears twice
 // Returns the same pointer
 func (d *Deck) Twice() *Deck {
