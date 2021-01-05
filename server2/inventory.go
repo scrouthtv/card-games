@@ -49,8 +49,9 @@ func (inv *Inventory) RemoveItem(itm Item) bool {
 	return false
 }
 
-func (inv *Inventory) Length() int {
-	return len(*inv)
+// Get returns the item stack at the specified slot
+func (inv *Inventory) Get(slot int) []Item {
+	return (*inv)[slot]
 }
 
 // AddToSlot adds the specified item(s) to this inventory at the
@@ -59,8 +60,6 @@ func (inv *Inventory) AddToSlot(slot int, items ...Item) {
 	var oldslot []Item = (*inv)[slot]
 	(*inv)[slot] = append(oldslot, items...)
 }
-
-func (inv *Inventory)
 
 // Send converts the inventory into a sendable string
 func (inv *Inventory) Send() string {

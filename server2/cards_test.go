@@ -22,7 +22,7 @@ func TestCarcConsts(t *testing.T) {
 
 func TestDeckSerialization(t *testing.T) {
 	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
-	var c Card
+	var c *Card
 	var copy *Card
 	var str string
 	var ok bool
@@ -32,7 +32,7 @@ func TestDeckSerialization(t *testing.T) {
 		if !ok {
 			t.Errorf("Could not parse %s", str)
 		}
-		if *copy != c {
+		if copy != c {
 			t.Errorf("Card %s serialized to %s deserialized to %s", c.String(), str, copy.String())
 		}
 	}
@@ -40,7 +40,7 @@ func TestDeckSerialization(t *testing.T) {
 
 func TestDeckDistribution(t *testing.T) {
 	var doko *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice().Shuffle()
-	var dist [][]Card = doko.DistributeAll(4)
+	var dist [][]*Card = doko.DistributeAll(4)
 	t.Logf("Distributed %s to ", doko.String())
 	t.Log("1: ", dist[0])
 	t.Log("2: ", dist[1])
@@ -96,16 +96,17 @@ func TestDokoGenerator(t *testing.T) {
 	should[Card{Spades, 7}] = 0
 
 	var is map[Card]int = make(map[Card]int)
-	var c Card
+	var c *Card
 	for _, c = range *doko {
-		is[c]++
+		is[*c]++
 	}
 
+	var cs Card
 	var shouldAmount int
-	for c, shouldAmount = range should {
-		if is[c] != shouldAmount {
+	for cs, shouldAmount = range should {
+		if is[cs] != shouldAmount {
 			t.Errorf("Card %s should've appeared %d times, it did appear %d times",
-				c.String(), shouldAmount, is[c])
+				c.String(), shouldAmount, is[cs])
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -37,12 +38,12 @@ const (
 )
 
 // CardsToItems converts a slice of cards to a slice of items
-func CardsToItems(cards []Card) []Item {
+func CardsToItems(cards []*Card) []Item {
 	var items []Item = make([]Item, len(cards))
 	var i int
-	var c Card
+	var c *Card
 	for i, c = range cards {
-		items[i] = &c
+		items[i] = c
 	}
 	return items
 }
@@ -147,16 +148,36 @@ func CardFromShort(short string) (bool, *Card) {
 }
 
 // Deck is a collection of cards
-type Deck []Card
+type Deck []*Card
 
 // NewDeck generates a deck with the cards specified via their values in each suit.
 func NewDeck(values []int) *Deck {
 	var value int
 	var suit int
 	var deck Deck
+	var card Card
 	for _, value = range values {
 		for _, suit = range []int{Clubs, Diamonds, Hearts, Spades} {
-			deck = append(deck, Card{suit, value})
+			card = Card{suit, value}
+			deck = append(deck, &card)
+		}
+	}
+
+	return &deck
+}
+
+// DeserializeDeck recreates a deck from its String() representation
+func DeserializeDeck(str string) *Deck {
+	var deck Deck
+	var cstr string
+	var card *Card
+	var ok bool
+	for _, cstr = range strings.Split(str, ", ") {
+		ok, card = CardFromShort(cstr)
+		if ok {
+			deck = append(deck, card)
+		} else {
+			log.Printf("Can't read card %s", cstr)
 		}
 	}
 
@@ -167,7 +188,7 @@ func (d *Deck) String() string {
 	var out strings.Builder
 
 	var i int
-	var c Card
+	var c *Card
 	for i, c = range *d {
 		if i > 0 {
 			out.WriteString(", ")
@@ -199,7 +220,7 @@ func (d *Deck) Shuffle() *Deck {
 // Equal compares two decks if they contain the same cards in the same order
 func (d *Deck) Equal(other *Deck) bool {
 	var i int
-	var c Card
+	var c *Card
 	if len(*d) != len(*other) {
 		return false
 	}
@@ -215,12 +236,12 @@ func (d *Deck) Equal(other *Deck) bool {
 // discarding the rest
 // If hands * decks is more than the amount of cards in the deck,
 // the function panics
-func (d *Deck) Distribute(hands int, cards int) [][]Card {
+func (d *Deck) Distribute(hands int, cards int) [][]*Card {
 	if hands*cards > len(*d) {
 		panic("Too few cards for distribution")
 	}
 
-	var distribution [][]Card = make([][]Card, hands)
+	var distribution [][]*Card = make([][]*Card, hands)
 	var i int
 	for i = 0; i < hands; i++ {
 		distribution[i] = (*d)[i*cards : (i+1)*cards-1]
@@ -231,6 +252,6 @@ func (d *Deck) Distribute(hands int, cards int) [][]Card {
 
 // DistributeAll distributes all cards in this deck evenly to hands
 // amount players
-func (d *Deck) DistributeAll(hands int) [][]Card {
+func (d *Deck) DistributeAll(hands int) [][]*Card {
 	return d.Distribute(hands, len(*d)/hands)
 }
