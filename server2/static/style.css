@@ -1,7 +1,10 @@
 body {
-    background-color: #424242;
+    background-color: #1e1e1e;
     font-family: Verdana, sans-serif;
     color: #ffccbc;
+    margin: 0;
+    user-select: none;
+    overflow: hidden;
 }
 
 h1 {

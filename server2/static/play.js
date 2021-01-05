@@ -1,13 +1,3 @@
-function sendSomething() {
-
-    if (!conn) {
-        console.log("Not yet connected");
-        return false;
-    }
-    conn.send("hello");
-    return false;
-};
-
 function join(id) {
     if (!conn) {
         console.log("Failed to connect");
@@ -31,15 +21,11 @@ if (window["WebSocket"]) {
     conn = new WebSocket("ws://" + document.location.host + "/ws");
     conn.binaryType = "arraybuffer"
     conn.onclose = function (evt) {
-        var item = document.createElement("div");
-        item.innerHTML = "<b>Connection closed.</b>";
+        alert("<b>Connection closed.</b>");
     };
     conn.onmessage = function (evt) {
-        console.log(evt.data);
-        console.log(Array.from(new Uint8Array(evt.data)).map(d => d.toString(10) + ": " + d.toString(2)).join("\n"))
-        var g = Game.fromBinary(new ByteBuffer(evt.data));
-        console.log(g);
-        console.log(g.ruleset.hand.cards.map(d => d.toString() + "\n").join(""))
+        game = Game.fromBinary(new ByteBuffer(evt.data));
+        redraw();
     };
     conn.onopen = function (evt) {
         console.log("Connection is open");
@@ -48,3 +34,60 @@ if (window["WebSocket"]) {
 } else {
     alert("<b>Your browser does not support WebSockets.</b>");
 }
+
+/** @type {Game} */
+var game;
+
+const cardsprite = new Image();
+cardsprite.src = "card-deck-161536.svg";
+cardsprite.onload = redraw;
+const canvas = document.getElementById("gamescreen");
+const ctx = canvas.getContext("2d");
+changeSize();
+
+function redraw() {
+    if (game == undefined) {
+        return;
+    }
+
+    console.log("redrawing");
+
+    if (game.ruleset.state == statePlaying) {
+        console.log(game);
+        var hand = game.ruleset.hand.cards;
+        for (var i = 0; i < hand.length; i++) {
+            let pos = cardPosition(hand[i]);
+            console.log("drawing image to ");
+            //console.log(pos.x);
+            //console.log(pos);
+            ctx.drawImage(cardsprite,
+                pos.x, pos.y, 79, 123,
+                i * 20, 90, 79, 123);
+        }
+    } else {
+        console.log("Not painting this state");
+    }
+
+    var pos = cardPosition(new Card(3, 8));
+    ctx.drawImage(cardsprite, 
+        pos.x, pos.y, 79, 123,
+        30, 30, 188, 306);
+}
+
+/**
+ * @returns {{x: number, y: number}}
+ */
+function cardPosition(card) {
+    return {
+        x: card.value * 79,
+        y: card.suit * 123
+    }
+}
+
+function changeSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    redraw();
+}
+
+window.onresize = changeSize;
