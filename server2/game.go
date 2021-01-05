@@ -8,9 +8,19 @@ type Game struct {
 	players map[int]*Client
 	name    string
 	hub     *Hub
+	state   int
 
 	ruleset Ruleset
 }
+
+const (
+	// StatePreparing indicates that the game is currently preparing (e. g. waiting for players)
+	StatePreparing = iota
+	// StatePlaying indicates that the game is currently running
+	StatePlaying
+	// StateEnded indicates that the game has ended
+	StateEnded
+)
 
 // Ruleset implements all moves a game (type) should have
 type Ruleset interface {
@@ -26,6 +36,11 @@ type GameInfo struct {
 	Game       string `json:"game"`
 	Players    int    `json:"players"`
 	Maxplayers int    `json:"maxplayers"`
+}
+
+// Start starts the game
+func (g *Game) Start() {
+	g.state = StatePlaying
 }
 
 func (g *Game) sendHands() {

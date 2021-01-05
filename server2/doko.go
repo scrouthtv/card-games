@@ -7,6 +7,8 @@ type Doko struct {
 	g      *Game
 	active int
 
+	// start: maps #player to their initial inventory
+	start map[int]*Inventory
 	// hands: maps #player to inventory
 	hands map[int]*Inventory
 	// won: maps #player to Deck
@@ -18,7 +20,7 @@ type Doko struct {
 // NewDoko generates a new Doppelkopf ruleset hosted by the
 // supplied game
 func NewDoko(host *Game) *Doko {
-	var d Doko = Doko{host, -1, nil, nil, nil}
+	var d Doko = Doko{host, -1, nil, nil, nil, nil}
 	d.Reset()
 	return &d
 }
@@ -26,6 +28,7 @@ func NewDoko(host *Game) *Doko {
 // Reset resets this game by clearing everything
 // and giving all players a new hand
 func (d *Doko) Reset() bool {
+	d.start = make(map[int]*Inventory)
 	d.hands = make(map[int]*Inventory)
 	d.won = make(map[int]*Deck)
 
@@ -35,6 +38,7 @@ func (d *Doko) Reset() bool {
 	var i int
 	for i = 0; i < len(dist); i++ {
 		d.hands[i] = NewInventory(dist[i])
+		d.start[i] = NewInventory(dist[i])
 	}
 	d.table = NewInventory([]*Card{})
 
@@ -50,6 +54,9 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 
 	switch p.Action() {
 	case "card":
+		if d.g.state != StatePlaying {
+			return false
+		}
 		if len(p.Args()) < 1 {
 			return false
 		}
@@ -59,7 +66,7 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 		if !ok {
 			return false
 		}
-		ok = d.hands[d.active].RemoveItem(*c, 1) > 0
+		ok = d.hands[d.active].Get(0).Remove(*c, 1) > 0
 		if !ok {
 			return false
 		}
@@ -68,15 +75,71 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 		if len(*d.table.Get(0)) == 4 {
 			log.Println("This trick is finished, calculating the winner:")
 			var winner int = d.trickWinner(d.table.Get(0))
-			log.Printf("Winner is %d, giving them the trick", winner)
+
+			// d.active placed the last card, d.active + 1 placed the first card
+			// winner is the # in the trick, not the # in the player array
+			// suppose the first placer won, then winner is 0, but if 3 placed
+			// the first card, they won:
+			winner = winner + d.active + 1
+			if winner >= 4 {
+				winner -= 4
+			}
 			d.won[winner].Merge(d.table.Get(0))
 			d.table.ClearAll()
+			d.active = winner
+			if len(*d.hands[d.active]) == 0 {
+				d.g.state = StateEnded
+			}
+		} else {
+			d.active++
 		}
 
 		return true
 	}
 
 	return false
+}
+
+// Scores calculates the value for each player
+// The value is the sum of the value of each card they earned
+func (d *Doko) Scores() []int {
+	var scores []int = make([]int, 4)
+	var repair, contrapair []int = d.Teams()
+	var recards, contracards *Deck
+
+	var player int
+	for _, player = range repair {
+		recards.Merge(d.start[player].Get(0))
+	}
+	for _, player = range contrapair {
+		contracards.Merge(d.start[player].Get(0))
+	}
+
+	return scores
+}
+
+// Teams returns the player teams,
+// all re players are in the first array
+// all contra players in the second array
+// not always do both arrays have 2 ints (e. g. marriage)
+func (d *Doko) Teams() ([]int, []int) {
+	var repair, contrapair []int
+	var i int
+	var inv *Inventory
+	for i, inv = range d.start {
+		if inv.Get(0).Contains(Card{Clubs, Queen}) {
+			repair = append(repair, i)
+		} else {
+			contrapair = append(contrapair, i)
+		}
+	}
+	return repair, contrapair
+}
+
+func (d *Doko) containsColor(deck *Deck, color int) bool {
+	return deck.ContainsAny(func(c *Card) bool {
+		return d.color(c) == color
+	})
 }
 
 // Hands returns a map that maps each player to their inventory

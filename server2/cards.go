@@ -193,6 +193,28 @@ func (d *Deck) Twice() *Deck {
 	return d
 }
 
+// Contains checks if this deck contains the specified card at least once
+func (d *Deck) Contains(card Card) bool {
+	var cid *Card
+	for _, cid = range *d {
+		if *cid == card {
+			return true
+		}
+	}
+	return false
+}
+
+// ContainsAny checks if the acceptor returns true for any card in this deck
+func (d *Deck) ContainsAny(acceptor func(c *Card) bool) bool {
+	var cid *Card
+	for _, cid = range *d {
+		if acceptor(cid) {
+			return true
+		}
+	}
+	return false
+}
+
 // AddAll appends all specified at the end of this deck
 func (d *Deck) AddAll(cards ...*Card) {
 	if *d == nil {

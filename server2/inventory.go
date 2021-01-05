@@ -16,23 +16,6 @@ func NewInventory(items []*Card) *Inventory {
 	return &inv
 }
 
-// RemoveItem removes an item from this inventory
-// while keeping everything in order
-// It searches through the first slot first, afterwards the second, and so on
-// The first n occurences is removed
-// Returns how many items were removed
-func (inv *Inventory) RemoveItem(card Card, n int) int {
-	var deleted int = 0
-	var deck *Deck
-	for _, deck = range *inv {
-		deleted += deck.Remove(card, n-deleted)
-		if deleted == n {
-			return deleted
-		}
-	}
-	return deleted
-}
-
 // Get returns the item stack at the specified slot
 func (inv *Inventory) Get(slot int) *Deck {
 	if (*inv)[slot] == nil {
