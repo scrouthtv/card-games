@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
+	"strconv"
 	"time"
-	"strings"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -40,28 +40,45 @@ func newHub() *Hub {
 }
 
 // Returns a pointer to first game this player is part of
-func (h *Hub) playerMessage(msg *clientMessage) {
+func (h *Hub) playerMessage(sender *Client, p *Packet) bool {
+	log.Printf("Player %s sent %s", sender, p)
+
 	var g *Game
-	var c *Client
-	if strings.Split(msg.msg, " ")[0] == "join" {
-		for _, g = range h.games {
-			if g.id == 
+	if p.Action() == "join" {
+		if len(p.Args()) < 1 {
+			log.Print("Missing game")
+			return false
 		}
+		var id int
+		var err error
+		id, err = strconv.Atoi(p.Args()[0])
+		if err != nil {
+			log.Print("Wrong game: ", err)
+			return false
+		}
+		for _, g = range h.games {
+			if g.id == byte(id) {
+				return g.playerJoin(sender)
+			}
+		}
+		log.Print("No game found")
+		return false
 	}
 
+	var c *Client
 	for _, g = range h.games {
 		for _, c = range g.players {
-			if c == msg.c {
-				g.playerMove(c, string(msg.msg))
+			if c == sender {
+				return g.playerMove(c, p)
 			}
 		}
 	}
-	log.Printf("Found no matching game for %s", msg.c)
-	return
+	log.Printf("Found no matching game for %s", sender)
+	return false
 }
 
 func (h *Hub) createGame(name string) *Game {
-	var g Game = Game{h.gameUUID(), make(map[int]*Client), name}
+	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h}
 	h.games = append(h.games, &g)
 	h.logGames()
 	return &g
@@ -107,7 +124,7 @@ func (h *Hub) run() {
 				close(c.send)
 			}
 		case msg = <-h.broadcast:
-			h.playerMessage(msg)
+			h.playerMessage(msg.c, msg.toPacket())
 		}
 	}
 }
