@@ -1,0 +1,40 @@
+body {
+    background-color: #424242;
+    font-family: Verdana, sans-serif;
+    color: #ffccbc;
+}
+
+h1 {
+    font-family: Georgia, serif;
+    font-size: 60px;
+}
+
+#gamelist {
+    text-align: center;
+    margin: auto;
+    margin-bottom: 30px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+
+#gamelist tbody tr:hover {
+    background-color: #64b5f6;
+    cursor: pointer;
+}
+
+#gamelist thead td {
+    color: #999;
+    padding-bottom: 0px;
+}
+
+#gamelist tr {
+    border-bottom: 1px solid white;
+}
+
+#gamelist tr:last-child {
+    border-bottom: none;
+}
+
+#gamelist td {
+    padding: 5px 20px 5px 20px;
+}

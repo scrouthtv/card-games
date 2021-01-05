@@ -5,17 +5,13 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"path"
 )
 
 var addr = flag.String("addr", ":8080", "http service address")
 var hub *Hub = newHub()
 
 func servePlayer(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		log.Println("Requested invalid URL")
-		return
-	}
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -23,8 +19,13 @@ func servePlayer(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "play.html")
 }
 
-func serveLanding(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "home.html")
+func serveStatic(w http.ResponseWriter, r *http.Request) {
+	//log.Printf("Requested %s, returning %s", r.URL, path.Join("static/", r.URL.Path))
+	if r.URL.Path == "/" {
+		http.ServeFile(w, r, "static/home.html")
+	} else {
+		http.ServeFile(w, r, path.Join("static/", r.URL.Path))
+	}
 }
 
 func serveAPI(w http.ResponseWriter, r *http.Request) {
@@ -59,12 +60,11 @@ func main() {
 	flag.Parse()
 	go hub.run()
 	http.HandleFunc("/play", servePlayer)
-	//http.HandleFunc("/join", serveLanding)
 	http.HandleFunc("/api", serveAPI)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
-	http.HandleFunc("/", serveLanding)
+	http.HandleFunc("/", serveStatic)
 	hub.createGame("aa")
 	hub.createGame("bb")
 	hub.createGame("cc")

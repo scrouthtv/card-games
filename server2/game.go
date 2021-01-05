@@ -1,12 +1,15 @@
 package main
 
+// Game contains server-relevant information about a game
 type Game struct {
 	id      byte
 	players map[int]*Client
 	name    string
 }
 
+// GameInfo contains user-relevant information about a game
 type GameInfo struct {
+	ID         byte   `json:"id"`
 	Name       string `json:"name"`
 	Game       string `json:"game"`
 	Players    int    `json:"players"`
@@ -15,7 +18,7 @@ type GameInfo struct {
 
 func (g *Game) info() GameInfo {
 	return GameInfo{
-		g.name, "Doppelkopf", len(g.players), 4,
+		g.id, g.name, "Doppelkopf", len(g.players), 4,
 	}
 }
 

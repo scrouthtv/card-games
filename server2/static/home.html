@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lennis Spielekiste</title>
+        <link rel="stylesheet" href="style.css" />
+        <script>
+            function reloadGames() {
+                var xhttp = new XMLHttpRequest();
+                var tbl = document.getElementById("gamelist").tBodies[0];
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        tbl.innerHTML = "";
+                        JSON.parse(xhttp.responseText).forEach(game => {
+                            var tr = document.createElement("tr");
+                            tr.innerHTML = 
+                                `<td>${game.name}</td>
+                                <td>${game.game}</td>
+                                <td>${game.players}/${game.maxplayers}</td>`;
+                            tr.setAttribute("onclick", `joinGame(${game.id});`);
+                            tbl.appendChild(tr);
+                        });
+                    }
+                };
+
+                xhttp.open("GET", "api?games");
+                xhttp.send();
+            }
+
+            function joinGame(id) {
+                window.location.href = "play?" + id;
+            }
+        </script>
+    </head>
+    <body onload="reloadGames()">
+        
+        <h1>Lennis Spielekiste</h1>
+
+        <table id="gamelist">
+            <thead>
+                <tr><td>name</td><td>game</td><td>players</td></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        Feel free to create your own:
+
+        <button id="creator">Create!</button>
+
+    </body>
+</html>

@@ -1,57 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<title>Chat Example</title>
-<script type="text/javascript">
-    function sendSomething() {
-
-        if (!conn) {
-            console.log("Not yet connected");
-            return false;
-        }
-        conn.send("hello");
-        return false;
-    };
-
-    var conn;
-
-    if (window["WebSocket"]) {
-        conn = new WebSocket("ws://" + document.location.host + "/ws");
-        conn.onclose = function (evt) {
-            var item = document.createElement("div");
-            item.innerHTML = "<b>Connection closed.</b>";
-            //appendLog(item);
-        };
-        conn.onmessage = function (evt) {
-            var messages = evt.data.split('\n');
-            for (var i = 0; i < messages.length; i++) {
-                var item = document.createElement("div");
-                item.innerText = messages[i];
-                //appendLog(item);
+<html>
+    <head>
+    <title>Lennis Spielkiste</title>
+    <script>
+        function sendSomething() {
+            
+            if (!conn) {
+                console.log("Not yet connected");
+                return false;
             }
+            conn.send("hello");
+            return false;
         };
-    } else {
-        var item = document.createElement("div");
-        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-        //appendLog(item);
-    }
-</script>
-<style type="text/css">
-html {
-    overflow: hidden;
-}
 
-body {
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: gray;
-}
-</style>
-</head>
-<body>
-    <button onclick="sendSomething();">A</button>
-</body>
+        function join(id) {
+            if (!conn) {
+                console.log("Failed to connect");
+            }
+            conn.send(`join ${id}`);
+        }
+        
+        var conn;
+        var id;
+
+        const url = window.location.search;
+        const params = new URLSearchParams(url);
+        id = [...params.keys()][0];
+        console.log(id);
+
+        if (id == undefined) {
+            window.location.href = "/";
+        }
+        
+        if (window["WebSocket"]) {
+            conn = new WebSocket("ws://" + document.location.host + "/ws");
+            conn.onclose = function (evt) {
+                var item = document.createElement("div");
+                item.innerHTML = "<b>Connection closed.</b>";
+            };
+            conn.onmessage = function (evt) {
+                console.log("Server sent" + evt.data);
+            };
+            join(id);
+        } else {
+            var item = document.createElement("div");
+            item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+        }
+    </script>
+    </head>
+    <body>
+        <button onclick="sendSomething();">A</button>
+    </body>
 </html>

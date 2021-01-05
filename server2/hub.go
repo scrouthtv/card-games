@@ -56,7 +56,16 @@ func (h *Hub) playerMove(msg *clientMessage) {
 func (h *Hub) createGame(name string) *Game {
 	var g Game = Game{h.gameUUID(), make(map[int]*Client), name}
 	h.games = append(h.games, &g)
+	h.logGames()
 	return &g
+}
+
+func (h *Hub) logGames() {
+	var g *Game
+	for _, g = range h.games {
+		log.Printf("%5d | %10s | %10s | %3d/%3d",
+			g.id, g.info().Name, g.info().Game, g.info().Players, g.info().Maxplayers)
+	}
 }
 
 func (h *Hub) gameUUID() byte {
