@@ -38,11 +38,7 @@ if (window["WebSocket"]) {
 /** @type {Game} */
 var game;
 
-const cardsprite = new Image();
-cardsprite.src = "card-deck-161536.svg";
-cardsprite.onload = redraw;
-const canvas = document.getElementById("gamescreen");
-const ctx = canvas.getContext("2d");
+const gameArea = document.getElementById("gamescreen");
 changeSize();
 
 function redraw() {
@@ -55,38 +51,18 @@ function redraw() {
     if (game.ruleset.state == statePlaying) {
         console.log(game);
         var hand = game.ruleset.hand.cards;
+        console.log(hand);
         for (var i = 0; i < hand.length; i++) {
-            let pos = cardPosition(hand[i]);
-            console.log("drawing image to ");
-            //console.log(pos.x);
-            //console.log(pos);
-            ctx.drawImage(cardsprite,
-                pos.x, pos.y, 79, 123,
-                i * 20, 90, 79, 123);
+            document.getElementById("hand" + (i + 1)).src = "deck/card-deck-" + hand[i].toString().toLowerCase() + ".png";
         }
     } else {
         console.log("Not painting this state");
     }
-
-    var pos = cardPosition(new Card(3, 8));
-    ctx.drawImage(cardsprite, 
-        pos.x, pos.y, 79, 123,
-        30, 30, 188, 306);
-}
-
-/**
- * @returns {{x: number, y: number}}
- */
-function cardPosition(card) {
-    return {
-        x: card.value * 79,
-        y: card.suit * 123
-    }
 }
 
 function changeSize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    gameArea.width = window.innerWidth;
+    gameArea.height = window.innerHeight;
     redraw();
 }
 

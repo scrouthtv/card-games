@@ -41,3 +41,36 @@ h1 {
 #gamelist td {
     padding: 5px 20px 5px 20px;
 }
+
+#gamescreen .card {
+    position: absolute;
+}
+
+:nth-child(1) { --nth-child: 1 }
+:nth-child(2) { --nth-child: 2 }
+:nth-child(3) { --nth-child: 3 }
+:nth-child(4) { --nth-child: 4 }
+:nth-child(5) { --nth-child: 5 }
+:nth-child(6) { --nth-child: 6 }
+:nth-child(7) { --nth-child: 7 }
+:nth-child(8) { --nth-child: 8 }
+:nth-child(9) { --nth-child: 9 }
+:nth-child(10) { --nth-child: 10 }
+:nth-child(11) { --nth-child: 11 }
+:nth-child(12) { --nth-child: 12 }
+
+#gamescreen #hand .card {
+    transform:
+        translate(-100%, 0)
+        rotate( calc(var(--nth-child) * 7.5deg - 45deg) )
+        translate(50%, -50%);
+    transform-origin: bottom right;
+    bottom: 10px;
+    left: 50%;
+}
+
+/*#gamescreen #hand .card:hover {
+    box-sizing: border-box;
+    outline: 10px solid green;
+    outline-offset: -5px;
+}*/
