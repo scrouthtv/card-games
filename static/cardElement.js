@@ -8,9 +8,9 @@ class CardElement extends HTMLElement {
 
         this.img = document.createElement("img");
         this.img.src = "deck/card-deck-back.png";
-        this.img.width = 205.25;
-        this.img.height = 320.25;
-
+        this.img.style.width = "100%";
+        this.img.style.height = "100%";
+        
         const root = this.attachShadow({mode: 'closed'});
         root.appendChild(this.img);
     }

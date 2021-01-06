@@ -52,13 +52,16 @@ function redraw() {
         return;
     }
 
-    if (game.ruleset.active == game.ruleset.me) 
+    if (game.ruleset.state == statePreparing)
+        document.getElementById("textinfo").innerHTML = "Game is still preparing";
+    else if (game.ruleset.active == game.ruleset.me) 
         document.getElementById("textinfo").innerHTML = "It's your turn!";
     else
-        document.getElementById("textinfo").innerHTML = "It's " + game.ruleset.active + "'s turn!";
+        document.getElementById("textinfo").innerHTML = `
+            It's ${game.ruleset.active}'s turn,
+            you are ${game.ruleset.me}!`;
 
     if (game.ruleset.state == statePlaying) {
-        //console.log(game);
         var hand = game.ruleset.hand.cards;
         var table = game.ruleset.table.cards;
         for (var i = 0; i < hand.length; i++) {
@@ -73,8 +76,26 @@ function redraw() {
         }
         for (; i < 4; i++)
             document.getElementById("table" + (i + 1)).classList.add("hidden");
+            
+        //var storage = document.getElementById("storageme");
+        var me = game.ruleset.me;
+        for (i = 0; i < 4; i++) {
+            if (i < me) drawStorage(game.ruleset.won[i], "storage" + i);
+            else if (i == me) drawStorage(game.ruleset.won[i], "storageme");
+            else drawStorage(game.ruleset.won[i], "storage" + (i - 1));
+        }
     } else {
         console.log("Not painting this state");
+    }
+}
+
+function drawStorage(amount, destination) {
+    var storage = document.getElementById(destination);
+    for (i = storage.children.length; i < amount; i++) {
+        var card = new CardElement();
+        card.classList.add("card");
+        card.classList.add("small");
+        storage.appendChild(card);
     }
 }
 

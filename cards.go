@@ -210,6 +210,8 @@ func (d *Deck) String() string {
 	return out.String()
 }
 
+// Short returns a string representation of this deck by joinin
+// all Shorts() on the cards
 func (d *Deck) Short() string {
 	var out strings.Builder
 
@@ -277,6 +279,9 @@ func (d *Deck) Merge(other *Deck) {
 
 // Length returns the amount of cards in this deck
 func (d *Deck) Length() int {
+	if d == nil {
+		return 0
+	}
 	return len(*d)
 }
 

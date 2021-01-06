@@ -101,6 +101,10 @@ class DokoGame {
                 dg.me = (stateInfo &     0b11100000) >> 5;
                 dg.hand = Deck.fromBinary(buf);
                 dg.table = Deck.fromBinary(buf);
+                dg.won = [];
+                var i;
+                for (i = 0; i < 4; i++)
+                    dg.won[i] = buf.getUint8();
                 break;
             case stateEnded:
                 dg.state = stateEnded;

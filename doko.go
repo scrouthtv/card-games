@@ -146,6 +146,9 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 			}
 		} else {
 			d.active++
+			if d.active == 4 {
+				d.active = 0
+			}
 		}
 
 		d.g.SendUpdates()
@@ -156,6 +159,7 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 }
 
 func (d *Doko) playerWonTrick(winner int) {
+	log.Printf("Player %d won the trick", winner)
 	var ok bool
 	_, ok = d.won[winner]
 	if !ok {

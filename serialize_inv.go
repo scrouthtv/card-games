@@ -48,6 +48,10 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 		buf.WriteByte(StatePlaying | (byte(d.active) << 2) | (byte(player) << 5))
 		d.hands[player].WriteBinary(buf)
 		d.table.WriteBinary(buf)
+		var i int
+		for i = 0; i < 4; i++ {
+			buf.WriteByte(byte(d.won[i].Length()))
+		}
 	case StateEnded:
 		buf.WriteByte(StateEnded)
 		var scores []int = d.Scores()
