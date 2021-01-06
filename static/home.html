@@ -3,6 +3,24 @@
     <head>
         <title>Lennis Spielekiste</title>
         <link rel="stylesheet" href="style.css" />
+    </head>
+    <body onload="reloadGames()">
+        
+        <h1>Lennis Spielekiste</h1>
+
+        <table id="gamelist">
+            <thead>
+                <tr><td>name</td><td>game</td><td>players</td></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        Feel free to create your own:
+        <form id="createGameForm" method="GET" action="/api">
+            <input type="hidden" name="create">
+            <input type="text" name="name" id="nameTextBox" placeholder="Name"><br />
+            <input type="submit" id="creator" value="Create!">
+        </form>
         <script>
             function reloadGames() {
                 var xhttp = new XMLHttpRequest();
@@ -29,22 +47,24 @@
             function joinGame(id) {
                 window.location.href = "play?" + id;
             }
+
+            document.getElementById("createGameForm").addEventListener("submit", (ev) => {
+                ev.preventDefault();
+
+                const XHR = new XMLHttpRequest();
+                const FD = new FormData( ev.srcElement );
+                console.log(ev.srcElement)
+                XHR.addEventListener("load", (event) => {
+                    console.log(event)
+                    alert( event.target.responseText );
+                });
+                XHR.addEventListener("error", (event) => {
+                    alert( 'Oops! Something went wrong.' );
+                });
+                XHR.open( "GET", "api" );
+                XHR.send( FD );
+            });
         </script>
-    </head>
-    <body onload="reloadGames()">
-        
-        <h1>Lennis Spielekiste</h1>
-
-        <table id="gamelist">
-            <thead>
-                <tr><td>name</td><td>game</td><td>players</td></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        Feel free to create your own:
-
-        <button id="creator">Create!</button>
 
     </body>
 </html>

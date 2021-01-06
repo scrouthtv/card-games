@@ -201,7 +201,7 @@ func (d *Doko) AllowedCards() *Deck {
 func (d *Doko) Scores() []int {
 	var scores []int = make([]int, 4)
 	var repair, contrapair []int = d.Teams()
-	var recards, contracards *Deck
+	var recards, contracards *Deck = EmptyDeck(), EmptyDeck()
 
 	var player int
 	for _, player = range repair {
@@ -269,7 +269,7 @@ func (d *Doko) beats(def *Card, atk *Card) bool {
 	if d.color(def) == d.color(atk) {
 		if d.value(atk) > d.value(def) {
 			return true
-		} else if atk.value == def.value {
+		} else if d.value(atk) == d.value(def) {
 			return *def == Card{Hearts, 10}
 		} else {
 			return false

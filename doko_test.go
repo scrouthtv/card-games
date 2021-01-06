@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestValues(t *testing.T) {
 	var doko *Doko = NewDoko(nil)
@@ -55,6 +57,7 @@ func TestBeat(t *testing.T) {
 	testBeat(t, doko, "da", "h10", true)
 	testBeat(t, doko, "sa", "dk", true)
 	testBeat(t, doko, "ha", "h10", true)
+	testBeat(t, doko, "h10", "d10", false)
 }
 
 func testBeat(t *testing.T, doko *Doko, def string, atk string, exp bool) {

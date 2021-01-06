@@ -88,9 +88,15 @@ function redraw() {
         //var storage = document.getElementById("storageme");
         var me = game.ruleset.me;
         for (i = 0; i < 4; i++) {
-            if (i < me) drawStorage(game.ruleset.won[i], "storage" + i);
+            if (i < me) {
+                drawStorage(game.ruleset.won[i], "storage" + i);
+                document.getElementById("player" + i + "message").innerText = "Hier ist " + i + "'s Stich";
+            }
             else if (i == me) drawStorage(game.ruleset.won[i], "storageme");
-            else drawStorage(game.ruleset.won[i], "storage" + (i - 1));
+            else {
+                drawStorage(game.ruleset.won[i], "storage" + (i - 1));
+                document.getElementById("player" + (i-1) + "message").innerText = "Hier ist " + i + "'s Stich";
+            }
         }
     } else {
         console.log("Not painting this state");
