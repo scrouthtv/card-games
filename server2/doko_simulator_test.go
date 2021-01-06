@@ -73,6 +73,30 @@ func (ds *DokoSim) String() string {
 	return out.String()
 }
 
+func (ds *DokoSim) TestHand(t *testing.T, player int, cards *Deck) {
+	if !ds.doko.hands[player].Equal(cards) {
+		t.Errorf("Player %d has wrong hand:", player)
+		t.Logf("Expected: %s", cards)
+		t.Logf("Got: %s", ds.doko.hands[player])
+	}
+}
+
+func (ds *DokoSim) TestAllHands(t *testing.T, hands map[int]*Deck) {
+	var player int
+	var deck *Deck
+	for player, deck = range hands {
+		ds.TestHand(t, player, deck)
+	}
+}
+
+func (ds *DokoSim) TestTable(t *testing.T, table *Deck) {
+	if !ds.doko.table.Equal(table) {
+		t.Errorf("Table contents is has wrong:")
+		t.Logf("Expected: %s", table)
+		t.Logf("Got: %s", ds.doko.table)
+	}
+}
+
 func TestStubGame(t *testing.T) {
 	var gs *GameStub = &GameStub{StatePreparing}
 	var doko *Doko = NewDoko(gs)
@@ -80,10 +104,29 @@ func TestStubGame(t *testing.T) {
 
 	ds.doko.Start()
 
+	var expectedHands map[int]*Deck = make(map[int]*Deck)
+	var i int
+	var hand *Deck
+	for i, hand = range doko.hands {
+		var copy Deck = *hand
+		expectedHands[i] = &copy
+	}
+
+	var expectedTable *Deck
+	var copy Deck = *doko.table
+	expectedTable = &copy
+
 	t.Log(ds.String())
 
 	var card *Card = doko.hands[0].Get(0)
+	expectedTable.AddAll(card)
 	t.Log("Player 0 is going to play", card.String(), card.Short())
 	var ok bool = ds.Move("card " + card.Short())
 	t.Log("Success:", ok)
+	if !ok {
+		t.Error("Move did not succeed, it should've")
+	}
+	ds.TestTable(t, expectedTable)
+
+	t.Log(ds.String())
 }

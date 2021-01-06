@@ -248,7 +248,7 @@ func (d *Deck) ContainsAny(acceptor func(c *Card) bool) bool {
 // AddAll appends all specified at the end of this deck
 func (d *Deck) AddAll(cards ...*Card) {
 	if *d == nil {
-		*d = cards
+		*d = Deck{}
 	}
 	*d = append(*d, cards...)
 }
