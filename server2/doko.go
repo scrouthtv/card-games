@@ -112,24 +112,17 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 			return false
 		}
 
-		// Check 4: does the player own this card
-		ok = d.hands[d.active].Remove(*c, 1) > 0
-		if !ok {
-			log.Println("Ignoring because the player does not own this card")
-			return false
-		}
-
-		// Check 5: is this player allowed to play this card
+		// Check 4: is this player allowed to play this card
 		if d.table.Length() > 0 {
-			test := Card{Hearts, 9}
-			if *c == test {
-				log.Println("=========================================")
-				log.Println("Allowed cards:")
-				log.Println("For player", d.active)
-				log.Println(d.AllowedCards().Short())
-			}
+			// If there are already cards on the table, is this card allowed?
 			if !d.AllowedCards().Contains(*c) {
 				log.Println("Ignoring because the player is not allowed to play this card")
+				return false
+			}
+			d.hands[d.active].Remove(*c, 1)
+		} else {
+			// If there are no cards on the table, does the player own that card?
+			if d.hands[d.active].Remove(*c, 1) < 1 {
 				return false
 			}
 		}
@@ -167,7 +160,6 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 // allowed to play (e. g. if they have to show a color or don't own
 // that color)
 func (d *Doko) AllowedCards() *Deck {
-	log.Println("calculating allowed cards for active player", d.active)
 	if d.table.Length() == 0 {
 		return d.hands[d.active]
 	}
@@ -175,9 +167,6 @@ func (d *Doko) AllowedCards() *Deck {
 	var show *Card = d.table.Get(0)
 	var allowed *Deck = EmptyDeck()
 	var has *Deck = d.hands[d.active]
-
-	log.Println("Have to show", show)
-	log.Printf("I (%d) own %s", d.active, has.String())
 
 	var i int
 	for i = 0; i < has.Length(); i++ {
@@ -192,11 +181,9 @@ func (d *Doko) AllowedCards() *Deck {
 	}
 
 	if allowed.Length() == 0 {
-		log.Println("no cards allowed so far, all allowed")
 		return d.hands[d.active]
 	}
 
-	log.Println("returning collected")
 	return allowed
 }
 

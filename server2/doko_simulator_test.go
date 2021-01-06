@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+var debug bool = false
+
 // GameStub is a game that is not connected to a hub or clients,
 // but instead saves no data besides the current state
 type GameStub struct {
@@ -112,6 +114,7 @@ func (ds *DokoSim) TestTable(t *testing.T, table *Deck) {
 // 5.
 
 func TestStubGame(t *testing.T) {
+	// SETUP:
 	var gs *GameStub = &GameStub{StatePreparing}
 	var doko *Doko = NewDoko(gs)
 	var ds DokoSim = DokoSim{doko}
@@ -127,57 +130,61 @@ func TestStubGame(t *testing.T) {
 	var i int
 	var hand *Deck
 	for i, hand = range doko.hands {
-		var copy Deck = *hand
-		expectedHands[i] = &copy
+		var cpy Deck = *hand
+		expectedHands[i] = &cpy
 	}
 
 	var expectedTable *Deck
-	var copy Deck = *doko.table
-	expectedTable = &copy
+	var cpy Deck = *doko.table
+	expectedTable = &cpy
 
 	t.Log(ds.String())
 
 	var card *Card = doko.hands[0].Get(0)
 	var expCard Card = Card{Hearts, King}
 	var badCard Card = Card{Spades, Ace}
-	if *card != expCard {
-		t.Errorf("First card if player 0 should be hk, is %s", card.Short())
-	}
 
-	// 1. Player 0 tries to play sa -> invalid
-	ds.assertCardMove(t, badCard.Short(), false)
+	t.Run("1. Player 0 fails sa", func(t *testing.T) {
+		if *card != expCard {
+			t.Errorf("First card if player 0 should be hk, is %s", card.Short())
+		}
 
-	expectedTable.AddAll(card)
-	t.Log("Player 0 is going to play", card.String(), card.Short())
+		ds.assertCardMove(t, badCard.Short(), false)
+	})
 
-	t.Log(ds.doko.table)
+	t.Run("2. Player 0 plays hk", func(t *testing.T) {
+		expectedTable.AddAll(card)
 
-	// 2. Player 0 plays hk
-	ds.assertCardMove(t, expCard.Short(), true)
+		ds.assertCardMove(t, expCard.Short(), true)
 
-	ds.TestTable(t, expectedTable)
+		ds.TestTable(t, expectedTable)
+	})
 
 	if ds.doko.active != 1 {
 		t.Error("Wrong player active")
 		t.FailNow()
 	}
-	t.Log("--------------")
 
-	var allowed *Deck = doko.AllowedCards()
-	t.Log("Player 1 can now play", allowed.Short())
+	t.Run("3. Testing allowed cards", func(t *testing.T) {
+		var allowed *Deck = doko.AllowedCards()
 
-	var allowExpected = EmptyDeck()
-	allowExpected.AddAll(&Card{Hearts, 9})
+		var allowExpected = EmptyDeck()
+		allowExpected.AddAll(&Card{Hearts, 9})
 
-	if !allowed.Equal(allowExpected) {
-		t.Error("Wrong cards allowed")
-	} else {
-		t.Log("Correct cards allowed")
-	}
+		if !allowed.Equal(allowExpected) {
+			t.Error("Wrong cards allowed")
+		}
+	})
 
-	ds.assertCardMove(t, "sa", false) // fail bc not allowed
-	ds.assertCardMove(t, "hk", false) // fail bc not owned
-	ds.assertCardMove(t, "h9", true)  // sucess
+	t.Run("4. Player 1 fails sa", func(t *testing.T) {
+		ds.assertCardMove(t, "sa", false) // fail bc not allowed
+	})
+	t.Run("5. Player 1 fails hk", func(t *testing.T) {
+		ds.assertCardMove(t, "hk", false) // fail bc not owned*/
+	})
+	t.Run("6. Player 1 plays h9", func(t *testing.T) {
+		ds.assertCardMove(t, "h9", true) // sucess
+	})
 }
 
 func (ds *DokoSim) assertCardMove(t *testing.T, short string, exp bool) {
