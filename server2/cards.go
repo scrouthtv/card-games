@@ -159,7 +159,7 @@ func NewDeck(values []int) *Deck {
 	return &deck
 }
 
-// DeserializeDeck recreates a deck from its String() representation
+// DeserializeDeck recreates a deck from its Short() representation
 func DeserializeDeck(str string) *Deck {
 	var deck Deck
 	var cstr string
@@ -200,6 +200,21 @@ func (d *Deck) String() string {
 			out.WriteString(", ")
 		}
 		out.WriteString(c.String())
+	}
+
+	return out.String()
+}
+
+func (d *Deck) Short() string {
+	var out strings.Builder
+
+	var i int
+	var c *Card
+	for i, c = range *d {
+		if i > 0 {
+			out.WriteString(", ")
+		}
+		out.WriteString(c.Short())
 	}
 
 	return out.String()

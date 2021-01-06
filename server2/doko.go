@@ -51,7 +51,6 @@ func (d *Doko) Reset() bool {
 	d.won = make(map[int]*Deck)
 
 	var doko *Deck = NewDeck([]int{Ace, 9, 10, Jack, Queen, King}).Twice().Shuffle()
-	log.Println("Doko deck has ", doko.Length())
 	var dist []*Deck = doko.DistributeAll(4)
 
 	var i int
@@ -92,16 +91,19 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 
 	switch p.Action() {
 	case "card":
-		log.Println("Before table contains:")
-		log.Println(d.table)
+		// Check 1: is the move-requesting player currently active
 		if d.g.State() != StatePlaying {
 			log.Println("Ignoring because we are not playing")
 			return false
 		}
+
+		// Check 2: is the request complete
 		if len(p.Args()) < 1 {
 			log.Println("Ignoring because no card was specified")
 			return false
 		}
+
+		// Check 3: is the requested card a valid card
 		var c *Card
 		var ok bool
 		ok, c = CardFromShort(p.Args()[0])
@@ -109,15 +111,31 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 			log.Println("Ignoring because invalid card was specified")
 			return false
 		}
+
+		// Check 4: does the player own this card
 		ok = d.hands[d.active].Remove(*c, 1) > 0
 		if !ok {
 			log.Println("Ignoring because the player does not own this card")
 			return false
 		}
-		d.table.AddAll(c)
 
+		// Check 5: is this player allowed to play this card
+		if d.table.Length() > 0 {
+			test := Card{Hearts, 9}
+			if *c == test {
+				log.Println("=========================================")
+				log.Println("Allowed cards:")
+				log.Println("For player", d.active)
+				log.Println(d.AllowedCards().Short())
+			}
+			if !d.AllowedCards().Contains(*c) {
+				log.Println("Ignoring because the player is not allowed to play this card")
+				return false
+			}
+		}
+
+		d.table.AddAll(c)
 		if len(*d.table) == 4 {
-			log.Println("This trick is finished, calculating the winner:")
 			var winner int = d.trickWinner(d.table)
 
 			// d.active placed the last card, d.active + 1 placed the first card
@@ -135,8 +153,6 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 				d.g.SetState(StateEnded)
 			}
 		} else {
-			log.Println("This trick is not finished, on the table:")
-			log.Println(d.table)
 			d.active++
 		}
 
@@ -145,6 +161,43 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 	}
 
 	return false
+}
+
+// AllowedCards determines which cards the active player is currently
+// allowed to play (e. g. if they have to show a color or don't own
+// that color)
+func (d *Doko) AllowedCards() *Deck {
+	log.Println("calculating allowed cards for active player", d.active)
+	if d.table.Length() == 0 {
+		return d.hands[d.active]
+	}
+
+	var show *Card = d.table.Get(0)
+	var allowed *Deck = EmptyDeck()
+	var has *Deck = d.hands[d.active]
+
+	log.Println("Have to show", show)
+	log.Printf("I (%d) own %s", d.active, has.String())
+
+	var i int
+	for i = 0; i < has.Length(); i++ {
+		var ownedCard *Card = has.Get(i)
+		if d.color(ownedCard) == d.color(show) {
+			allowed.AddAll(ownedCard)
+		} else {
+			/*log.Printf("color(owned) != color(show) <=> color(%s) != color(%s) <=> %d != %d",
+			ownedCard.String(), show.String(),
+			d.color(ownedCard), d.color(show))*/
+		}
+	}
+
+	if allowed.Length() == 0 {
+		log.Println("no cards allowed so far, all allowed")
+		return d.hands[d.active]
+	}
+
+	log.Println("returning collected")
+	return allowed
 }
 
 // Scores calculates the value for each player
