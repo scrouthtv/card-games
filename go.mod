@@ -1,4 +1,4 @@
-module server
+module github.com/scrouthtv/card-games
 
 go 1.15
 
