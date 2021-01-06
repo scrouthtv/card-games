@@ -96,10 +96,12 @@ func (g *Game) PlayerCount() int {
 
 // Start starts the game
 func (g *Game) Start() {
-	log.Printf("Starting game %d", g.id)
-	g.state = StatePlaying
-	g.ruleset.Start()
-	g.hub.sendUpdates(g)
+	if g.state == StatePreparing {
+		log.Printf("Starting game %d", g.id)
+		g.state = StatePlaying
+		g.ruleset.Start()
+		g.hub.sendUpdates(g)
+	}
 }
 
 func (g *Game) playerMove(player *Client, move *Packet) bool {

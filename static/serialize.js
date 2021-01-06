@@ -97,8 +97,8 @@ class DokoGame {
             case statePlaying:
                 console.log(state);
                 dg.state = statePlaying;
-                dg.active = stateInfo & 0b00011100;
-                dg.me = stateInfo &     0b11100000;
+                dg.active = (stateInfo & 0b00011100) >> 2;
+                dg.me = (stateInfo &     0b11100000) >> 5;
                 dg.hand = Deck.fromBinary(buf);
                 dg.table = Deck.fromBinary(buf);
                 break;

@@ -1,3 +1,7 @@
+html {
+    overflow: hidden;
+}
+
 body {
     background-color: #1e1e1e;
     font-family: Verdana, sans-serif;
@@ -65,9 +69,26 @@ h1 {
         rotate( calc(var(--nth-child) * 7.5deg - 45deg) )
         translate(50%, -50%);
     transform-origin: bottom right;
-    bottom: 10px;
+    bottom: -24%;
     left: 50%;
     cursor: pointer;
+}
+
+.card {
+    -webkit-filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5))
+}
+
+#gamescreen #table .card {
+    transform:
+        translate(-50%, -50%)
+        rotate( calc(var(--nth-child) * 30deg - 80deg) );
+    left: 50%;
+    top: 50%;
+}
+
+.hidden {
+    display: none;
 }
 
 /*#gamescreen #hand .card:hover {

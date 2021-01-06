@@ -60,10 +60,19 @@ function redraw() {
     if (game.ruleset.state == statePlaying) {
         //console.log(game);
         var hand = game.ruleset.hand.cards;
-        //console.log(hand);
+        var table = game.ruleset.table.cards;
         for (var i = 0; i < hand.length; i++) {
-            document.getElementById("hand" + (i + 1)).setCard(hand[i])
+            document.getElementById("hand" + (i + 1)).setCard(hand[i]);
+            document.getElementById("hand" + (i + 1)).classList.remove("hidden");
         }
+        for (; i < 12; i++)
+            document.getElementById("hand" + (i + 1)).classList.add("hidden");
+        for (i = 0; i < table.length; i++) {
+            document.getElementById("table" + (i + 1)).setCard(table[i]);
+            document.getElementById("table" + (i + 1)).classList.remove("hidden");
+        }
+        for (; i < 4; i++)
+            document.getElementById("table" + (i + 1)).classList.add("hidden");
     } else {
         console.log("Not painting this state");
     }
