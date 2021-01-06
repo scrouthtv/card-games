@@ -64,9 +64,17 @@ function redraw() {
     if (game.ruleset.state == statePlaying) {
         var hand = game.ruleset.hand.cards;
         var table = game.ruleset.table.cards;
+			  var allowed = game.ruleset.allowedCards();
+			  var elem;
         for (var i = 0; i < hand.length; i++) {
-            document.getElementById("hand" + (i + 1)).setCard(hand[i]);
-            document.getElementById("hand" + (i + 1)).classList.remove("hidden");
+						elem = document.getElementById("hand" + (i + 1));
+            elem.setCard(hand[i]);
+            elem.classList.remove("hidden");
+						if (allowed.includes(hand[i])) {
+							elem.classList.add("allowed");
+						} else {
+							elem.classList.remove("allowed");
+						}
         }
         for (; i < 12; i++)
             document.getElementById("hand" + (i + 1)).classList.add("hidden");

@@ -81,6 +81,33 @@ h1 {
     filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5))
 }
 
+#hand .card.allowed::before {
+	background-color: #90caf9;
+	opacity: .5;
+	display: block;
+	content: '';
+	position: absolute;
+	width: 110%;
+	left: -5%;
+	height: 106%;
+	top: -3%;
+	z-index: -1;
+	border-radius: 20px;
+}
+
+#hand .card.allowed:hover::before {
+	background-color: red;
+	transition: background-color 0.05s;
+}
+
+#hand .card.allowed {
+    transform:
+        translate(-100%, 0)
+        rotate( calc(var(--nth-child) * 7.5deg - 45deg) )
+        translate(50%, -70%) !important;
+		transition: transform;
+}
+
 #gamescreen #playerme {
     position: absolute;
     bottom: 20%;

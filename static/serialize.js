@@ -134,8 +134,7 @@ class DokoGame {
 
 	allowedCards() {
 		if (this.table.length() == 0) {
-			console.log("no cards placed so far");
-			return this.hand;
+			return this.hand.cards;
 		}
 
 		const show = this.table.get(0);
@@ -150,7 +149,6 @@ class DokoGame {
 		}
 
 		if (allowed.length == 0) return this.hand;
-		console.log("have to show one of these:");
 		return allowed;
 	}
 
