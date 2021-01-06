@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"strings"
 )
 
 var addr = flag.String("addr", ":8080", "http service address")
@@ -57,7 +58,7 @@ func serveAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveDeck(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, r.URL.Path[1:])
+	http.ServeFile(w, r, strings.ToLower(r.URL.Path[1:]))
 }
 
 func main() {

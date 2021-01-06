@@ -1,5 +1,3 @@
-
-
 class Card {
     /**
      * @param {number} suit 
@@ -57,6 +55,10 @@ class Deck {
         return this.cards.toString()
     }
 
+		length() {
+			return this.cards.length;
+		}
+	
     /**
      * @param {ByteBuffer} buf
      * @returns {Deck}
@@ -116,6 +118,48 @@ class DokoGame {
 
         return dg;
     }
+
+	allowedCards() {
+		if (this.table.length() == 0) {
+			console.log("no cards placed so far");
+			return this.hand;
+		}
+
+		const show = this.table[0];
+		var allowed = [];
+		var has = this.hand;
+
+		for (var i = 0; i < has.length(); i++) {
+			var ownedCard = has[i];
+			if (this.color(ownedCard) == this.color(show)) {
+				allowed.push(ownedCard);
+			}
+		}
+
+		if (allowed.length() == 0) return this.hand;
+		console.log("have to show one of these:");
+		return allowed;
+	}
+
+	/**
+	 * @param {Card}
+	 */
+	color(card) {
+		/**
+		 * @type {number}
+		 */
+		var value
+		/**
+		 * @type {Card}
+		 */
+		var trump
+		for (value = 0; value < dokoTrumpOrder.length; value++) {
+			if (trump = dokoTrumpOrder[value]) {
+				return dokoTrumpOrder.length - value;
+			}
+		}
+		return -1;
+	}
 }
 
 class Game {

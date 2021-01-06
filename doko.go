@@ -186,10 +186,6 @@ func (d *Doko) AllowedCards() *Deck {
 		var ownedCard *Card = has.Get(i)
 		if d.color(ownedCard) == d.color(show) {
 			allowed.AddAll(ownedCard)
-		} else {
-			/*log.Printf("color(owned) != color(show) <=> color(%s) != color(%s) <=> %d != %d",
-			ownedCard.String(), show.String(),
-			d.color(ownedCard), d.color(show))*/
 		}
 	}
 
