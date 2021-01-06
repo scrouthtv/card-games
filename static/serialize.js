@@ -33,6 +33,15 @@ class Card {
         return out;
     }
 
+	/**
+	 * @param {Card} other
+	 */
+		equal(other) {
+			if (other == undefined) return false;
+			return this.suit == other.suit && this.value == other.value;
+		}
+
+
 }
 
 /**
@@ -57,6 +66,10 @@ class Deck {
 
 		length() {
 			return this.cards.length;
+		}
+
+		get(idx) {
+			return this.cards[idx];
 		}
 	
     /**
@@ -125,26 +138,36 @@ class DokoGame {
 			return this.hand;
 		}
 
-		const show = this.table[0];
+		const show = this.table.get(0);
 		var allowed = [];
 		var has = this.hand;
 
 		for (var i = 0; i < has.length(); i++) {
-			var ownedCard = has[i];
+			var ownedCard = has.get(i);
 			if (this.color(ownedCard) == this.color(show)) {
 				allowed.push(ownedCard);
 			}
 		}
 
-		if (allowed.length() == 0) return this.hand;
+		if (allowed.length == 0) return this.hand;
 		console.log("have to show one of these:");
 		return allowed;
 	}
 
 	/**
-	 * @param {Card}
+	 * @param {Card} card
 	 */
 	color(card) {
+		if (this.trumpValue(card) == -1) {
+			return card.suit;
+		}
+		return -1;
+	}
+
+	/**
+	 * @param {Card} card
+	 */
+	trumpValue(card) {
 		/**
 		 * @type {number}
 		 */
@@ -154,7 +177,8 @@ class DokoGame {
 		 */
 		var trump
 		for (value = 0; value < dokoTrumpOrder.length; value++) {
-			if (trump = dokoTrumpOrder[value]) {
+			trump = dokoTrumpOrder[value];
+			if (trump.equal(card)) {
 				return dokoTrumpOrder.length - value;
 			}
 		}
