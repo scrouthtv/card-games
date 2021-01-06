@@ -47,9 +47,34 @@ func TestTricks(t *testing.T) {
 
 func TestBeat(t *testing.T) {
 	var doko *Doko = NewDoko(nil)
-	t.Logf("%t", doko.beats(&Card{Diamonds, Ace}, &Card{Hearts, Ace}))   // false
-	t.Logf("%t", doko.beats(&Card{Diamonds, 9}, &Card{Diamonds, Ace}))   // true
-	t.Logf("%t", doko.beats(&Card{Hearts, 10}, &Card{Hearts, 10}))       // true
-	t.Logf("%t", doko.beats(&Card{Diamonds, Ace}, &Card{Diamonds, Ace})) // false
-	t.Logf("%t", doko.beats(&Card{Diamonds, Ace}, &Card{Hearts, 10}))    // true
+	testBeat(t, doko, "da", "ha", false)
+	testBeat(t, doko, "d9", "da", true)
+	testBeat(t, doko, "d9", "d9", false)
+	testBeat(t, doko, "h10", "h10", true)
+	testBeat(t, doko, "da", "da", false)
+	testBeat(t, doko, "da", "h10", true)
+	testBeat(t, doko, "sa", "dk", true)
+}
+
+func testBeat(t *testing.T, doko *Doko, def string, atk string, exp bool) {
+	var cdef, catk *Card
+	var ok bool
+	ok, cdef = CardFromShort(def)
+	if !ok {
+		return
+	}
+	ok, catk = CardFromShort(atk)
+	if !ok {
+		return
+	}
+	var is bool = doko.beats(cdef, catk)
+	if exp != is {
+		if exp {
+			t.Errorf("Attacker didn't win, they should have with %s vs %s",
+				def, atk)
+		} else {
+			t.Errorf("Attacker did win, they shouldn't have with %s vs %s",
+				def, atk)
+		}
+	}
 }

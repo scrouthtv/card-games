@@ -92,6 +92,22 @@ func (ds *DokoSim) TestAllHands(t *testing.T, hands map[int]*Deck) {
 	}
 }
 
+func (ds *DokoSim) TestWondeck(t *testing.T, player int, cards *Deck) {
+	if !ds.doko.won[player].Equal(cards) {
+		t.Errorf("Player %d has wrong cards won:", player)
+		t.Logf("Expected: %s", cards)
+		t.Logf("Got: %s", ds.doko.won[player])
+	}
+}
+
+func (ds *DokoSim) TestAllWondecks(t *testing.T, won map[int]*Deck) {
+	var player int
+	var deck *Deck
+	for player, deck = range won {
+		ds.TestWondeck(t, player, deck)
+	}
+}
+
 func (ds *DokoSim) TestTable(t *testing.T, table *Deck) {
 	if !ds.doko.table.Equal(table) {
 		t.Errorf("Table contents is wrong:")
@@ -107,12 +123,6 @@ func (ds *DokoSim) TestTable(t *testing.T, table *Deck) {
 // c10 sa dj h10 sq ck ck h9 dq hj sq sa
 // cq sk sj da s10 s9 dq ha hq hj d10 dk
 // sj h10 sk d9 hk ha hq s9 d10 c9 c9 cj
-// 1. Player 0 tries to play sa -> invalid
-// 2. Player 0 plays hk
-// 3. Player 1 tries to play sa -> invalid
-// 4. Player 1 plays h9
-// 5.
-
 func TestStubGame(t *testing.T) {
 	// SETUP:
 	var gs *GameStub = &GameStub{StatePreparing}
@@ -132,6 +142,11 @@ func TestStubGame(t *testing.T) {
 	for i, hand = range doko.hands {
 		var cpy Deck = *hand
 		expectedHands[i] = &cpy
+	}
+
+	var expectedWon map[int]*Deck = make(map[int]*Deck)
+	for i = 0; i < 4; i++ {
+		expectedWon[i] = EmptyDeck()
 	}
 
 	var expectedTable *Deck
@@ -179,12 +194,79 @@ func TestStubGame(t *testing.T) {
 	t.Run("4. Player 1 fails sa", func(t *testing.T) {
 		ds.assertCardMove(t, "sa", false) // fail bc not allowed
 	})
+
 	t.Run("5. Player 1 fails hk", func(t *testing.T) {
 		ds.assertCardMove(t, "hk", false) // fail bc not owned*/
 	})
+
 	t.Run("6. Player 1 plays h9", func(t *testing.T) {
+		var c Card = Card{Hearts, 9}
+		expectedTable.AddAll(&c)
+
 		ds.assertCardMove(t, "h9", true) // sucess
+
+		ds.TestTable(t, expectedTable)
 	})
+
+	t.Run("7. Player 2 tests invalid cards", func(t *testing.T) {
+		ds.assertCardMove(t, "", false)
+		ds.assertCardMove(t, "s8", false)
+		ds.assertCardMove(t, "d9", false)
+	})
+
+	t.Run("8. Player 1 tries to play", func(t *testing.T) {
+		var cm clientMessage = clientMessage{nil, []byte("card c10")}
+		var p *Packet = cm.toPacket()
+
+		if ds.doko.PlayerMove(1, p) {
+			t.Error("Move did succeed, it shouldn't have")
+		}
+	})
+
+	t.Run("9. Player 2 plays ha", func(t *testing.T) {
+		var c Card = Card{Hearts, Ace}
+		expectedTable.AddAll(&c)
+
+		ds.assertCardMove(t, "ha", true)
+
+		ds.TestTable(t, expectedTable)
+	})
+
+	t.Run("10. Player 3 fails h10", func(t *testing.T) {
+		ds.assertCardMove(t, "h10", false)
+	})
+
+	t.Run("11. Player 3 plays hk", func(t *testing.T) {
+		ds.assertCardMove(t, "hk", true)
+	})
+
+	t.Run("12. Test trick", func(t *testing.T) {
+		// hk h9 ha hk, player 2 wins (0-based)
+		ds.addCardByShort(expectedWon[2], "hk")
+		ds.addCardByShort(expectedWon[2], "h9")
+		ds.addCardByShort(expectedWon[2], "ha")
+		ds.addCardByShort(expectedWon[2], "hk")
+		if ds.doko.active != 2 {
+			t.Error("Player 2 should be active, they aren't")
+		}
+
+		// Table should be empty:
+		if ds.doko.table.Length() > 0 {
+			t.Error("Table should be empty")
+		}
+
+		// Player 2 should be the only one with cards:
+		ds.TestAllWondecks(t, expectedWon)
+	})
+}
+
+func (ds *DokoSim) addCardByShort(d *Deck, short string) {
+	var c *Card
+	var ok bool
+	ok, c = CardFromShort(short)
+	if ok {
+		d.AddAll(c)
+	}
 }
 
 func (ds *DokoSim) assertCardMove(t *testing.T, short string, exp bool) {

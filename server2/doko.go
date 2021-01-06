@@ -139,8 +139,7 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 			if winner >= 4 {
 				winner -= 4
 			}
-			d.won[winner].Merge(d.table)
-			d.table = EmptyDeck()
+			d.playerWonTrick(winner)
 			d.active = winner
 			if len(*d.hands[d.active]) == 0 {
 				d.g.SetState(StateEnded)
@@ -154,6 +153,16 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 	}
 
 	return false
+}
+
+func (d *Doko) playerWonTrick(winner int) {
+	var ok bool
+	_, ok = d.won[winner]
+	if !ok {
+		d.won[winner] = EmptyDeck()
+	}
+	d.won[winner].Merge(d.table)
+	d.table = EmptyDeck()
 }
 
 // AllowedCards determines which cards the active player is currently

@@ -99,6 +99,11 @@ func (c *Card) Short() string {
 // If parsing was sucessful, the method returns true and a pointer to the card
 // If not, it returns false and nil
 func CardFromShort(short string) (bool, *Card) {
+
+	if len(short) < 2 {
+		return false, nil
+	}
+
 	var c Card = Card{0, 0}
 
 	switch short[0:1] {
@@ -262,9 +267,6 @@ func (d *Deck) ContainsAny(acceptor func(c *Card) bool) bool {
 
 // AddAll appends all specified at the end of this deck
 func (d *Deck) AddAll(cards ...*Card) {
-	if *d == nil {
-		*d = Deck{}
-	}
 	*d = append(*d, cards...)
 }
 
@@ -311,10 +313,17 @@ func (d *Deck) Shuffle() *Deck {
 }
 
 // Equal compares two decks if they contain the same cards in the same order
+// nil is equal to any deck with 0 cards
 func (d *Deck) Equal(other *Deck) bool {
 	var i int
 	var c *Card
-	if len(*d) != len(*other) {
+	if d == other {
+		return true
+	} else if d == nil {
+		return other.Length() == 0
+	} else if other == nil {
+		return d.Length() == 0
+	} else if len(*d) != len(*other) {
 		return false
 	}
 	for i, c = range *d {
