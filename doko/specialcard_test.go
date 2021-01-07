@@ -31,6 +31,10 @@ func TestFoxFinder(t *testing.T) {
 			t.Errorf("Expected 2 foxes, got %d", len(foxes))
 		}
 
+		if doko.teamsKnown() {
+			t.Error("Teams should not be known for now")
+		}
+
 		var c *logic.Card
 		for _, c = range foxes {
 			if c.Suit() != logic.Diamonds || c.Value() != logic.Ace {
@@ -43,12 +47,17 @@ func TestFoxFinder(t *testing.T) {
 		ds.assertCardMove(t, "cq", true)
 		ds.assertCardMove(t, "dj", true)
 		ds.assertCardMove(t, "da", true)
+		t.Log("2 plays the first fox")
 		ds.assertCardMove(t, "d9", true)
 
-		var won int = len(*doko.won[2])
-		if won != 4 {
-			t.Errorf("Player 2 should have won 4 cards by now, instead %d", won)
+		if *doko.won[0] == nil {
+			t.Error("Player 0 should have gotten this trick")
 		}
+		var won int = len(*doko.won[0])
+		if won != 4 {
+			t.Errorf("Player 0 should have won 4 cards by now, instead %d", won)
+		}
+		t.Log("0 catches 2's fox")
 	})
 
 	t.Run("3. Two foxes should be relevant", func(t *testing.T) {
@@ -61,24 +70,31 @@ func TestFoxFinder(t *testing.T) {
 	})
 
 	t.Run("4. The other clubs queen is played", func(t *testing.T) {
-		ds.playOnce()
-		ds.playOnce()
-		ds.playOnce()
+		ds.assertCardMove(t, "d10", true)
+		ds.assertCardMove(t, "hj", true)
 		ds.assertCardMove(t, "cq", true)
+		ds.assertCardMove(t, "sj", true)
 
-		// By now, the one fox should be irrelevant
+		t.Logf("Friendlies are known: %t", doko.teamsKnown())
+
+		var i int
+		for i = 0; i < 4; i++ {
+			if doko.won[i] == nil {
+				t.Logf("Won %d: nil", i)
+			} else {
+				t.Logf("Won %d: %s", i, doko.won[i].Short())
+			}
+		}
+		t.Logf("Table: %s", doko.table.Short())
+
+		// By now, only one fox is still relevant
 		var foxes int = len(fox.MarkCards(doko))
 		if foxes != 1 {
 			t.Errorf("Wrong amount of foxes marked, got %d, should be 1", foxes)
-			t.Logf("0 and 2 are friends: %t", doko.IsFriend(0, 2))
 		}
+	})
 
-		ds.assertCardMove(t, "da", true)
-
-		// But the other one is still relevant
-		foxes = len(fox.MarkCards(doko))
-		if foxes != 1 {
-			t.Errorf("Wrong amount of foxes marked, got %d, should be 1", foxes)
-		}
+	t.Run("5. The other fox is played", func(t *testing.T) {
+		t.Log(ds.String())
 	})
 }

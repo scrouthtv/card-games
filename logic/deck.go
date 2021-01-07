@@ -162,19 +162,19 @@ func (d *Deck) Length() int {
 }
 
 // Remove removes the specified card at most n times from this deck,
-// returning how many cards were actually removed
-func (d *Deck) Remove(card Card, n int) int {
+// returning the cards that were removed
+func (d *Deck) Remove(card Card, n int) []*Card {
 	if n == 0 {
-		return 0
+		return nil
 	}
 
 	var i int
-	var deleted int = 0
+	var deleted []*Card
 	for i = 0; i < len(*d); i++ {
 		if *(*d)[i] == card {
+			deleted = append(deleted, (*d)[i])
 			*d = append((*d)[:i], (*d)[i+1:]...)
-			deleted++
-			if deleted == n {
+			if len(deleted) == n {
 				return deleted
 			}
 		}

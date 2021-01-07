@@ -128,6 +128,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 			return false
 		}
 
+		var removed []*logic.Card
 		// Check 4: is this player allowed to play this card
 		if d.table.Length() > 0 {
 			// If there are already cards on the table, is this card allowed?
@@ -135,12 +136,18 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 				log.Println("Ignoring because the player is not allowed to play this card")
 				return false
 			}
-			d.hands[d.active].Remove(*c, 1)
-		} else {
-			// If there are no cards on the table, does the player own that card?
-			if d.hands[d.active].Remove(*c, 1) < 1 {
+			removed = d.hands[d.active].Remove(*c, 1)
+			if len(removed) != 1 {
 				return false
 			}
+			c = removed[0]
+		} else {
+			// If there are no cards on the table, does the player own that card?
+			removed = d.hands[d.active].Remove(*c, 1)
+			if len(removed) < 1 {
+				return false
+			}
+			c = removed[0]
 		}
 
 		d.table.AddAll(c)

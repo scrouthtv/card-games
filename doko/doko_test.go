@@ -52,6 +52,19 @@ func TestCardTracer(t *testing.T) {
 
 	}
 
+	// Check 3: Does the whoWon() work?
+	var winner int
+	for i, deck = range doko.won {
+		if deck == nil {
+			continue
+		}
+		for j, c = range *deck {
+			winner = doko.whoWon(c)
+			if winner != i {
+				t.Errorf("Wrong winner for card %d, should be %d, is %d", j, i, winner)
+			}
+		}
+	}
 }
 
 func TestFriends(t *testing.T) {
