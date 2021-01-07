@@ -148,7 +148,7 @@ class DokoGame {
 			}
 		}
 
-		if (allowed.length == 0) return this.hand;
+		if (allowed.length == 0) return this.hand.cards;
 		return allowed;
 	}
 
