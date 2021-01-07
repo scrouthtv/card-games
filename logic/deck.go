@@ -48,6 +48,13 @@ func DeserializeDeck(str string) *Deck {
 	return &deck
 }
 
+// Clone returns a deck that contains the same pointers as this deck
+func (d *Deck) Clone() *Deck {
+	var clone *Deck = EmptyDeck()
+	clone.AddAll(*d...)
+	return clone
+}
+
 // Get returns the card at the idx-th index in this deck
 // The function panics if idx is out of range
 func (d *Deck) Get(idx int) *Card {
@@ -105,9 +112,12 @@ func (d *Deck) Value(value func(c *Card) int) int {
 }
 
 // Twice combines this deck with itself, so that every card appears twice
-// Returns the same pointer
+// Returns itself
 func (d *Deck) Twice() *Deck {
-	*d = append(*d, *d...)
+	var c *Card
+	for _, c = range *d {
+		*d = append(*d, c.Clone())
+	}
 	return d
 }
 

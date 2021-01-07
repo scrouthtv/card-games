@@ -6,6 +6,60 @@ import (
 	"github.com/scrouthtv/card-games/logic"
 )
 
+func TestCardTracer(t *testing.T) {
+	var doko *Doko = NewDoko(&GameStub{logic.StatePreparing})
+	doko.Start()
+	var ds DokoSim = DokoSim{doko}
+
+	// clone the start decks first:
+	var start []*logic.Deck = []*logic.Deck{
+		logic.EmptyDeck(),
+		logic.EmptyDeck(),
+		logic.EmptyDeck(),
+		logic.EmptyDeck()}
+
+	var i int
+	var deck *logic.Deck
+	for i, deck = range doko.start {
+		start[i].AddAll(*deck...)
+	}
+
+	// Play some cards
+	for i = 0; i < 20; i++ {
+		ds.playOnce()
+	}
+
+	var j int
+	var owner int
+	var c *logic.Card
+	// Check 1: Has the start array changed?
+	for i, deck = range doko.start {
+		if len(*deck) != len(*start[i]) {
+			t.Errorf("Start cards for player %d changed length from %d to %d",
+				i, len(*start[i]), len(*deck))
+		}
+		for j, c = range *deck {
+			if c != start[i].Get(j) {
+				t.Errorf("Card %d on player %d changed", j, i)
+			}
+			// Check 2: Is the tracing functionality implemented correctly?
+			owner = doko.origOwner(c)
+			if owner != i {
+				t.Errorf("Wrong owner determing for card %d orignally on player %d, got %d instead",
+					j, i, owner)
+			}
+		}
+
+	}
+
+}
+
+// Makes the active player play the first allowed card
+func (ds *DokoSim) playOnce() {
+	var card *logic.Card = ds.doko.AllowedCards().Get(0)
+	ds.assertCardMove(nil, card.Short(), true)
+}
+
 func TestValues(t *testing.T) {
 	var doko *Doko = NewDoko(nil)
 	var cards []logic.Card = []logic.Card{

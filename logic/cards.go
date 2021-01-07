@@ -40,6 +40,11 @@ func NewCard(suit int, value int) *Card {
 	return &c
 }
 
+// Clone returns a new card that is equal to this one
+func (c *Card) Clone() *Card {
+	return NewCard(c.suit, c.value)
+}
+
 // Suit returns the suit of this card as one of the constants defined by this package
 func (c *Card) Suit() int {
 	return c.suit

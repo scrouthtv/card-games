@@ -19,6 +19,14 @@ type Doko struct {
 	won map[int]*logic.Deck
 	// table: inventory
 	table *logic.Deck
+
+	features []scoring
+}
+
+type scoring interface {
+	Name() string
+	Score(doko *Doko) []int
+	MarkCards(doko *Doko) []*logic.Card
 }
 
 func dokoCardValue(c *logic.Card) int {
@@ -40,7 +48,8 @@ func dokoCardValue(c *logic.Card) int {
 // NewDoko generates a new Doppelkopf ruleset hosted by the
 // supplied game
 func NewDoko(host logic.IGame) *Doko {
-	var d Doko = Doko{host, -1, nil, nil, nil, nil}
+	var d Doko = Doko{host, -1, nil, nil, nil, nil,
+		[]scoring{newFox()}}
 	d.Reset()
 	return &d
 }
@@ -59,7 +68,7 @@ func (d *Doko) Reset() bool {
 	for i = 0; i < len(dist); i++ {
 		d.Sort(dist[i])
 		d.hands[i] = dist[i]
-		d.start[i] = dist[i]
+		d.start[i] = dist[i].Clone()
 	}
 	d.table = logic.EmptyDeck()
 
@@ -174,52 +183,6 @@ func (d *Doko) playerWonTrick(winner int) {
 	}
 	d.won[winner].Merge(d.table)
 	d.table = logic.EmptyDeck()
-}
-
-// Scores calculates the value for each player
-// The value is the sum of the value of each card they earned
-func (d *Doko) Scores() []int {
-	var scores []int = make([]int, 4)
-	var repair, contrapair []int = d.Teams()
-	var recards, contracards *logic.Deck = logic.EmptyDeck(), logic.EmptyDeck()
-
-	var player int
-	for _, player = range repair {
-		recards.Merge(d.start[player])
-	}
-	for _, player = range contrapair {
-		contracards.Merge(d.start[player])
-	}
-
-	var revalue = recards.Value(dokoCardValue)
-	var contravalue = contracards.Value(dokoCardValue)
-
-	for _, player = range repair {
-		scores[player] = revalue
-	}
-	for _, player = range contrapair {
-		scores[player] = contravalue
-	}
-
-	return scores
-}
-
-// Teams returns the player teams,
-// all re players are in the first array
-// all contra players in the second array
-// not always do both arrays have 2 ints (e. g. marriage)
-func (d *Doko) Teams() ([]int, []int) {
-	var repair, contrapair []int
-	var i int
-	var inv *logic.Deck
-	for i, inv = range d.start {
-		if inv.Contains(*logic.NewCard(logic.Clubs, logic.Queen)) {
-			repair = append(repair, i)
-		} else {
-			contrapair = append(contrapair, i)
-		}
-	}
-	return repair, contrapair
 }
 
 func (d *Doko) containsColor(deck *logic.Deck, color int) bool {

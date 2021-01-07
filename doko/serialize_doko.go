@@ -25,6 +25,7 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 		for i = 0; i < 4; i++ {
 			buf.WriteByte(byte(d.won[i].Length()))
 		}
+
 	case logic.StateEnded:
 		buf.WriteByte(logic.StateEnded)
 		var scores []int = d.Scores()

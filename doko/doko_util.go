@@ -33,6 +33,22 @@ func (d *Doko) AllowedCards() *logic.Deck {
 	return allowed
 }
 
+func (d *Doko) origOwner(card *logic.Card) int {
+	var player int
+	var start *logic.Deck
+	var c *logic.Card
+
+	for player, start = range d.start {
+		for _, c = range *start {
+			if c == card {
+				//log.Printf("Card matches: %p == %p", c, card)
+				return player
+			}
+		}
+	}
+	return -1
+}
+
 // beats calculates whether the attacking card atk defeats the defending card def
 func (d *Doko) beats(def *logic.Card, atk *logic.Card) bool {
 	if d.color(def) == d.color(atk) {
