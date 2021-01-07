@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"path"
 	"strings"
+
+	"github.com/scrouthtv/card-games/logic"
 )
 
 var addr = flag.String("addr", ":8080", "http service address")
@@ -35,7 +37,7 @@ func serveAPI(w http.ResponseWriter, r *http.Request) {
 	var jw *json.Encoder = json.NewEncoder(w)
 	var ok bool
 	if _, ok = req["games"]; ok {
-		var games []GameInfo
+		var games []logic.GameInfo
 		var g *Game
 		for _, g = range hub.games {
 			games = append(games, g.ruleset.Info())

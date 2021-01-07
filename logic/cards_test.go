@@ -1,11 +1,11 @@
-package main
+package logic
 
 import (
 	"testing"
 	"time"
 )
 
-func TestCarcConsts(t *testing.T) {
+func TestCardConsts(t *testing.T) {
 	if Ace != 1 {
 		t.Error("Ace != 1")
 	}

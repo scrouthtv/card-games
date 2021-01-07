@@ -1,4 +1,4 @@
-package main
+package logic
 
 import "strings"
 
@@ -6,6 +6,13 @@ import "strings"
 // It consists of a key (the action) and optional arguments.
 // Keys and arguments are alphanumeric without spaces
 type Packet []string
+
+// NewPacket creates a new packet by splitting the command
+// string by whitespace characters
+func NewPacket(command string) *Packet {
+	var p Packet = Packet(strings.Split(command, " "))
+	return &p
+}
 
 // Action returns the action of this packet
 func (p *Packet) Action() string {
@@ -18,10 +25,4 @@ func (p *Packet) Args() []string {
 		return []string{}
 	}
 	return (*p)[1:]
-}
-
-func (cm *clientMessage) toPacket() *Packet {
-	var msg string = string(cm.msg)
-	var p Packet = Packet(strings.Split(msg, " "))
-	return &p
 }

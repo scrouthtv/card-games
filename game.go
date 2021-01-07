@@ -3,19 +3,9 @@ package main
 import (
 	"bytes"
 	"log"
-)
 
-// IGame is a game storage that connects each player# to a client
-// and stores the current game state.
-// It is mainly used for sending updates to the client
-type IGame interface {
-	ID() byte
-	Name() string
-	State() byte
-	SetState(state byte)
-	SendUpdates()
-	PlayerCount() int
-}
+	"github.com/scrouthtv/card-games/logic"
+)
 
 // Game contains server-relevant information about a game
 type Game struct {
@@ -28,32 +18,14 @@ type Game struct {
 	ruleset Ruleset
 }
 
-const (
-	// StatePreparing indicates that the game is currently preparing (e. g. waiting for players)
-	StatePreparing = iota
-	// StatePlaying indicates that the game is currently running
-	StatePlaying
-	// StateEnded indicates that the game has ended
-	StateEnded
-)
-
 // Ruleset implements all moves a game (type) should have
 type Ruleset interface {
 	Reset() bool
-	PlayerMove(player int, p *Packet) bool
+	PlayerMove(player int, p *logic.Packet) bool
 	WriteBinary(player int, buf *bytes.Buffer)
-	Info() GameInfo
+	Info() logic.GameInfo
 	TypeID() byte
 	Start()
-}
-
-// GameInfo contains user-relevant information about a game
-type GameInfo struct {
-	ID         byte   `json:"id"`
-	Name       string `json:"name"`
-	Game       string `json:"game"`
-	Players    int    `json:"players"`
-	Maxplayers int    `json:"maxplayers"`
 }
 
 // StartIfReady starts the game if enough players joined
@@ -96,15 +68,15 @@ func (g *Game) PlayerCount() int {
 
 // Start starts the game
 func (g *Game) Start() {
-	if g.state == StatePreparing {
+	if g.state == logic.StatePreparing {
 		log.Printf("Starting game %d", g.id)
-		g.state = StatePlaying
+		g.state = logic.StatePlaying
 		g.ruleset.Start()
 		g.hub.sendUpdates(g)
 	}
 }
 
-func (g *Game) playerMove(player *Client, move *Packet) bool {
+func (g *Game) playerMove(player *Client, move *logic.Packet) bool {
 	if g.ruleset.PlayerMove(g.playerID(player), move) {
 		g.hub.sendUpdates(g)
 		return true

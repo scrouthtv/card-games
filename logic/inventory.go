@@ -1,4 +1,4 @@
-package main
+package logic
 
 // Inventory is a collection of int-identified slots which can hold multiple cards
 type Inventory map[int]*Deck

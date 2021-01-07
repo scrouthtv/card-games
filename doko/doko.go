@@ -1,35 +1,37 @@
-package main
+package doko
 
 import (
 	"log"
+
+	"github.com/scrouthtv/card-games/logic"
 )
 
 // Doko is the ruleset for Doppelkopf
 type Doko struct {
-	g      IGame
+	g      logic.IGame
 	active int
 
 	// start: maps #player to their initial inventory
-	start map[int]*Deck
+	start map[int]*logic.Deck
 	// hands: maps #player to inventoray
-	hands map[int]*Deck
+	hands map[int]*logic.Deck
 	// won: maps #player to Deck, each trick they won
-	won map[int]*Deck
+	won map[int]*logic.Deck
 	// table: inventory
-	table *Deck
+	table *logic.Deck
 }
 
-func dokoCardValue(c *Card) int {
-	switch c.value {
-	case Ace:
+func dokoCardValue(c *logic.Card) int {
+	switch c.Value() {
+	case logic.Ace:
 		return 11
 	case 10:
 		return 10
-	case King:
+	case logic.King:
 		return 4
-	case Queen:
+	case logic.Queen:
 		return 3
-	case Jack:
+	case logic.Jack:
 		return 2
 	}
 	return 0
@@ -37,7 +39,7 @@ func dokoCardValue(c *Card) int {
 
 // NewDoko generates a new Doppelkopf ruleset hosted by the
 // supplied game
-func NewDoko(host IGame) *Doko {
+func NewDoko(host logic.IGame) *Doko {
 	var d Doko = Doko{host, -1, nil, nil, nil, nil}
 	d.Reset()
 	return &d
@@ -46,19 +48,19 @@ func NewDoko(host IGame) *Doko {
 // Reset resets this game by clearing everything
 // and giving all players a new hand
 func (d *Doko) Reset() bool {
-	d.start = make(map[int]*Deck)
-	d.hands = make(map[int]*Deck)
-	d.won = make(map[int]*Deck)
+	d.start = make(map[int]*logic.Deck)
+	d.hands = make(map[int]*logic.Deck)
+	d.won = make(map[int]*logic.Deck)
 
-	var doko *Deck = NewDeck([]int{Ace, 9, 10, Jack, Queen, King}).Twice().Shuffle()
-	var dist []*Deck = doko.DistributeAll(4)
+	var doko *logic.Deck = logic.NewDeck([]int{logic.Ace, 9, 10, logic.Jack, logic.Queen, logic.King}).Twice().Shuffle()
+	var dist []*logic.Deck = doko.DistributeAll(4)
 
 	var i int
 	for i = 0; i < len(dist); i++ {
 		d.hands[i] = dist[i]
 		d.start[i] = dist[i]
 	}
-	d.table = EmptyDeck()
+	d.table = logic.EmptyDeck()
 
 	return true
 }
@@ -66,24 +68,28 @@ func (d *Doko) Reset() bool {
 // Start starts this game
 func (d *Doko) Start() {
 	d.active = 0
-	d.g.SetState(StatePlaying)
+	d.g.SetState(logic.StatePlaying)
 }
 
 // Info returns the GameInfo for this Doppelkopf game
-func (d *Doko) Info() GameInfo {
-	return GameInfo{
-		d.g.ID(), d.g.Name(), "Doppelkopf", d.g.PlayerCount(), 4,
+func (d *Doko) Info() logic.GameInfo {
+	return logic.GameInfo{
+		ID:         d.g.ID(),
+		Name:       d.g.Name(),
+		Game:       "Doppelkopf",
+		Players:    d.g.PlayerCount(),
+		Maxplayers: 4,
 	}
 }
 
 // TypeID returns a UUID for this ruleset
 func (d *Doko) TypeID() byte {
-	return dokoGameUUID
+	return DokoGameUUID
 }
 
 // PlayerMove applies the move specified by the given packet to this game
 // and returns whether the action was successful
-func (d *Doko) PlayerMove(player int, p *Packet) bool {
+func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 	if player != d.active {
 		log.Println("Ignoring because this player is not active, active: ", d.active)
 		return false
@@ -92,7 +98,7 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 	switch p.Action() {
 	case "card":
 		// Check 1: is the move-requesting player currently active
-		if d.g.State() != StatePlaying {
+		if d.g.State() != logic.StatePlaying {
 			log.Println("Ignoring because we are not playing")
 			return false
 		}
@@ -104,9 +110,9 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 		}
 
 		// Check 3: is the requested card a valid card
-		var c *Card
+		var c *logic.Card
 		var ok bool
-		ok, c = CardFromShort(p.Args()[0])
+		ok, c = logic.CardFromShort(p.Args()[0])
 		if !ok {
 			log.Println("Ignoring because invalid card was specified")
 			return false
@@ -142,7 +148,7 @@ func (d *Doko) PlayerMove(player int, p *Packet) bool {
 			d.playerWonTrick(winner)
 			d.active = winner
 			if len(*d.hands[d.active]) == 0 {
-				d.g.SetState(StateEnded)
+				d.g.SetState(logic.StateEnded)
 			}
 		} else {
 			d.active++
@@ -163,27 +169,27 @@ func (d *Doko) playerWonTrick(winner int) {
 	var ok bool
 	_, ok = d.won[winner]
 	if !ok {
-		d.won[winner] = EmptyDeck()
+		d.won[winner] = logic.EmptyDeck()
 	}
 	d.won[winner].Merge(d.table)
-	d.table = EmptyDeck()
+	d.table = logic.EmptyDeck()
 }
 
 // AllowedCards determines which cards the active player is currently
 // allowed to play (e. g. if they have to show a color or don't own
 // that color)
-func (d *Doko) AllowedCards() *Deck {
+func (d *Doko) AllowedCards() *logic.Deck {
 	if d.table.Length() == 0 {
 		return d.hands[d.active]
 	}
 
-	var show *Card = d.table.Get(0)
-	var allowed *Deck = EmptyDeck()
-	var has *Deck = d.hands[d.active]
+	var show *logic.Card = d.table.Get(0)
+	var allowed *logic.Deck = logic.EmptyDeck()
+	var has *logic.Deck = d.hands[d.active]
 
 	var i int
 	for i = 0; i < has.Length(); i++ {
-		var ownedCard *Card = has.Get(i)
+		var ownedCard *logic.Card = has.Get(i)
 		if d.color(ownedCard) == d.color(show) {
 			allowed.AddAll(ownedCard)
 		}
@@ -201,7 +207,7 @@ func (d *Doko) AllowedCards() *Deck {
 func (d *Doko) Scores() []int {
 	var scores []int = make([]int, 4)
 	var repair, contrapair []int = d.Teams()
-	var recards, contracards *Deck = EmptyDeck(), EmptyDeck()
+	var recards, contracards *logic.Deck = logic.EmptyDeck(), logic.EmptyDeck()
 
 	var player int
 	for _, player = range repair {
@@ -231,9 +237,9 @@ func (d *Doko) Scores() []int {
 func (d *Doko) Teams() ([]int, []int) {
 	var repair, contrapair []int
 	var i int
-	var inv *Deck
+	var inv *logic.Deck
 	for i, inv = range d.start {
-		if inv.Contains(Card{Clubs, Queen}) {
+		if inv.Contains(*logic.NewCard(logic.Clubs, logic.Queen)) {
 			repair = append(repair, i)
 		} else {
 			contrapair = append(contrapair, i)
@@ -242,14 +248,14 @@ func (d *Doko) Teams() ([]int, []int) {
 	return repair, contrapair
 }
 
-func (d *Doko) containsColor(deck *Deck, color int) bool {
-	return deck.ContainsAny(func(c *Card) bool {
+func (d *Doko) containsColor(deck *logic.Deck, color int) bool {
+	return deck.ContainsAny(func(c *logic.Card) bool {
 		return d.color(c) == color
 	})
 }
 
 // trickWinner calculates the winner # in this trick
-func (d *Doko) trickWinner(trick *Deck) int {
+func (d *Doko) trickWinner(trick *logic.Deck) int {
 	var winner int = 0
 	var wCard = (*trick)[0]
 
@@ -265,12 +271,12 @@ func (d *Doko) trickWinner(trick *Deck) int {
 }
 
 // beats calculates whether the attacking card atk defeats the defending card def
-func (d *Doko) beats(def *Card, atk *Card) bool {
+func (d *Doko) beats(def *logic.Card, atk *logic.Card) bool {
 	if d.color(def) == d.color(atk) {
 		if d.value(atk) > d.value(def) {
 			return true
 		} else if d.value(atk) == d.value(def) {
-			return *def == Card{Hearts, 10}
+			return def.Suit() == logic.Hearts && def.Value() == 10
 		} else {
 			return false
 		}
@@ -283,9 +289,9 @@ func (d *Doko) beats(def *Card, atk *Card) bool {
 	}
 }
 
-var dokoValueOrder []int = []int{9, Jack, Queen, King, 10, Ace}
+var dokoValueOrder []int = []int{9, logic.Jack, logic.Queen, logic.King, 10, logic.Ace}
 
-func (d *Doko) value(c *Card) int {
+func (d *Doko) value(c *logic.Card) int {
 	var i, value int
 
 	value = d.trumpValue(c)
@@ -295,7 +301,7 @@ func (d *Doko) value(c *Card) int {
 	}
 
 	for i, value = range dokoValueOrder {
-		if value == c.value {
+		if value == c.Value() {
 			return i
 		}
 	}
@@ -303,29 +309,41 @@ func (d *Doko) value(c *Card) int {
 }
 
 // color returns the color if this card, returning -1 if the card is a trump
-func (d *Doko) color(c *Card) int {
+func (d *Doko) color(c *logic.Card) int {
 	if d.trumpValue(c) == -1 {
-		return c.suit
+		return c.Suit()
 	}
 	return -1
 }
 
-var dokoTrumpOrder []Card = []Card{
-	{Hearts, 10},
-	{Clubs, Queen}, {Spades, Queen}, {Hearts, Queen}, {Diamonds, Queen},
-	{Clubs, Jack}, {Spades, Jack}, {Hearts, Jack}, {Diamonds, Jack},
-	{Diamonds, Ace}, {Diamonds, 10}, {Diamonds, King}, {Diamonds, 9},
+var DokoTrumpOrder []logic.Card = []logic.Card{
+	*logic.NewCard(logic.Hearts, 10),
+
+	*logic.NewCard(logic.Clubs, logic.Queen),
+	*logic.NewCard(logic.Spades, logic.Queen),
+	*logic.NewCard(logic.Hearts, logic.Queen),
+	*logic.NewCard(logic.Diamonds, logic.Queen),
+
+	*logic.NewCard(logic.Clubs, logic.Jack),
+	*logic.NewCard(logic.Spades, logic.Jack),
+	*logic.NewCard(logic.Hearts, logic.Jack),
+	*logic.NewCard(logic.Diamonds, logic.Jack),
+
+	*logic.NewCard(logic.Diamonds, logic.Ace),
+	*logic.NewCard(logic.Diamonds, 10),
+	*logic.NewCard(logic.Diamonds, logic.King),
+	*logic.NewCard(logic.Diamonds, 9),
 }
 
 // trumpValue returns the trump value for this card
 // Hearts 10 returns 13, diamonds 9 returns 1.
 // If the card is not a trump, -1 is returned
-func (d *Doko) trumpValue(c *Card) int {
+func (d *Doko) trumpValue(c *logic.Card) int {
 	var value int
-	var trump Card
-	for value, trump = range dokoTrumpOrder {
+	var trump logic.Card
+	for value, trump = range DokoTrumpOrder {
 		if trump == *c {
-			return len(dokoTrumpOrder) - value
+			return len(DokoTrumpOrder) - value
 		}
 	}
 	return -1

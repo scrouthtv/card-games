@@ -4,7 +4,11 @@ import (
 	"bytes"
 	"log"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/scrouthtv/card-games/doko"
+	"github.com/scrouthtv/card-games/logic"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -31,6 +35,12 @@ type clientMessage struct {
 	msg []byte
 }
 
+func (cm *clientMessage) toPacket() *logic.Packet {
+	var msg string = string(cm.msg)
+	var p logic.Packet = logic.Packet(strings.Split(msg, " "))
+	return &p
+}
+
 func newHub() *Hub {
 	return &Hub{
 		broadcast:  make(chan *clientMessage),
@@ -41,7 +51,7 @@ func newHub() *Hub {
 }
 
 // Returns a pointer to first game this player is part of
-func (h *Hub) playerMessage(sender *Client, p *Packet) bool {
+func (h *Hub) playerMessage(sender *Client, p *logic.Packet) bool {
 	log.Printf("Player %s sent %s", sender, p)
 
 	var g *Game
@@ -75,16 +85,16 @@ func (h *Hub) playerMessage(sender *Client, p *Packet) bool {
 }
 
 func (h *Hub) createGame(name string) *Game {
-	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h, StatePreparing, nil}
-	g.ruleset = NewDoko(&g)
+	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h, logic.StatePreparing, nil}
+	g.ruleset = doko.NewDoko(&g)
 	h.games = append(h.games, &g)
 	h.logGames()
 	return &g
 }
 
 func (h *Hub) createGameWithID(id byte, name string) *Game {
-	var g Game = Game{id, make(map[int]*Client), name, h, StatePreparing, nil}
-	g.ruleset = NewDoko(&g)
+	var g Game = Game{id, make(map[int]*Client), name, h, logic.StatePreparing, nil}
+	g.ruleset = doko.NewDoko(&g)
 	h.games = append(h.games, &g)
 	h.logGames()
 	return &g

@@ -1,9 +1,11 @@
-package main
+package doko
 
 import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/scrouthtv/card-games/logic"
 )
 
 var debug bool = false
@@ -49,8 +51,7 @@ type DokoSim struct {
 }
 
 func (ds *DokoSim) Move(move string) bool {
-	var cm clientMessage = clientMessage{nil, []byte(move)}
-	var p *Packet = cm.toPacket()
+	var p *logic.Packet = logic.NewPacket(move)
 
 	return ds.doko.PlayerMove(ds.doko.active, p)
 }
@@ -61,7 +62,7 @@ func (ds *DokoSim) String() string {
 	out.WriteString(strconv.Itoa(ds.doko.active))
 
 	var i int
-	var deck *Deck
+	var deck *logic.Deck
 	for i = 0; i < len(ds.doko.hands); i++ {
 		deck = ds.doko.hands[i]
 		out.WriteString("\nHand ")
@@ -76,7 +77,7 @@ func (ds *DokoSim) String() string {
 	return out.String()
 }
 
-func (ds *DokoSim) TestHand(t *testing.T, player int, cards *Deck) {
+func (ds *DokoSim) TestHand(t *testing.T, player int, cards *logic.Deck) {
 	if !ds.doko.hands[player].Equal(cards) {
 		t.Errorf("Player %d has wrong hand:", player)
 		t.Logf("Expected: %s", cards)
@@ -84,15 +85,15 @@ func (ds *DokoSim) TestHand(t *testing.T, player int, cards *Deck) {
 	}
 }
 
-func (ds *DokoSim) TestAllHands(t *testing.T, hands map[int]*Deck) {
+func (ds *DokoSim) TestAllHands(t *testing.T, hands map[int]*logic.Deck) {
 	var player int
-	var deck *Deck
+	var deck *logic.Deck
 	for player, deck = range hands {
 		ds.TestHand(t, player, deck)
 	}
 }
 
-func (ds *DokoSim) TestWondeck(t *testing.T, player int, cards *Deck) {
+func (ds *DokoSim) TestWondeck(t *testing.T, player int, cards *logic.Deck) {
 	if !ds.doko.won[player].Equal(cards) {
 		t.Errorf("Player %d has wrong cards won:", player)
 		t.Logf("Expected: %s", cards)
@@ -100,15 +101,15 @@ func (ds *DokoSim) TestWondeck(t *testing.T, player int, cards *Deck) {
 	}
 }
 
-func (ds *DokoSim) TestAllWondecks(t *testing.T, won map[int]*Deck) {
+func (ds *DokoSim) TestAllWondecks(t *testing.T, won map[int]*logic.Deck) {
 	var player int
-	var deck *Deck
+	var deck *logic.Deck
 	for player, deck = range won {
 		ds.TestWondeck(t, player, deck)
 	}
 }
 
-func (ds *DokoSim) TestTable(t *testing.T, table *Deck) {
+func (ds *DokoSim) TestTable(t *testing.T, table *logic.Deck) {
 	if !ds.doko.table.Equal(table) {
 		t.Errorf("Table contents is wrong:")
 		t.Logf("Expected: %s", table)
@@ -125,39 +126,39 @@ func (ds *DokoSim) TestTable(t *testing.T, table *Deck) {
 // sj h10 sk d9 hk ha hq s9 d10 c9 c9 cj
 func TestStubGame(t *testing.T) {
 	// SETUP:
-	var gs *GameStub = &GameStub{StatePreparing}
+	var gs *GameStub = &GameStub{logic.StatePreparing}
 	var doko *Doko = NewDoko(gs)
 	var ds DokoSim = DokoSim{doko}
 
 	ds.doko.Start()
 
-	ds.doko.hands[0] = DeserializeDeck("hk, ca, c10, ca, da, h9, d9, s10, cq, cj, dj, dk")
-	ds.doko.hands[1] = DeserializeDeck("c10, sa, dj, h10, sq, ck, ck, h9, dq, hj, sq, sa")
-	ds.doko.hands[2] = DeserializeDeck("cq, sk, sj, da, s10, s9, dq, ha, hq, hj, d10, dk")
-	ds.doko.hands[3] = DeserializeDeck("sj, h10, sk, d9, hk, ha, hq, s9, d10, c9, c9, cj")
+	ds.doko.hands[0] = logic.DeserializeDeck("hk, ca, c10, ca, da, h9, d9, s10, cq, cj, dj, dk")
+	ds.doko.hands[1] = logic.DeserializeDeck("c10, sa, dj, h10, sq, ck, ck, h9, dq, hj, sq, sa")
+	ds.doko.hands[2] = logic.DeserializeDeck("cq, sk, sj, da, s10, s9, dq, ha, hq, hj, d10, dk")
+	ds.doko.hands[3] = logic.DeserializeDeck("sj, h10, sk, d9, hk, ha, hq, s9, d10, c9, c9, cj")
 
-	var expectedHands map[int]*Deck = make(map[int]*Deck)
+	var expectedHands map[int]*logic.Deck = make(map[int]*logic.Deck)
 	var i int
-	var hand *Deck
+	var hand *logic.Deck
 	for i, hand = range doko.hands {
-		var cpy Deck = *hand
+		var cpy logic.Deck = *hand
 		expectedHands[i] = &cpy
 	}
 
-	var expectedWon map[int]*Deck = make(map[int]*Deck)
+	var expectedWon map[int]*logic.Deck = make(map[int]*logic.Deck)
 	for i = 0; i < 4; i++ {
-		expectedWon[i] = EmptyDeck()
+		expectedWon[i] = logic.EmptyDeck()
 	}
 
-	var expectedTable *Deck
-	var cpy Deck = *doko.table
+	var expectedTable *logic.Deck
+	var cpy logic.Deck = *doko.table
 	expectedTable = &cpy
 
 	t.Log(ds.String())
 
-	var card *Card = doko.hands[0].Get(0)
-	var expCard Card = Card{Hearts, King}
-	var badCard Card = Card{Spades, Ace}
+	var card *logic.Card = doko.hands[0].Get(0)
+	var expCard logic.Card = *logic.NewCard(logic.Hearts, logic.King)
+	var badCard logic.Card = *logic.NewCard(logic.Spades, logic.Ace)
 
 	t.Run("1. Player 0 fails sa", func(t *testing.T) {
 		if *card != expCard {
@@ -181,10 +182,10 @@ func TestStubGame(t *testing.T) {
 	}
 
 	t.Run("3. Testing allowed cards", func(t *testing.T) {
-		var allowed *Deck = doko.AllowedCards()
+		var allowed *logic.Deck = doko.AllowedCards()
 
-		var allowExpected = EmptyDeck()
-		allowExpected.AddAll(&Card{Hearts, 9})
+		var allowExpected = logic.EmptyDeck()
+		allowExpected.AddAll(logic.NewCard(logic.Hearts, 9))
 
 		if !allowed.Equal(allowExpected) {
 			t.Error("Wrong cards allowed")
@@ -200,8 +201,8 @@ func TestStubGame(t *testing.T) {
 	})
 
 	t.Run("6. Player 1 plays h9", func(t *testing.T) {
-		var c Card = Card{Hearts, 9}
-		expectedTable.AddAll(&c)
+		var c *logic.Card = logic.NewCard(logic.Hearts, 9)
+		expectedTable.AddAll(c)
 
 		ds.assertCardMove(t, "h9", true) // sucess
 
@@ -215,8 +216,7 @@ func TestStubGame(t *testing.T) {
 	})
 
 	t.Run("8. Player 1 tries to play", func(t *testing.T) {
-		var cm clientMessage = clientMessage{nil, []byte("card c10")}
-		var p *Packet = cm.toPacket()
+		var p *logic.Packet = logic.NewPacket("card c10")
 
 		if ds.doko.PlayerMove(1, p) {
 			t.Error("Move did succeed, it shouldn't have")
@@ -224,8 +224,8 @@ func TestStubGame(t *testing.T) {
 	})
 
 	t.Run("9. Player 2 plays ha", func(t *testing.T) {
-		var c Card = Card{Hearts, Ace}
-		expectedTable.AddAll(&c)
+		var c *logic.Card = logic.NewCard(logic.Hearts, logic.Ace)
+		expectedTable.AddAll(c)
 
 		ds.assertCardMove(t, "ha", true)
 
@@ -260,10 +260,10 @@ func TestStubGame(t *testing.T) {
 	})
 }
 
-func (ds *DokoSim) addCardByShort(d *Deck, short string) {
-	var c *Card
+func (ds *DokoSim) addCardByShort(d *logic.Deck, short string) {
+	var c *logic.Card
 	var ok bool
-	ok, c = CardFromShort(short)
+	ok, c = logic.CardFromShort(short)
 	if ok {
 		d.AddAll(c)
 	}

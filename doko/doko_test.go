@@ -1,23 +1,28 @@
-package main
+package doko
 
 import (
 	"testing"
+
+	"github.com/scrouthtv/card-games/logic"
 )
 
 func TestValues(t *testing.T) {
 	var doko *Doko = NewDoko(nil)
-	var cards []Card = []Card{
-		{Hearts, 10}, {Hearts, Jack}, {Diamonds, 9},
-		{Spades, King}, {Hearts, 9},
+	var cards []logic.Card = []logic.Card{
+		*logic.NewCard(logic.Hearts, 10),
+		*logic.NewCard(logic.Hearts, logic.Jack),
+		*logic.NewCard(logic.Diamonds, 9),
+		*logic.NewCard(logic.Spades, logic.King),
+		*logic.NewCard(logic.Hearts, 9),
 	}
-	var card Card
+	var card logic.Card
 	for _, card = range cards {
 		t.Logf("Card %s has %d trump value", card.String(), doko.trumpValue(&card))
 	}
 }
 
 func TestDokoSum(t *testing.T) {
-	var deck *Deck = NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
+	var deck *logic.Deck = logic.NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
 	var value int = deck.Value(dokoCardValue)
 
 	if value != 240 {
@@ -37,9 +42,9 @@ func TestTricks(t *testing.T) {
 
 	var trick string
 	var should, is int
-	var deck *Deck
+	var deck *logic.Deck
 	for trick, should = range tricks {
-		deck = DeserializeDeck(trick)
+		deck = logic.DeserializeDeck(trick)
 		is = doko.trickWinner(deck)
 		if should != is {
 			t.Errorf("Trick %s should win #%d, but instead #%d", trick, should, is)
@@ -61,13 +66,13 @@ func TestBeat(t *testing.T) {
 }
 
 func testBeat(t *testing.T, doko *Doko, def string, atk string, exp bool) {
-	var cdef, catk *Card
+	var cdef, catk *logic.Card
 	var ok bool
-	ok, cdef = CardFromShort(def)
+	ok, cdef = logic.CardFromShort(def)
 	if !ok {
 		return
 	}
-	ok, catk = CardFromShort(atk)
+	ok, catk = logic.CardFromShort(atk)
 	if !ok {
 		return
 	}
