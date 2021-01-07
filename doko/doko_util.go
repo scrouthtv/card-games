@@ -1,7 +1,6 @@
 package doko
 
 import (
-	"log"
 	"sort"
 
 	"github.com/scrouthtv/card-games/logic"
@@ -64,7 +63,6 @@ func (d *Doko) IsFriend(player1 int, player2 int) bool {
 	}
 	var team1 []int
 	team1, _ = d.Teams()
-	log.Println("Team 1: ", team1)
 	// player1inteam1 / player2inteam1
 	var p1int1, p2int1 bool
 	var p int

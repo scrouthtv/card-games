@@ -1,14 +1,13 @@
 package doko
 
 import (
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/scrouthtv/card-games/logic"
 )
-
-var debug bool = false
 
 // GameStub is a game that is not connected to a hub or clients,
 // but instead saves no data besides the current state
@@ -318,9 +317,11 @@ func (ds *DokoSim) assertCardMove(t *testing.T, short string, exp bool) {
 	var ok bool = ds.Move("card " + short)
 	if ok != exp {
 		if ok {
+			debug.PrintStack()
 			t.Error("Move did succed, it shouldn't have")
 			t.FailNow()
 		} else {
+			debug.PrintStack()
 			t.Error("Move didn't succed, it should have")
 			t.FailNow()
 		}

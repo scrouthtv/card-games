@@ -20,6 +20,11 @@ func TestFoxFinder(t *testing.T) {
 	ds.doko.hands[2] = logic.DeserializeDeck("cq, sk, sj, da, s10, s9, dq, ha, hq, hj, d10, dk")
 	ds.doko.hands[3] = logic.DeserializeDeck("sj, h10, sk, d9, hk, ha, hq, s9, da, c9, c9, cj")
 
+	var i int
+	for i = 0; i < 4; i++ {
+		doko.start[i] = doko.hands[i].Clone()
+	}
+
 	t.Run("1. Expecting 2 foxes", func(t *testing.T) {
 		var foxes []*logic.Card = fox.MarkCards(doko)
 		if len(foxes) != 2 {
@@ -35,9 +40,9 @@ func TestFoxFinder(t *testing.T) {
 	})
 
 	t.Run("2. First fox caught by friendlies", func(t *testing.T) {
-		ds.assertCardMove(t, "da", true)
-		ds.assertCardMove(t, "dj", true)
 		ds.assertCardMove(t, "cq", true)
+		ds.assertCardMove(t, "dj", true)
+		ds.assertCardMove(t, "da", true)
 		ds.assertCardMove(t, "d9", true)
 
 		var won int = len(*doko.won[2])
@@ -56,7 +61,8 @@ func TestFoxFinder(t *testing.T) {
 	})
 
 	t.Run("4. The other clubs queen is played", func(t *testing.T) {
-		ds.assertCardMove(t, "dk", true)
+		ds.playOnce()
+		ds.playOnce()
 		ds.playOnce()
 		ds.assertCardMove(t, "cq", true)
 
