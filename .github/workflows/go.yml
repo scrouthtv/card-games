@@ -26,9 +26,9 @@ jobs:
 
     - name: Test
       run: |
-        go test -v .
+        go test .
         cd doko
-        go test -v .
-        cd ../static
-        go test -v .
+        go test .
+        cd ../logic
+        go test .
         cd ..
