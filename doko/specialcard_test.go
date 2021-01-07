@@ -15,8 +15,8 @@ func TestFoxFinder(t *testing.T) {
 
 	ds.doko.Start()
 
-	ds.doko.hands[0] = logic.DeserializeDeck("hk, ca, c10, ca, d10, h9, d9, s10, cq, cj, dj, dk")
-	ds.doko.hands[1] = logic.DeserializeDeck("c10, sa, dj, h10, sq, ck, ck, h9, dq, hj, sq, sa")
+	ds.doko.hands[0] = logic.DeserializeDeck("hk, ca, h10, ca, d10, h9, d9, s10, cq, cj, dj, dk")
+	ds.doko.hands[1] = logic.DeserializeDeck("c10, sa, dj, c10, sq, ck, ck, h9, dq, hj, sq, sa")
 	ds.doko.hands[2] = logic.DeserializeDeck("cq, sk, sj, da, s10, s9, dq, ha, hq, hj, d10, dk")
 	ds.doko.hands[3] = logic.DeserializeDeck("sj, h10, sk, d9, hk, ha, hq, s9, da, c9, c9, cj")
 
@@ -77,16 +77,6 @@ func TestFoxFinder(t *testing.T) {
 
 		t.Logf("Friendlies are known: %t", doko.teamsKnown())
 
-		var i int
-		for i = 0; i < 4; i++ {
-			if doko.won[i] == nil {
-				t.Logf("Won %d: nil", i)
-			} else {
-				t.Logf("Won %d: %s", i, doko.won[i].Short())
-			}
-		}
-		t.Logf("Table: %s", doko.table.Short())
-
 		// By now, only one fox is still relevant
 		var foxes int = len(fox.MarkCards(doko))
 		if foxes != 1 {
@@ -95,6 +85,16 @@ func TestFoxFinder(t *testing.T) {
 	})
 
 	t.Run("5. The other fox is played", func(t *testing.T) {
-		t.Log(ds.String())
+		ds.assertCardMove(t, "dk", true)
+		ds.assertCardMove(t, "da", true)
+		ds.assertCardMove(t, "h10", true)
+		ds.assertCardMove(t, "dq", true)
+	})
+
+	t.Run("6. Expecting one fox", func(t *testing.T) {
+		var foxes int = len(fox.MarkCards(doko))
+		if foxes != 1 {
+			t.Errorf("Wrong amount of foxes marked, got %d, should be 1", foxes)
+		}
 	})
 }
