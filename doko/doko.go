@@ -57,6 +57,7 @@ func (d *Doko) Reset() bool {
 
 	var i int
 	for i = 0; i < len(dist); i++ {
+		d.Sort(dist[i])
 		d.hands[i] = dist[i]
 		d.start[i] = dist[i]
 	}
@@ -175,33 +176,6 @@ func (d *Doko) playerWonTrick(winner int) {
 	d.table = logic.EmptyDeck()
 }
 
-// AllowedCards determines which cards the active player is currently
-// allowed to play (e. g. if they have to show a color or don't own
-// that color)
-func (d *Doko) AllowedCards() *logic.Deck {
-	if d.table.Length() == 0 {
-		return d.hands[d.active]
-	}
-
-	var show *logic.Card = d.table.Get(0)
-	var allowed *logic.Deck = logic.EmptyDeck()
-	var has *logic.Deck = d.hands[d.active]
-
-	var i int
-	for i = 0; i < has.Length(); i++ {
-		var ownedCard *logic.Card = has.Get(i)
-		if d.color(ownedCard) == d.color(show) {
-			allowed.AddAll(ownedCard)
-		}
-	}
-
-	if allowed.Length() == 0 {
-		return d.hands[d.active]
-	}
-
-	return allowed
-}
-
 // Scores calculates the value for each player
 // The value is the sum of the value of each card they earned
 func (d *Doko) Scores() []int {
@@ -268,83 +242,4 @@ func (d *Doko) trickWinner(trick *logic.Deck) int {
 	}
 
 	return winner
-}
-
-// beats calculates whether the attacking card atk defeats the defending card def
-func (d *Doko) beats(def *logic.Card, atk *logic.Card) bool {
-	if d.color(def) == d.color(atk) {
-		if d.value(atk) > d.value(def) {
-			return true
-		} else if d.value(atk) == d.value(def) {
-			return def.Suit() == logic.Hearts && def.Value() == 10
-		} else {
-			return false
-		}
-	} else if d.color(atk) == -1 {
-		// attacker has trump, defender doesn't
-		return true
-	} else {
-		// attacker didn't show def's color
-		return false
-	}
-}
-
-var dokoValueOrder []int = []int{9, logic.Jack, logic.Queen, logic.King, 10, logic.Ace}
-
-func (d *Doko) value(c *logic.Card) int {
-	var i, value int
-
-	value = d.trumpValue(c)
-	if value != -1 {
-		// return trump value instead
-		return value
-	}
-
-	for i, value = range dokoValueOrder {
-		if value == c.Value() {
-			return i
-		}
-	}
-	return 0
-}
-
-// color returns the color if this card, returning -1 if the card is a trump
-func (d *Doko) color(c *logic.Card) int {
-	if d.trumpValue(c) == -1 {
-		return c.Suit()
-	}
-	return -1
-}
-
-var DokoTrumpOrder []logic.Card = []logic.Card{
-	*logic.NewCard(logic.Hearts, 10),
-
-	*logic.NewCard(logic.Clubs, logic.Queen),
-	*logic.NewCard(logic.Spades, logic.Queen),
-	*logic.NewCard(logic.Hearts, logic.Queen),
-	*logic.NewCard(logic.Diamonds, logic.Queen),
-
-	*logic.NewCard(logic.Clubs, logic.Jack),
-	*logic.NewCard(logic.Spades, logic.Jack),
-	*logic.NewCard(logic.Hearts, logic.Jack),
-	*logic.NewCard(logic.Diamonds, logic.Jack),
-
-	*logic.NewCard(logic.Diamonds, logic.Ace),
-	*logic.NewCard(logic.Diamonds, 10),
-	*logic.NewCard(logic.Diamonds, logic.King),
-	*logic.NewCard(logic.Diamonds, 9),
-}
-
-// trumpValue returns the trump value for this card
-// Hearts 10 returns 13, diamonds 9 returns 1.
-// If the card is not a trump, -1 is returned
-func (d *Doko) trumpValue(c *logic.Card) int {
-	var value int
-	var trump logic.Card
-	for value, trump = range DokoTrumpOrder {
-		if trump == *c {
-			return len(DokoTrumpOrder) - value
-		}
-	}
-	return -1
 }

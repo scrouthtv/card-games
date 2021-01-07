@@ -52,6 +52,13 @@ func TestTricks(t *testing.T) {
 	}
 }
 
+func TestSort(t *testing.T) {
+	var doko *Doko = NewDoko(nil)
+	var deck *logic.Deck = logic.NewDeck([]int{logic.Ace, 9, 10, logic.Jack, logic.Queen, logic.King}).Twice().Shuffle()
+	doko.Sort(deck)
+	t.Log(deck.Short())
+}
+
 func TestBeat(t *testing.T) {
 	var doko *Doko = NewDoko(nil)
 	testBeat(t, doko, "da", "ha", false)
