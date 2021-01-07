@@ -15,27 +15,27 @@ import (
 // clients.
 type Hub struct {
 	// Registered clients.
-	clients map[*Client]bool
+	clients map[logic.Player]bool
 
 	// Inbound messages from the clients.
-	broadcast chan *clientMessage
+	broadcast chan *playerMessage
 
 	// Register requests from the clients.
-	register chan *Client
+	register chan logic.Player
 
 	// Unregister requests from clients.
-	unregister chan *Client
+	unregister chan logic.Player
 
 	// All current games
 	games []*Game
 }
 
-type clientMessage struct {
-	c   *Client
+type playerMessage struct {
+	c   logic.Player
 	msg []byte
 }
 
-func (cm *clientMessage) toPacket() *logic.Packet {
+func (cm *playerMessage) toPacket() *logic.Packet {
 	var msg string = string(cm.msg)
 	var p logic.Packet = logic.Packet(strings.Split(msg, " "))
 	return &p
@@ -43,15 +43,15 @@ func (cm *clientMessage) toPacket() *logic.Packet {
 
 func newHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan *clientMessage),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		broadcast:  make(chan *playerMessage),
+		register:   make(chan logic.Player),
+		unregister: make(chan logic.Player),
+		clients:    make(map[logic.Player]bool),
 	}
 }
 
 // Returns a pointer to first game this player is part of
-func (h *Hub) playerMessage(sender *Client, p *logic.Packet) bool {
+func (h *Hub) playerMessage(sender logic.Player, p *logic.Packet) bool {
 	log.Printf("Player %s sent %s", sender, p)
 
 	var g *Game
@@ -85,7 +85,7 @@ func (h *Hub) playerMessage(sender *Client, p *logic.Packet) bool {
 }
 
 func (h *Hub) createGame(name string) *Game {
-	var g Game = Game{h.gameUUID(), make(map[int]*Client), name, h, logic.StatePreparing, nil}
+	var g Game = Game{h.gameUUID(), make(map[int]logic.Player), name, h, logic.StatePreparing, nil}
 	g.ruleset = doko.NewDoko(&g)
 	h.games = append(h.games, &g)
 	h.logGames()
@@ -93,7 +93,7 @@ func (h *Hub) createGame(name string) *Game {
 }
 
 func (h *Hub) createGameWithID(id byte, name string) *Game {
-	var g Game = Game{id, make(map[int]*Client), name, h, logic.StatePreparing, nil}
+	var g Game = Game{id, make(map[int]logic.Player), name, h, logic.StatePreparing, nil}
 	g.ruleset = doko.NewDoko(&g)
 	h.games = append(h.games, &g)
 	h.logGames()
@@ -107,11 +107,11 @@ func (h *Hub) sendUpdates(g *Game) {
 	}
 
 	var player int
-	var client *Client
+	var client logic.Player
 	for player, client = range g.players {
 		var buf bytes.Buffer
 		g.WriteBinary(player, &buf)
-		client.send <- buf.Bytes()
+		client.Send(buf.Bytes())
 	}
 }
 
@@ -135,9 +135,9 @@ func (h *Hub) gameUUID() byte {
 	return uuid
 }
 
-func (h *Hub) playerGame(player *Client) *Game {
+func (h *Hub) playerGame(player logic.Player) *Game {
 	var g *Game
-	var c *Client
+	var c logic.Player
 	for _, g = range h.games {
 		for _, c = range g.players {
 			if c == player {
@@ -160,8 +160,8 @@ func (h *Hub) gameByUUID(uuid byte) *Game {
 
 func (h *Hub) run() {
 	log.Print("Started Hub")
-	var c *Client
-	var msg *clientMessage
+	var c logic.Player
+	var msg *playerMessage
 	for {
 		select {
 		case c = <-h.register:
@@ -174,7 +174,7 @@ func (h *Hub) run() {
 			}
 			if _, ok := h.clients[c]; ok {
 				delete(h.clients, c)
-				close(c.send)
+				c.Close()
 			}
 		case msg = <-h.broadcast:
 			h.playerMessage(msg.c, msg.toPacket())

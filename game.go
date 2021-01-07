@@ -10,7 +10,7 @@ import (
 // Game contains server-relevant information about a game
 type Game struct {
 	id      byte
-	players map[int]*Client
+	players map[int]logic.Player
 	name    string
 	hub     *Hub
 	state   byte
@@ -76,7 +76,7 @@ func (g *Game) Start() {
 	}
 }
 
-func (g *Game) playerMove(player *Client, move *logic.Packet) bool {
+func (g *Game) playerMove(player logic.Player, move *logic.Packet) bool {
 	if g.ruleset.PlayerMove(g.playerID(player), move) {
 		g.hub.sendUpdates(g)
 		return true
@@ -84,9 +84,9 @@ func (g *Game) playerMove(player *Client, move *logic.Packet) bool {
 	return false
 }
 
-func (g *Game) playerID(player *Client) int {
+func (g *Game) playerID(player logic.Player) int {
 	var i int
-	var c *Client
+	var c logic.Player
 	for i, c = range g.players {
 		if c == player {
 			return i
@@ -95,7 +95,7 @@ func (g *Game) playerID(player *Client) int {
 	return -1
 }
 
-func (g *Game) playerLeave(player *Client) bool {
+func (g *Game) playerLeave(player logic.Player) bool {
 	var i int = g.playerID(player)
 	if i == -1 {
 		return false
@@ -105,7 +105,7 @@ func (g *Game) playerLeave(player *Client) bool {
 	return true
 }
 
-func (g *Game) playerJoin(player *Client) bool {
+func (g *Game) playerJoin(player logic.Player) bool {
 	var playerID int = g.freeID()
 	if playerID == -1 {
 		log.Printf("Error: too many players joined")

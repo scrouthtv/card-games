@@ -33,6 +33,7 @@ var upgrader = websocket.Upgrader{
 }
 
 // Client is a middleman between the websocket connection and the hub.
+// Client implements Player functionality
 type Client struct {
 	hub *Hub
 
@@ -45,6 +46,16 @@ type Client struct {
 
 func (c *Client) String() string {
 	return c.conn.RemoteAddr().String()
+}
+
+// Send queues the data for sending
+func (c *Client) Send(data []byte) {
+	c.send <- data
+}
+
+// Close closes the client's connection
+func (c *Client) Close() {
+	close(c.send)
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -69,7 +80,7 @@ func (c *Client) readPump() {
 			break
 		}
 		log.Printf("Got a message: %s", message)
-		c.hub.broadcast <- &clientMessage{c, message}
+		c.hub.broadcast <- &playerMessage{c, message}
 	}
 }
 
