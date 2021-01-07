@@ -2,6 +2,11 @@ package doko
 
 import "github.com/scrouthtv/card-games/logic"
 
+// specialCard is a generic card that, if caught by the enemy team, gives
+// an extra credit at the end
+// This implementation marks both of the specified card, as long as the teams
+// are not known. Once they are known, only the relevant cards are marked
+// At all times, only the relevant cards are giving extra credit
 type specialCard struct {
 	card logic.Card
 }

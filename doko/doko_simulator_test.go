@@ -160,7 +160,13 @@ func TestStubGame(t *testing.T) {
 	var expCard logic.Card = *logic.NewCard(logic.Hearts, logic.King)
 	var badCard logic.Card = *logic.NewCard(logic.Spades, logic.Ace)
 
-	t.Run("1. Player 0 fails sa", func(t *testing.T) {
+	t.Run("1. Teams should be unknown", func(t *testing.T) {
+		if doko.teamsKnown() {
+			t.Errorf("Teams should be unknown to this point")
+		}
+	})
+
+	t.Run("2. Player 0 fails sa", func(t *testing.T) {
 		if *card != expCard {
 			t.Errorf("First card if player 0 should be hk, is %s", card.Short())
 		}
@@ -168,7 +174,7 @@ func TestStubGame(t *testing.T) {
 		ds.assertCardMove(t, badCard.Short(), false)
 	})
 
-	t.Run("2. Player 0 plays hk", func(t *testing.T) {
+	t.Run("3. Player 0 plays hk", func(t *testing.T) {
 		expectedTable.AddAll(card)
 
 		ds.assertCardMove(t, expCard.Short(), true)
@@ -181,7 +187,7 @@ func TestStubGame(t *testing.T) {
 		t.FailNow()
 	}
 
-	t.Run("3. Testing allowed cards", func(t *testing.T) {
+	t.Run("4. Testing allowed cards", func(t *testing.T) {
 		var allowed *logic.Deck = doko.AllowedCards()
 
 		var allowExpected = logic.EmptyDeck()
@@ -192,15 +198,15 @@ func TestStubGame(t *testing.T) {
 		}
 	})
 
-	t.Run("4. Player 1 fails sa", func(t *testing.T) {
+	t.Run("5. Player 1 fails sa", func(t *testing.T) {
 		ds.assertCardMove(t, "sa", false) // fail bc not allowed
 	})
 
-	t.Run("5. Player 1 fails hk", func(t *testing.T) {
+	t.Run("6. Player 1 fails hk", func(t *testing.T) {
 		ds.assertCardMove(t, "hk", false) // fail bc not owned*/
 	})
 
-	t.Run("6. Player 1 plays h9", func(t *testing.T) {
+	t.Run("7. Player 1 plays h9", func(t *testing.T) {
 		var c *logic.Card = logic.NewCard(logic.Hearts, 9)
 		expectedTable.AddAll(c)
 
@@ -209,13 +215,13 @@ func TestStubGame(t *testing.T) {
 		ds.TestTable(t, expectedTable)
 	})
 
-	t.Run("7. Player 2 tests invalid cards", func(t *testing.T) {
+	t.Run("8. Player 2 tests invalid cards", func(t *testing.T) {
 		ds.assertCardMove(t, "", false)
 		ds.assertCardMove(t, "s8", false)
 		ds.assertCardMove(t, "d9", false)
 	})
 
-	t.Run("8. Player 1 tries to play", func(t *testing.T) {
+	t.Run("9. Player 1 tries to play", func(t *testing.T) {
 		var p *logic.Packet = logic.NewPacket("card c10")
 
 		if ds.doko.PlayerMove(1, p) {
@@ -223,7 +229,7 @@ func TestStubGame(t *testing.T) {
 		}
 	})
 
-	t.Run("9. Player 2 plays ha", func(t *testing.T) {
+	t.Run("10. Player 2 plays ha", func(t *testing.T) {
 		var c *logic.Card = logic.NewCard(logic.Hearts, logic.Ace)
 		expectedTable.AddAll(c)
 
@@ -232,15 +238,15 @@ func TestStubGame(t *testing.T) {
 		ds.TestTable(t, expectedTable)
 	})
 
-	t.Run("10. Player 3 fails h10", func(t *testing.T) {
+	t.Run("11. Player 3 fails h10", func(t *testing.T) {
 		ds.assertCardMove(t, "h10", false)
 	})
 
-	t.Run("11. Player 3 plays hk", func(t *testing.T) {
+	t.Run("12. Player 3 plays hk", func(t *testing.T) {
 		ds.assertCardMove(t, "hk", true)
 	})
 
-	t.Run("12. Test trick", func(t *testing.T) {
+	t.Run("13. Test trick", func(t *testing.T) {
 		// hk h9 ha hk, player 2 wins (0-based)
 		ds.addCardByShort(expectedWon[2], "hk")
 		ds.addCardByShort(expectedWon[2], "h9")
@@ -257,6 +263,41 @@ func TestStubGame(t *testing.T) {
 
 		// Player 2 should be the only one with cards:
 		ds.TestAllWondecks(t, expectedWon)
+	})
+
+	//t.Log(ds.String())
+
+	t.Run("14. Trick with #2's clubs queen", func(t *testing.T) {
+		ds.assertCardMove(t, "cq", true)
+		ds.playOnce()
+		ds.playOnce()
+		ds.playOnce()
+
+		if ds.doko.won[2].Length() != 8 {
+			t.Errorf("Player 2 has the wrong amount of cards won")
+			t.Errorf("Is: %d, should be 8", ds.doko.won[2].Length())
+		}
+
+		if ds.doko.teamsKnown() {
+			t.Error("Teams should not be known at this point")
+		}
+	})
+
+	t.Run("15. Trick with the other clubs queen", func(t *testing.T) {
+		ds.assertCardMove(t, "dk", true)
+		ds.playOnce()
+		ds.assertCardMove(t, "cq", true)
+
+		if !ds.doko.teamsKnown() {
+			t.Error("Teams should be known")
+		}
+
+		ds.playOnce()
+
+		if !ds.doko.teamsKnown() {
+			t.Error("Teams should stillbe known")
+		}
+
 	})
 }
 

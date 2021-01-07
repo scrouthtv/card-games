@@ -33,6 +33,28 @@ func (d *Doko) AllowedCards() *logic.Deck {
 	return allowed
 }
 
+// teamsKnown counts whether both clubs queens have been played
+func (d *Doko) teamsKnown() bool {
+	var queens int = 0
+	var deck *logic.Deck
+	var c *logic.Card
+
+	for _, c = range *d.table {
+		if c.Suit() == logic.Clubs && c.Value() == logic.Queen {
+			queens++
+		}
+	}
+	for _, deck = range d.won {
+		for _, c = range *deck {
+			if c.Suit() == logic.Clubs && c.Value() == logic.Queen {
+				queens++
+			}
+		}
+	}
+
+	return queens == 2
+}
+
 func (d *Doko) origOwner(card *logic.Card) int {
 	var player int
 	var start *logic.Deck
