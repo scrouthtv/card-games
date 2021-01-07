@@ -137,8 +137,12 @@ func TestStubGame(t *testing.T) {
 	ds.doko.hands[2] = logic.DeserializeDeck("cq, sk, sj, da, s10, s9, dq, ha, hq, hj, d10, dk")
 	ds.doko.hands[3] = logic.DeserializeDeck("sj, h10, sk, d9, hk, ha, hq, s9, d10, c9, c9, cj")
 
-	var expectedHands map[int]*logic.Deck = make(map[int]*logic.Deck)
 	var i int
+	for i = 0; i < 4; i++ {
+		doko.start[i] = doko.hands[i].Clone()
+	}
+
+	var expectedHands map[int]*logic.Deck = make(map[int]*logic.Deck)
 	var hand *logic.Deck
 	for i, hand = range doko.hands {
 		var cpy logic.Deck = *hand
@@ -265,8 +269,6 @@ func TestStubGame(t *testing.T) {
 		ds.TestAllWondecks(t, expectedWon)
 	})
 
-	//t.Log(ds.String())
-
 	t.Run("14. Trick with #2's clubs queen", func(t *testing.T) {
 		ds.assertCardMove(t, "cq", true)
 		ds.playOnce()
@@ -299,6 +301,8 @@ func TestStubGame(t *testing.T) {
 		}
 
 	})
+
+	//t.Log(ds.String())
 }
 
 func (ds *DokoSim) addCardByShort(d *logic.Deck, short string) {

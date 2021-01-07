@@ -54,6 +54,32 @@ func TestCardTracer(t *testing.T) {
 
 }
 
+func TestFriends(t *testing.T) {
+	var gs *GameStub = &GameStub{logic.StatePreparing}
+	var doko *Doko = NewDoko(gs)
+	//var ds *DokoSim = &DokoSim{doko}
+
+	doko.Start()
+
+	doko.hands[0] = logic.DeserializeDeck("hk, ca, c10, ca, d10, h9, d9, s10, cq, cj, dj, dk")
+	doko.hands[1] = logic.DeserializeDeck("c10, sa, dj, h10, sq, ck, ck, h9, dq, hj, sq, sa")
+	doko.hands[2] = logic.DeserializeDeck("cq, sk, sj, da, s10, s9, dq, ha, hq, hj, d10, dk")
+	doko.hands[3] = logic.DeserializeDeck("sj, h10, sk, d9, hk, ha, hq, s9, da, c9, c9, cj")
+
+	var i int
+	for i = 0; i < 4; i++ {
+		doko.start[i] = doko.hands[i].Clone()
+	}
+
+	//t.Log(ds.String())
+
+	t.Log(doko.Teams())
+
+	if !doko.IsFriend(0, 2) {
+		t.Error("0 and 2 should be friends")
+	}
+}
+
 // Makes the active player play the first allowed card
 func (ds *DokoSim) playOnce() {
 	var card *logic.Card = ds.doko.AllowedCards().Get(0)

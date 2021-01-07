@@ -1,6 +1,8 @@
 package doko
 
-import "github.com/scrouthtv/card-games/logic"
+import (
+	"github.com/scrouthtv/card-games/logic"
+)
 
 // Teams returns the player teams,
 // all re players are in the first array

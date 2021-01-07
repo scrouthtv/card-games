@@ -1,6 +1,7 @@
 package doko
 
 import (
+	"log"
 	"sort"
 
 	"github.com/scrouthtv/card-games/logic"
@@ -55,6 +56,28 @@ func (d *Doko) teamsKnown() bool {
 	return queens == 2
 }
 
+// IsFriend returns whether player1 and player2 are on the same team
+// If the players are equal, true is returned (I like myself)
+func (d *Doko) IsFriend(player1 int, player2 int) bool {
+	if player1 == player2 {
+		return true
+	}
+	var team1 []int
+	team1, _ = d.Teams()
+	log.Println("Team 1: ", team1)
+	// player1inteam1 / player2inteam1
+	var p1int1, p2int1 bool
+	var p int
+	for _, p = range team1 {
+		if p == player1 {
+			p1int1 = true
+		} else if p == player2 {
+			p2int1 = true
+		}
+	}
+	return p1int1 == p2int1
+}
+
 func (d *Doko) origOwner(card *logic.Card) int {
 	var player int
 	var start *logic.Deck
@@ -63,11 +86,26 @@ func (d *Doko) origOwner(card *logic.Card) int {
 	for player, start = range d.start {
 		for _, c = range *start {
 			if c == card {
-				//log.Printf("Card matches: %p == %p", c, card)
 				return player
 			}
 		}
 	}
+	return -1
+}
+
+func (d *Doko) whoWon(card *logic.Card) int {
+	var player int
+	var won *logic.Deck
+	var c *logic.Card
+
+	for player, won = range d.won {
+		for _, c = range *won {
+			if c == card {
+				return player
+			}
+		}
+	}
+
 	return -1
 }
 

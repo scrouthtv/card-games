@@ -125,7 +125,7 @@ func (d *Deck) Twice() *Deck {
 func (d *Deck) Contains(card Card) bool {
 	var cid *Card
 	for _, cid = range *d {
-		if *cid == card {
+		if (*cid).suit == card.suit && (*cid).value == card.value {
 			return true
 		}
 	}
