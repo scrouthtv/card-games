@@ -120,6 +120,11 @@ class DokoGame {
                 var i;
                 for (i = 0; i < 4; i++)
                     dg.won[i] = buf.getUint8();
+
+                var player;
+                for (player = 0; player < 4; player++) {
+                    player = buf.getUint8();
+                }
                 break;
             case stateEnded:
                 dg.state = stateEnded;

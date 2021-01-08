@@ -26,6 +26,28 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 			buf.WriteByte(byte(d.won[i].Length()))
 		}
 
+		var special []*logic.Card
+		var feature scoring
+		for _, feature = range d.features {
+			special = append(special, feature.MarkCards(d)...)
+		}
+		var playerspecial map[int]*logic.Deck
+		var c *logic.Card
+		var winner int
+		for _, c = range special {
+			winner = d.whoWon(c)
+			if winner != -1 {
+				playerspecial[winner].AddAll(c)
+			}
+		}
+
+		var player int
+		var d *logic.Deck
+		for player, d = range playerspecial {
+			buf.WriteByte(byte(player))
+			d.WriteBinary(buf)
+		}
+
 	case logic.StateEnded:
 		buf.WriteByte(logic.StateEnded)
 		var scores []int = d.Scores()
