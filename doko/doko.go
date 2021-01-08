@@ -25,7 +25,7 @@ type Doko struct {
 
 type scoring interface {
 	Name() string
-	Score(doko *Doko) []int
+	Score(doko *Doko) (int, int)
 	MarkCards(doko *Doko) []*logic.Card
 }
 

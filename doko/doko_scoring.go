@@ -22,6 +22,23 @@ func (d *Doko) Teams() ([]int, []int) {
 	return repair, contrapair
 }
 
+// PlayerTeams returns a slice that maps player# to team
+// 0 being a re player, 1 being a contra player
+func (d *Doko) PlayerTeams() []int {
+	var repair, contrapair []int = d.Teams()
+	var playerTeams []int
+
+	var player int
+	for _, player = range repair {
+		playerTeams[player] = 0
+	}
+	for _, player = range contrapair {
+		playerTeams[player] = 1
+	}
+
+	return playerTeams
+}
+
 // Scores calculates the value for each player
 // The value is the sum of the value of each card they earned
 func (d *Doko) Scores() []int {

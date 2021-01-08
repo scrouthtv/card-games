@@ -25,6 +25,8 @@ func TestFoxFinder(t *testing.T) {
 		doko.start[i] = doko.hands[i].Clone()
 	}
 
+	var rescore, contrascore int
+
 	t.Run("1. Expecting 2 foxes", func(t *testing.T) {
 		var foxes []*logic.Card = fox.MarkCards(doko)
 		if len(foxes) != 2 {
@@ -40,6 +42,15 @@ func TestFoxFinder(t *testing.T) {
 			if c.Suit() != logic.Diamonds || c.Value() != logic.Ace {
 				t.Errorf("This card is not a fox: %s", c.Short())
 			}
+		}
+
+		rescore, contrascore = fox.Score(doko)
+
+		if rescore != 0 {
+			t.Error("Re team should have 0 points for foxes")
+		}
+		if contrascore != 0 {
+			t.Error("Contra team should have 0 points for foxes")
 		}
 	})
 
@@ -97,4 +108,12 @@ func TestFoxFinder(t *testing.T) {
 			t.Errorf("Wrong amount of foxes marked, got %d, should be 1", foxes)
 		}
 	})
+
+	rescore, contrascore = fox.Score(doko)
+	if rescore != 1 {
+		t.Errorf("Wrong score for re team: %d", rescore)
+	}
+	if contrascore != 0 {
+		t.Errorf("Wrong score for contra team: %d", contrascore)
+	}
 }
