@@ -80,6 +80,6 @@ func main() {
 	log.Printf("Started http server")
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		log.Fatal("Error: ", err)
 	}
 }

@@ -79,7 +79,6 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		log.Printf("Got a message: %s", message)
 		c.hub.broadcast <- &playerMessage{c, message}
 	}
 }
