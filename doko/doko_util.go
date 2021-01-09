@@ -107,6 +107,24 @@ func (d *Doko) whoWon(card *logic.Card) int {
 	return -1
 }
 
+// whenWon returns the first position in any of the won decks
+// Returns -1 if not found
+func (d *Doko) whenWon(card *logic.Card) int {
+	var i int
+	var won *logic.Deck
+	var c *logic.Card
+
+	for _, won = range d.won {
+		for i, c = range *won {
+			if c == card {
+				return i
+			}
+		}
+	}
+
+	return -1
+}
+
 // beats calculates whether the attacking card atk defeats the defending card def
 func (d *Doko) beats(def *logic.Card, atk *logic.Card) bool {
 	if d.color(def) == d.color(atk) {

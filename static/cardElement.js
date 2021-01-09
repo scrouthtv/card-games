@@ -1,31 +1,40 @@
-
 /**
  * @class
  */
 class CardElement extends HTMLElement {
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        this.img = document.createElement("img");
-        this.img.src = "deck/card-deck-back.png";
-        this.img.style.width = "100%";
-        this.img.style.height = "100%";
-        
-        const root = this.attachShadow({mode: 'closed'});
-        root.appendChild(this.img);
-    }
+    this.img = document.createElement("img");
+    this.img.src = "deck/card-deck-back.png";
+    this.img.style.width = "100%";
+    this.img.style.height = "100%";
 
-    /**
-     * @param {Card}
-     */
-    setCard(card) {
-        this.card = card;
-        this.img.src = "deck/card-deck-" + card.toString() + ".png";
-    }
+    const root = this.attachShadow({ mode: "closed" });
+    root.appendChild(this.img);
+  }
 
-    getCard() {
-        return this.card;
-    }
+  backSide() {
+    this.card = null;
+    this.back = true;
+    this.img.src = "deck/card-deck-back.png";
+  }
+
+  /**
+   * @param {Card}
+   */
+  setCard(card) {
+    this.card = card;
+    this.img.src = "deck/card-deck-" + card.toString() + ".png";
+  }
+
+  isBackSide() {
+    return this.back;
+  }
+
+  getCard() {
+    return this.card;
+  }
 }
 
-customElements.define('spielekiste-card', CardElement);
+customElements.define("spielekiste-card", CardElement);
