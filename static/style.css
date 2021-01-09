@@ -119,6 +119,11 @@ h1 {
     transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
 }
 
+#gamescreen #specialme .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
+
 #gamescreen #player0 {
     position: absolute;
     top: 3%;
@@ -128,6 +133,11 @@ h1 {
 #gamescreen #storage0 .card {
     left: 20%;
     transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
+}
+
+#gamescreen #special0 .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
 }
 
 #gamescreen #player1 {
@@ -141,6 +151,11 @@ h1 {
     transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
 }
 
+#gamescreen #special1 .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
+
 #gamescreen #player2 {
     position: absolute;
     top: 3%;
@@ -150,6 +165,11 @@ h1 {
 #gamescreen #storage2 .card {
     left: 20%;
     transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
+}
+
+#gamescreen #special2 .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
 }
 
 #gamescreen #table .card {
