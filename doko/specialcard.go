@@ -78,16 +78,18 @@ func (f *specialCard) MarkCards(doko *Doko) []*logic.Card {
 		}
 	}
 
-	if doko.teamsKnown() {
-		var owner, winner int
-		for i, c = range special {
-			winner = doko.whoWon(c)
-			if winner != -1 {
-				// somebody already won the card
-				owner = doko.origOwner(c)
-				if doko.IsFriend(owner, winner) {
-					special = append(special[:i], special[i+1:]...)
-				}
+	var tK bool = doko.teamsKnown()
+	var owner, winner int
+	for i, c = range special {
+		winner = doko.whoWon(c)
+		if winner != -1 {
+			// somebody already won the card
+			owner = doko.origOwner(c)
+			if tK && doko.IsFriend(owner, winner) {
+				special = append(special[:i], special[i+1:]...)
+			} else if owner == winner {
+				// special card is always irrelevant if i cought it myself
+				special = append(special[:i], special[i+1:]...)
 			}
 		}
 	}
