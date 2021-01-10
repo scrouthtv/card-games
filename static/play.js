@@ -15,7 +15,6 @@ var id;
 const url = window.location.search;
 const params = new URLSearchParams(url);
 id = [...params.keys()][0];
-console.log(id);
 
 if (id == undefined) {
   window.location.href = "/";
