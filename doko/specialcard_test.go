@@ -60,6 +60,7 @@ func TestFoxFinder(t *testing.T) {
 		ds.assertCardMove(t, "da", true)
 		t.Log("2 plays the first fox")
 		ds.assertCardMove(t, "d9", true)
+		ds.assertPickup(t, 0, true)
 
 		if *doko.won[0] == nil {
 			t.Error("Player 0 should have gotten this trick")
@@ -85,6 +86,7 @@ func TestFoxFinder(t *testing.T) {
 		ds.assertCardMove(t, "hj", true)
 		ds.assertCardMove(t, "cq", true)
 		ds.assertCardMove(t, "sj", true)
+		ds.assertPickup(t, ds.doko.active, true)
 
 		t.Logf("Friendlies are known: %t", doko.teamsKnown())
 
@@ -100,6 +102,7 @@ func TestFoxFinder(t *testing.T) {
 		ds.assertCardMove(t, "da", true)
 		ds.assertCardMove(t, "h10", true)
 		ds.assertCardMove(t, "dq", true)
+		ds.assertPickup(t, ds.doko.active, true)
 	})
 
 	t.Run("6. Expecting one fox", func(t *testing.T) {

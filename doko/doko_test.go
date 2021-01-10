@@ -25,8 +25,12 @@ func TestCardTracer(t *testing.T) {
 	}
 
 	// Play some cards
-	for i = 0; i < 20; i++ {
+	for i = 0; i < 5; i++ {
 		ds.playOnce()
+		ds.playOnce()
+		ds.playOnce()
+		ds.playOnce()
+		ds.assertPickup(t, ds.doko.active, true)
 	}
 
 	var j int

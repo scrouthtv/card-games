@@ -1,7 +1,6 @@
 package doko
 
 import (
-	"runtime/debug"
 	"strconv"
 	"strings"
 	"testing"
@@ -201,6 +200,13 @@ func TestStubGame(t *testing.T) {
 		}
 	})
 
+	t.Run("5. Trick pickup fails", func(t *testing.T) {
+		ds.assertPickup(t, 0, false)
+		ds.assertPickup(t, 1, false)
+		ds.assertPickup(t, 2, false)
+		ds.assertPickup(t, 3, false)
+	})
+
 	t.Run("5. Player 1 fails sa", func(t *testing.T) {
 		ds.assertCardMove(t, "sa", false) // fail bc not allowed
 	})
@@ -249,7 +255,27 @@ func TestStubGame(t *testing.T) {
 		ds.assertCardMove(t, "hk", true)
 	})
 
-	t.Run("13. Test trick", func(t *testing.T) {
+	t.Run("13. Succeed without pickup", func(t *testing.T) {
+		if ds.doko.active != 2 {
+			t.Error("Player 2 should be active as they won the trick")
+		}
+		// No cards won so far:
+		ds.TestAllWondecks(t, expectedWon)
+
+		// We can't play:
+		ds.assertCardMove(t, "cq", false)
+
+		// Only 2 can pick up:
+		ds.assertPickup(t, 0, false)
+		ds.assertPickup(t, 1, false)
+		ds.assertPickup(t, 3, false)
+		ds.assertPickup(t, 2, true)
+		if ds.doko.active != 2 {
+			t.Error("Player 2 should still be active")
+		}
+	})
+
+	t.Run("14. Test trick", func(t *testing.T) {
 		// hk h9 ha hk, player 2 wins (0-based)
 		ds.addCardByShort(expectedWon[2], "hk")
 		ds.addCardByShort(expectedWon[2], "h9")
@@ -268,11 +294,12 @@ func TestStubGame(t *testing.T) {
 		ds.TestAllWondecks(t, expectedWon)
 	})
 
-	t.Run("14. Trick with #2's clubs queen", func(t *testing.T) {
+	t.Run("15. Trick with #2's clubs queen", func(t *testing.T) {
 		ds.assertCardMove(t, "cq", true)
 		ds.playOnce()
 		ds.playOnce()
 		ds.playOnce()
+		ds.assertPickup(t, 2, true)
 
 		if ds.doko.won[2].Length() != 8 {
 			t.Errorf("Player 2 has the wrong amount of cards won")
@@ -284,7 +311,7 @@ func TestStubGame(t *testing.T) {
 		}
 	})
 
-	t.Run("15. Trick with the other clubs queen", func(t *testing.T) {
+	t.Run("16. Trick with the other clubs queen", func(t *testing.T) {
 		ds.assertCardMove(t, "dk", true)
 		ds.playOnce()
 		ds.assertCardMove(t, "cq", true)
@@ -294,9 +321,10 @@ func TestStubGame(t *testing.T) {
 		}
 
 		ds.playOnce()
+		ds.assertPickup(t, ds.doko.active, true)
 
 		if !ds.doko.teamsKnown() {
-			t.Error("Teams should stillbe known")
+			t.Error("Teams should still be known")
 		}
 
 	})
@@ -317,13 +345,23 @@ func (ds *DokoSim) assertCardMove(t *testing.T, short string, exp bool) {
 	var ok bool = ds.Move("card " + short)
 	if ok != exp {
 		if ok {
-			debug.PrintStack()
-			t.Error("Move did succed, it shouldn't have")
+			t.Error("Move did succeed, it shouldn't have")
 			t.FailNow()
 		} else {
-			debug.PrintStack()
-			t.Error("Move didn't succed, it should have")
+			t.Error("Move didn't succeed, it should have")
 			t.FailNow()
+		}
+	}
+}
+
+func (ds *DokoSim) assertPickup(t *testing.T, player int, exp bool) {
+	var p *logic.Packet = logic.NewPacket("pickup")
+	var ok bool = ds.doko.PlayerMove(player, p)
+	if ok != exp {
+		if ok {
+			t.Error("Pickup did succeed, it shouldn't have")
+		} else {
+			t.Error("Pickup didn't succeed, it should have")
 		}
 	}
 }

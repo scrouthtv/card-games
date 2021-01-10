@@ -20,6 +20,10 @@ type Doko struct {
 	// table: inventory
 	table *logic.Deck
 
+	// playable: if set to true, cards can be played,
+	// if set to false, the trick has to be picked up first
+	playable bool
+
 	features []scoring
 }
 
@@ -49,7 +53,7 @@ func dokoCardValue(c *logic.Card) int {
 // supplied game
 func NewDoko(host logic.IGame) *Doko {
 	var d Doko = Doko{host, -1, nil, nil, nil, nil,
-		[]scoring{newFox()}}
+		true, []scoring{newFox()}}
 	d.Reset()
 	return &d
 }
@@ -72,6 +76,8 @@ func (d *Doko) Reset() bool {
 	}
 	d.table = logic.EmptyDeck()
 
+	d.playable = true
+
 	return true
 }
 
@@ -79,6 +85,7 @@ func (d *Doko) Reset() bool {
 func (d *Doko) Start() {
 	d.active = 0
 	d.g.SetState(logic.StatePlaying)
+	d.playable = true
 }
 
 // Info returns the GameInfo for this Doppelkopf game
@@ -107,19 +114,25 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 
 	switch p.Action() {
 	case "card":
-		// Check 1: is the move-requesting player currently active
+		// Check 1: are we currently playing
 		if d.g.State() != logic.StatePlaying {
 			log.Println("Ignoring because we are not playing")
 			return false
 		}
 
-		// Check 2: is the request complete
+		// Check 2: does the current trick have to be picked up first
+		if !d.playable {
+			log.Println("Ignoring because the trick has to be picked up first")
+			return false
+		}
+
+		// Check 3: is the request complete
 		if len(p.Args()) < 1 {
 			log.Println("Ignoring because no card was specified")
 			return false
 		}
 
-		// Check 3: is the requested card a valid card
+		// Check 4: is the requested card a valid card
 		var c *logic.Card
 		var ok bool
 		ok, c = logic.CardFromShort(p.Args()[0])
@@ -129,7 +142,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		var removed []*logic.Card
-		// Check 4: is this player allowed to play this card
+		// Check 5: is this player allowed to play this card
 		if d.table.Length() > 0 {
 			// If there are already cards on the table, is this card allowed?
 			if !d.AllowedCards().Contains(*c) {
@@ -162,11 +175,8 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 			if winner >= 4 {
 				winner -= 4
 			}
-			d.playerWonTrick(winner)
 			d.active = winner
-			if len(*d.hands[d.active]) == 0 {
-				d.g.SetState(logic.StateEnded)
-			}
+			d.playable = false
 		} else {
 			d.active++
 			if d.active == 4 {
@@ -175,6 +185,29 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		d.g.SendUpdates()
+		return true
+	case "pickup":
+		// Check 1: are we currently playing
+		if d.g.State() != logic.StatePlaying {
+			log.Println("Ignoring because we are not playing")
+			return false
+		}
+
+		// Check 2: does the current trick have to be picked up
+		if d.playable {
+			log.Println("Ignoring because the trick has to be played first")
+			return false
+		}
+
+		if player != d.active {
+			log.Println("Ignoring because this player didn't win the trick")
+			return false
+		}
+		d.playerWonTrick(player)
+		if len(*d.hands[d.active]) == 0 {
+			d.g.SetState(logic.StateEnded)
+		}
+		d.playable = true
 		return true
 	}
 
