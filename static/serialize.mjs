@@ -1,3 +1,5 @@
+import { dokoGameUUID, statePreparing, statePlaying, stateEnded, cardMaxSuit, dokoTrumpOrder } from './serialize-props.js';
+
 class Card {
   /**
    * @param {number} suit
@@ -199,7 +201,7 @@ class DokoGame {
     var trump;
     for (value = 0; value < dokoTrumpOrder.length; value++) {
       trump = dokoTrumpOrder[value];
-      if (trump.equal(card)) {
+      if (trump == card.toString().toLowerCase()) {
         return dokoTrumpOrder.length - value;
       }
     }
@@ -248,3 +250,5 @@ class ByteBuffer {
     return this.offset < this.dataView.byteLength;
   }
 }
+
+export { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer };

@@ -4,6 +4,12 @@
         <script src="cardElement.js"></script>
         <title>Lennis Spielekiste</title>
         <link rel="stylesheet" href="style.css" />
+				<script type="module">
+				import { join, play, pickup } from './play.js';
+				window.join = join;
+				window.play = play;
+				window.pickup = pickup;
+				</script>
     </head>
     <body>
         <div id="gamescreen">
@@ -57,8 +63,6 @@
 								<span id="special2"></span>
             </span>
         </div>
-        <script src="serialize.js"></script>
-        <script src="serialize-props.js"></script>
-        <script src="play.js"></script>
+				<!--<script type="module" src="play.js"></script>-->
     </body>
 </html>

@@ -1,3 +1,7 @@
+import { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer } from './serialize.mjs';
+import { statePreparing, statePlaying, stateEnded } from './serialize-props.js';
+export { join, play, pickup }
+
 function join(id) {
   if (!conn) {
     console.log("Failed to connect");
@@ -136,7 +140,7 @@ function drawStorage(who, destination) {
   var specialAmt = 0;
   if (specials != undefined) specialAmt = specials.cards.length;
 
-  for (i = storage.children.length; i < amount - specialAmt; i++) {
+  for (var i = storage.children.length; i < amount - specialAmt; i++) {
     var card = new CardElement();
     card.classList.add("card");
     card.classList.add("small");

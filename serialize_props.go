@@ -47,7 +47,7 @@ func intSliceToString(slice []int) string {
 
 func cardSliceToString(slice []logic.Card) string {
 	var out strings.Builder
-	out.WriteString("[")
+	out.WriteString("[ ")
 
 	var k int
 	var c logic.Card
@@ -55,9 +55,9 @@ func cardSliceToString(slice []logic.Card) string {
 		if k > 0 {
 			out.WriteString(", ")
 		}
-		out.WriteString(fmt.Sprintf("new Card(%d, %d)", c.Suit(), c.Value()))
+		out.WriteString(fmt.Sprintf("\"%s\"", c.Short()))
 	}
-	out.WriteString("]")
+	out.WriteString(" ]")
 
 	return out.String()
 }

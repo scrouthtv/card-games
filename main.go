@@ -62,6 +62,7 @@ func serveProps(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/serialize-props.js" {
 		return
 	}
+	w.Header().Set("Content-Type", "application/javascript")
 	writeProps(w)
 }
 
