@@ -18,7 +18,11 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 	case logic.StatePreparing:
 		buf.WriteByte(logic.StatePreparing)
 	case logic.StatePlaying:
-		buf.WriteByte(logic.StatePlaying | (byte(d.active) << 2) | (byte(player) << 5))
+		var playable byte = 0
+		if d.playable {
+			playable = 1
+		}
+		buf.WriteByte(logic.StatePlaying | (byte(d.active) << 2) | (byte(player) << 4) | (playable << 6))
 		d.hands[player].WriteBinary(buf)
 		d.table.WriteBinary(buf)
 		var i int

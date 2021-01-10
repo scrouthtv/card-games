@@ -127,8 +127,9 @@ class DokoGame {
         break;
       case statePlaying:
         dg.state = statePlaying;
-        dg.active = (stateInfo & 0b00011100) >> 2;
-        dg.me = (stateInfo & 0b11100000) >> 5;
+        dg.active = 	(stateInfo & 0b00001100) >> 2;
+        dg.me = 		  (stateInfo & 0b00110000) >> 4;
+				dg.playable = (stateInfo & 0b01000000) >> 6;
         dg.hand = Deck.fromBinary(buf);
         dg.table = Deck.fromBinary(buf);
         dg.won = [];

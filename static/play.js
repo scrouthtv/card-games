@@ -40,6 +40,11 @@ function play(cint) {
   conn.send(`card ${card.toString().toLowerCase()}`);
 }
 
+function pickup() {
+	if (game.ruleset.active != game.ruleset.me) return;
+	conn.send("pickup");
+}
+
 /** @type {Game} */
 var game;
 
