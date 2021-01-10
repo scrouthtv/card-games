@@ -41,8 +41,8 @@ function play(cint) {
 }
 
 function pickup() {
-	if (game.ruleset.active != game.ruleset.me) return;
-	conn.send("pickup");
+  if (game.ruleset.active != game.ruleset.me) return;
+  conn.send("pickup");
 }
 
 /** @type {Game} */
@@ -74,17 +74,39 @@ function redraw() {
       elem = document.getElementById("hand" + (i + 1));
       elem.setCard(hand[i]);
       elem.classList.remove("hidden");
-      if (allowed.includes(hand[i])) {
-        elem.classList.add("allowed");
+      if (game.ruleset.playable) {
+        if (allowed.includes(hand[i])) {
+          elem.classList.add("allowed");
+        } else {
+          elem.classList.remove("allowed");
+        }
       } else {
         elem.classList.remove("allowed");
+      }
+
+      if (game.ruleset.playable && game.ruleset.active == game.ruleset.me) {
+        elem.classList.add("active");
+      } else {
+        elem.classList.remove("active");
       }
     }
     for (; i < 12; i++)
       document.getElementById("hand" + (i + 1)).classList.add("hidden");
     for (i = 0; i < table.length; i++) {
-      document.getElementById("table" + (i + 1)).setCard(table[i]);
-      document.getElementById("table" + (i + 1)).classList.remove("hidden");
+      var elem = document.getElementById("table" + (i + 1));
+      elem.setCard(table[i]);
+      elem.classList.remove("hidden");
+      if (!game.ruleset.playable) {
+        console.log("is not playable");
+        elem.classList.add("allowed");
+        if (game.ruleset.active == game.ruleset.me) {
+          elem.classList.add("active");
+        } else {
+          elem.classList.remove("active");
+        }
+      } else {
+        elem.classList.remove("allowed");
+      }
     }
     for (; i < 4; i++)
       document.getElementById("table" + (i + 1)).classList.add("hidden");

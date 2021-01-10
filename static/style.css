@@ -81,8 +81,8 @@ h1 {
     filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5))
 }
 
-#hand .card.allowed::before {
-	background-color: #90caf9;
+.card.allowed::before {
+	background-color: #cacaca;
 	opacity: .5;
 	display: block;
 	content: '';
@@ -95,12 +95,16 @@ h1 {
 	border-radius: 20px;
 }
 
-#hand .card.allowed:hover::before {
+.card.allowed.active::before {
+	background-color: #90caf9;
+}
+
+.card.allowed.active:hover::before {
 	background-color: red;
 	transition: background-color 0.05s;
 }
 
-#hand .card.allowed {
+#hand .card.allowed.active {
     transform:
         translate(-100%, 0)
         rotate( calc(var(--nth-child) * 7.5deg - 45deg) )
@@ -183,9 +187,3 @@ h1 {
 .hidden {
     display: none;
 }
-
-/*#gamescreen #hand .card:hover {
-    box-sizing: border-box;
-    outline: 10px solid green;
-    outline-offset: -5px;
-}*/
