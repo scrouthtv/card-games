@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"log"
 	"net/http"
 	"path"
@@ -11,7 +10,7 @@ import (
 	"github.com/scrouthtv/card-games/logic"
 )
 
-var addr = flag.String("addr", ":8080", "http service address")
+var addr string = ":8080"
 var hub *Hub = newHub()
 
 func servePlayer(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +63,6 @@ func serveDeck(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	flag.Parse()
 	go hub.run()
 	http.HandleFunc("/play", servePlayer)
 	http.HandleFunc("/api", serveAPI)
@@ -78,7 +76,7 @@ func main() {
 	//hub.createGame("bb")
 	//hub.createGame("cc")
 	log.Printf("Started http server")
-	err := http.ListenAndServe(*addr, nil)
+	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		log.Fatal("Error: ", err)
 	}
