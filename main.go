@@ -59,7 +59,7 @@ func serveAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveProps(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/serialize-props.js" {
+	if r.URL.Path != "/serialize-props.mjs" {
 		return
 	}
 	w.Header().Set("Content-Type", "application/javascript")
@@ -77,7 +77,7 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
-	http.HandleFunc("/serialize-props.js", serveProps)
+	http.HandleFunc("/serialize-props.mjs", serveProps)
 	http.HandleFunc("/deck/", serveDeck)
 	http.HandleFunc("/", serveStatic)
 	hub.createGameWithID(5, "aa")

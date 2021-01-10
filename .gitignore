@@ -8,6 +8,9 @@
 # Test binary, built with `go test -c`
 *.test
 
+# Test output file
+static/serialize-props.mjs
+
 # Decks devel folder
 decks2/
 

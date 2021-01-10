@@ -1,5 +1,5 @@
 import { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer } from './serialize.mjs';
-import { statePreparing, statePlaying, stateEnded } from './serialize-props.js';
+import { statePreparing, statePlaying, stateEnded } from './serialize-props.mjs';
 export { join, play, pickup }
 
 function join(id) {

@@ -1,4 +1,4 @@
-import { dokoGameUUID, statePreparing, statePlaying, stateEnded, cardMaxSuit, dokoTrumpOrder } from './serialize-props.js';
+import { dokoGameUUID, statePreparing, statePlaying, stateEnded, cardMaxSuit, dokoTrumpOrder } from './serialize-props.mjs';
 
 class Card {
   /**
@@ -54,6 +54,45 @@ class Card {
     }
     return out;
   }
+
+	static fromString(str) {
+		str = str.toLowerCase();
+		var card = new Card();
+		if (str.length < 2) { return undefined; }
+		switch (str.substring(0, 1)) {
+			case "c":
+				card.suit = 0;
+				break;
+			case "d":
+				card.suit = 1;
+				break;
+			case "h":
+				card.suit = 2;
+				break;
+			case "s":
+				card.suit = 3;
+				break;
+			default:
+				return undefined;
+		}
+		switch (str.substring(1)) {
+			case "a":
+				card.value = 1;
+				break;
+			case "j":
+				card.value = 11;
+				break;
+			case "q":
+				card.value = 12;
+				break;
+			case "k":
+				card.value = 13;
+				break;
+			default:
+				card.value = parseInt(str.substring(1));
+		}
+		return card;
+	}
 
   /**
    * @param {Card} other
@@ -115,6 +154,18 @@ class Ruleset {}
  * @implements {Ruleset}
  */
 class DokoGame {
+
+	constructor() {
+		this.state = statePreparing;
+		this.active = 0;
+		this.me = 0;
+		this.playable = 0;
+		this.hand = new Deck();
+		this.table = new Deck();
+		this.won = [];
+		this.special = [];
+	}
+
   /**
    * @param {ByteBuffer} buf
    */

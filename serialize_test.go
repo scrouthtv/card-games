@@ -9,7 +9,7 @@ import (
 func TestExportProps(t *testing.T) {
 	var f *os.File
 	var err error
-	f, err = os.Create("./jstest/templ.mjs")
+	f, err = os.Create("./static/serialize-props.mjs")
 	if err != nil {
 		t.Error("Error creating file:", err)
 		t.FailNow()
