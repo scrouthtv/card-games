@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"io"
 	"strconv"
 	"strings"
 
@@ -10,20 +10,22 @@ import (
 	"github.com/scrouthtv/card-games/logic"
 )
 
-func serveProps(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/serialize-props.js" {
-		return
-	}
-	w.Write([]byte(fmt.Sprintf("const cardMaxSuit = %d;\n", logic.CardMaxSuit)))
+func writeProps(w io.Writer) {
+	w.Write([]byte(fmt.Sprintf("const cardMaxSuit = %d;\n",
+		logic.CardMaxSuit)))
 	w.Write([]byte(fmt.Sprintf("const valueOrder = %s;\n",
 		intSliceToString(logic.ValueOrder))))
-	w.Write([]byte(fmt.Sprintf("const dokoGameUUID = %d;\n", doko.DokoGameUUID)))
+	w.Write([]byte(fmt.Sprintf("const dokoGameUUID = %d;\n",
+		doko.DokoGameUUID)))
 	w.Write([]byte(fmt.Sprintf("const statePreparing = %d;\n",
 		logic.StatePreparing)))
-	w.Write([]byte(fmt.Sprintf("const statePlaying = %d;\n", logic.StatePlaying)))
-	w.Write([]byte(fmt.Sprintf("const stateEnded = %d;\n", logic.StateEnded)))
+	w.Write([]byte(fmt.Sprintf("const statePlaying = %d;\n",
+		logic.StatePlaying)))
+	w.Write([]byte(fmt.Sprintf("const stateEnded = %d;\n",
+		logic.StateEnded)))
 	w.Write([]byte(fmt.Sprintf("const dokoTrumpOrder = %s;\n",
 		cardSliceToString(doko.DokoTrumpOrder))))
+	w.Write([]byte("\nexport { cardMaxSuit, valueOrder, dokoGameUUID, statePreparing, statePlaying, stateEnded, dokoTrumpOrder };\n"))
 }
 
 func intSliceToString(slice []int) string {

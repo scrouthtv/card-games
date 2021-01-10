@@ -58,6 +58,13 @@ func serveAPI(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func serveProps(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/serialize-props.js" {
+		return
+	}
+	writeProps(w)
+}
+
 func serveDeck(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, strings.ToLower(r.URL.Path[1:]))
 }
