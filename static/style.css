@@ -60,9 +60,11 @@ h1 {
     transform-origin: bottom right;
     bottom: -24%;
     left: 50%;
-    cursor: pointer;
 }
 
+#gamescreen .card.allowed.active {
+    cursor: pointer;
+}
 .card {
     width: 205.75px;
     height: 320.25px;
