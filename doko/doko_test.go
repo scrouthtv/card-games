@@ -196,7 +196,7 @@ func TestTricks(t *testing.T) {
 	tricks["s10, sk, ha, s9"] = 0
 	tricks["s10, da, ha, d9"] = 1  // they have the higher trump
 	tricks["da, s9, d9, dk"] = 0   // they have the highest trump
-	tricks["da, h10, da, h10"] = 3 // they played the second hearts 10*/
+	tricks["da, h10, da, h10"] = 3 // they played the second hearts 10
 
 	var trick string
 	var should, is int
