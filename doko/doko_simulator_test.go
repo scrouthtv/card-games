@@ -347,9 +347,9 @@ func TestStubGame(t *testing.T) {
 
 	t.Run("15. Trick with #2's clubs queen", func(t *testing.T) {
 		ds.assertCardMove(t, "cq", true)
-		ds.playOnce()
-		ds.playOnce()
-		ds.playOnce()
+		ds.playOnce(t)
+		ds.playOnce(t)
+		ds.playOnce(t)
 		ds.assertPickup(t, 2, true)
 
 		if ds.doko.won[2].Length() != 8 {
@@ -364,14 +364,14 @@ func TestStubGame(t *testing.T) {
 
 	t.Run("16. Trick with the other clubs queen", func(t *testing.T) {
 		ds.assertCardMove(t, "dk", true)
-		ds.playOnce()
+		ds.playOnce(t)
 		ds.assertCardMove(t, "cq", true)
 
 		if !ds.doko.teamsKnown() {
 			t.Error("Teams should be known")
 		}
 
-		ds.playOnce()
+		ds.playOnce(t)
 		ds.assertPickup(t, ds.doko.active, true)
 
 		if !ds.doko.teamsKnown() {
@@ -390,6 +390,44 @@ func TestStubGame(t *testing.T) {
 	})
 
 	//t.Log(ds.String())
+}
+
+func TestGameEnd(t *testing.T) {
+	// SETUP:
+	var gs *GameStub = &GameStub{logic.StatePreparing}
+	var doko *Doko = NewDoko(gs)
+	var ds DokoSim = DokoSim{doko}
+	ds.doko.Start()
+
+	ds.doko.hands[0] = logic.DeserializeDeck("hk, ca, c10, ca, da, h9, d9, s10, cq, cj, dj, dk")
+	ds.doko.hands[1] = logic.DeserializeDeck("c10, sa, dj, h10, sq, ck, ck, h9, dq, hj, sq, sa")
+	ds.doko.hands[2] = logic.DeserializeDeck("cq, sk, sj, da, s10, s9, dq, ha, hq, hj, d10, dk")
+	ds.doko.hands[3] = logic.DeserializeDeck("sj, h10, sk, d9, hk, ha, hq, s9, d10, c9, c9, cj")
+
+	var i int
+	for i = 0; i < 4; i++ {
+		doko.start[i] = doko.hands[i].Clone()
+	}
+
+	// Play the whole game
+	for i = 0; i < 12; i++ {
+		ds.playOnce(t)
+		ds.playOnce(t)
+		ds.playOnce(t)
+		ds.playOnce(t)
+		ds.assertPickup(t, doko.active, true)
+	}
+
+	t.Log(ds.String())
+	var won *logic.Deck
+	for i = 0; i < 4; i++ {
+		won = doko.won[i]
+		if won == nil {
+			t.Logf("Won %d: nil", i)
+		} else {
+			t.Logf("Won %d: %s", i, won.Short())
+		}
+	}
 }
 
 func (ds *DokoSim) addCardByShort(d *logic.Deck, short string) {
