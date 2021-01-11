@@ -242,7 +242,12 @@ class DokoGame {
 				dg.scores = DokoScore.fromBinary(buf);
 
 				dg.won = [];
-				for (var player = 0; player < 4; player++) {
+				/* eslint-disable no-redeclare */
+				// False positive, see
+				// https://github.com/eslint/eslint/issues/13998
+				var player;
+				/* eslint-enable no-redeclare */
+				for (player = 0; player < 4; player++) {
 					player = buf.getUint8();
 					dg.won[player] = Deck.fromBinary(buf);
 				}
