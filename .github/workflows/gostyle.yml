@@ -21,9 +21,9 @@ jobs:
         go get -u golang.org/x/lint/golint
         echo "${HOME}/go/bin" >> $GITHUB_PATH
 
-
     - name: Lint Action
       uses: wearerequired/lint-action@v1.7.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         golint: true
+        golint_args: ./...
