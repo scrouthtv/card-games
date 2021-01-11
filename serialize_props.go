@@ -11,21 +11,28 @@ import (
 )
 
 func writeProps(w io.Writer) {
-	w.Write([]byte(fmt.Sprintf("const cardMaxSuit = %d;\n",
-		logic.CardMaxSuit)))
-	w.Write([]byte(fmt.Sprintf("const valueOrder = %s;\n",
-		intSliceToString(logic.ValueOrder))))
-	w.Write([]byte(fmt.Sprintf("const dokoGameUUID = %d;\n",
-		doko.DokoGameUUID)))
-	w.Write([]byte(fmt.Sprintf("const statePreparing = %d;\n",
-		logic.StatePreparing)))
-	w.Write([]byte(fmt.Sprintf("const statePlaying = %d;\n",
-		logic.StatePlaying)))
-	w.Write([]byte(fmt.Sprintf("const stateEnded = %d;\n",
-		logic.StateEnded)))
-	w.Write([]byte(fmt.Sprintf("const dokoTrumpOrder = %s;\n",
-		cardSliceToString(doko.DokoTrumpOrder))))
+	writeJSintconst(w, "cardMaxSuit", logic.CardMaxSuit)
+	writeJSconst(w, "valueOrder", intSliceToString(logic.ValueOrder))
+	writeJSintconst(w, "dokoGameUUID", doko.DokoGameUUID)
+	writeJSintconst(w, "statePreparing", logic.StatePreparing)
+	writeJSintconst(w, "statePlaying", logic.StatePlaying)
+	writeJSintconst(w, "stateEnded", logic.StateEnded)
+	writeJSconst(w, "dokoTrumpOrder", cardSliceToString(doko.DokoTrumpOrder))
+	writeJSintconst(w, "reasonWon", doko.ReasonWon)
+	writeJSintconst(w, "reasonAgainstTheElders", doko.ReasonAgainstTheElders)
+	writeJSintconst(w, "reasonNo90", doko.ReasonNo90)
+	writeJSintconst(w, "reasonNo60", doko.ReasonNo60)
+	writeJSintconst(w, "reasonNo30", doko.ReasonNo30)
+	writeJSintconst(w, "reasonBlack", doko.ReasonBlack)
 	w.Write([]byte("\nexport { cardMaxSuit, valueOrder, dokoGameUUID, statePreparing, statePlaying, stateEnded, dokoTrumpOrder };\n"))
+}
+
+func writeJSintconst(w io.Writer, name string, value int) {
+	writeJSconst(w, name, strconv.Itoa(value))
+}
+
+func writeJSconst(w io.Writer, name string, value string) {
+	w.Write([]byte(fmt.Sprintf("const %s = %s;\n", name, value)))
 }
 
 func intSliceToString(slice []int) string {

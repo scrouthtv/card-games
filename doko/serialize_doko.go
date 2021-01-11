@@ -51,7 +51,6 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 			}
 		}
 
-		// Write them with their corresponding position in the won deck:
 		var player int
 		var deck *logic.Deck
 		for player, deck = range playerspecial {
@@ -61,13 +60,36 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 
 	case logic.StateEnded:
 		buf.WriteByte(logic.StateEnded)
-		var scores []int = d.Scores()
-		var score int
-		for _, score = range scores {
-			buf.WriteByte(byte(score))
+
+		d.Scores().WriteBinary(buf)
+
+		var player int
+		var deck *logic.Deck
+		for player, deck = range d.won {
+			buf.WriteByte(byte(player))
+			deck.WriteBinary(buf)
 		}
 	default:
 		buf.WriteByte(0)
 	}
 
+}
+
+func (s *DokoScore) WriteBinary(buf *bytes.Buffer) {
+	buf.WriteByte(byte(len(s.scores)))
+	var score int
+	for _, score = range s.scores {
+		buf.WriteByte(byte(score))
+	}
+	writeIntArray(s.rereasons, buf)
+	writeIntArray(s.contrareasons, buf)
+}
+
+func writeIntArray(arr []int, buf *bytes.Buffer) {
+	buf.WriteByte(byte(len(arr)))
+
+	var x int
+	for _, x = range arr {
+		buf.WriteByte(byte(x))
+	}
 }

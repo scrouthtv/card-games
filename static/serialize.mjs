@@ -192,13 +192,18 @@ class DokoGame {
         var player;
         dg.special = [];
         for (player = 0; player < 4; player++) {
-          if (!buf.hasNext()) break;
           player = buf.getUint8();
           dg.special[player] = Deck.fromBinary(buf);
         }
         break;
       case stateEnded:
         dg.state = stateEnded;
+				var player;
+				dg.won = [];
+				for (player = 0; player < 4; player++) {
+					player = buf.getUint8();
+					dg.won[player] = Deck.fromBinary(buf);
+				}
         break;
       default:
         dg.state = -1;

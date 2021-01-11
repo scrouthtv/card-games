@@ -144,6 +144,16 @@ func (d *Doko) beats(def *logic.Card, atk *logic.Card) bool {
 	}
 }
 
+func (d *Doko) Progress() (int, int) {
+	var prog int = 0
+	var hand *logic.Deck
+	for _, hand = range d.hands {
+		prog += hand.Length()
+	}
+
+	return 52 - prog, prog
+}
+
 var dokoValueOrder []int = []int{9, logic.Jack, logic.Queen, logic.King, 10, logic.Ace}
 
 func (d *Doko) value(c *logic.Card) int {
