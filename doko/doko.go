@@ -199,10 +199,6 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 			return false
 		}
 
-		if player != d.active {
-			log.Println("Ignoring because this player didn't win the trick")
-			return false
-		}
 		d.playerWonTrick(player)
 		if len(*d.hands[d.active]) == 0 {
 			d.g.SetState(logic.StateEnded)
@@ -223,12 +219,6 @@ func (d *Doko) playerWonTrick(winner int) {
 	}
 	d.won[winner].Merge(d.table)
 	d.table = logic.EmptyDeck()
-}
-
-func (d *Doko) containsColor(deck *logic.Deck, color int) bool {
-	return deck.ContainsAny(func(c *logic.Card) bool {
-		return d.color(c) == color
-	})
 }
 
 // trickWinner calculates the winner # in this trick

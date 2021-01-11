@@ -128,6 +128,20 @@ func TestStubGame(t *testing.T) {
 	var doko *Doko = NewDoko(gs)
 	var ds DokoSim = DokoSim{doko}
 
+	// Check 1: Try to play a card now:
+	t.Run("0. Shouldn't be able to do anything before the game has started", func(t *testing.T) {
+		ds.assertCardMove(t, "h10", false)
+		var p *logic.Packet = logic.NewPacket("pickup")
+		var ok bool = ds.doko.PlayerMove(ds.doko.active, p)
+		if ok {
+			t.Error("Shouldn't be able to pick up now")
+		}
+		ok = ds.doko.PlayerMove(2, p)
+		if ok {
+			t.Error("Player 2 shouldn't be able to pick up now either")
+		}
+	})
+
 	ds.doko.Start()
 
 	ds.doko.hands[0] = logic.DeserializeDeck("hk, ca, c10, ca, da, h9, d9, s10, cq, cj, dj, dk")
@@ -228,6 +242,12 @@ func TestStubGame(t *testing.T) {
 		ds.assertCardMove(t, "", false)
 		ds.assertCardMove(t, "s8", false)
 		ds.assertCardMove(t, "d9", false)
+
+		var p *logic.Packet = logic.NewPacket("card")
+		var ok bool = ds.doko.PlayerMove(ds.doko.active, p)
+		if ok {
+			t.Error("Shouldn't be able to play empty card")
+		}
 	})
 
 	t.Run("9. Player 1 tries to play", func(t *testing.T) {
@@ -327,6 +347,15 @@ func TestStubGame(t *testing.T) {
 			t.Error("Teams should still be known")
 		}
 
+	})
+
+	t.Run("17. Invalid command should fail", func(t *testing.T) {
+		var p *logic.Packet = logic.NewPacket("whoami")
+
+		var ok bool = ds.doko.PlayerMove(ds.doko.active, p)
+		if ok {
+			t.Error("Accepted invalid command whoami")
+		}
 	})
 
 	//t.Log(ds.String())

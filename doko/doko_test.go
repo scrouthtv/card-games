@@ -169,6 +169,15 @@ func TestBeat(t *testing.T) {
 	testBeat(t, doko, "h10", "d10", false)
 }
 
+func TestInfo(t *testing.T) {
+	var gs *GameStub = &GameStub{logic.StatePreparing}
+	var doko *Doko = NewDoko(gs)
+	var info logic.GameInfo = doko.Info()
+	if info.Maxplayers != 4 {
+		t.Error("Doko game should have max players 4")
+	}
+}
+
 func testBeat(t *testing.T, doko *Doko, def string, atk string, exp bool) {
 	var cdef, catk *logic.Card
 	var ok bool
