@@ -179,28 +179,6 @@ func (ds *DokoSim) TestFriends(t *testing.T, re []int, contra []int) {
 	}
 }
 
-// Makes the active player play the first allowed card
-func (ds *DokoSim) playOnce(t *testing.T) {
-	t.Helper()
-	var card *logic.Card = ds.doko.AllowedCards().Get(0)
-	ds.assertCardMove(t, card.Short(), true)
-}
-
-func TestValues(t *testing.T) {
-	var doko *Doko = NewDoko(nil)
-	var cards []logic.Card = []logic.Card{
-		*logic.NewCard(logic.Hearts, 10),
-		*logic.NewCard(logic.Hearts, logic.Jack),
-		*logic.NewCard(logic.Diamonds, 9),
-		*logic.NewCard(logic.Spades, logic.King),
-		*logic.NewCard(logic.Hearts, 9),
-	}
-	var card logic.Card
-	for _, card = range cards {
-		t.Logf("Card %s has %d trump value", card.String(), doko.trumpValue(&card))
-	}
-}
-
 func TestDokoSum(t *testing.T) {
 	var deck *logic.Deck = logic.NewDeck([]int{1, 9, 10, 11, 12, 13}).Twice()
 	var value int = deck.Value(dokoCardValue)
@@ -258,28 +236,5 @@ func TestInfo(t *testing.T) {
 	var info logic.GameInfo = doko.Info()
 	if info.Maxplayers != 4 {
 		t.Error("Doko game should have max players 4")
-	}
-}
-
-func testBeat(t *testing.T, doko *Doko, def string, atk string, exp bool) {
-	var cdef, catk *logic.Card
-	var ok bool
-	ok, cdef = logic.CardFromShort(def)
-	if !ok {
-		return
-	}
-	ok, catk = logic.CardFromShort(atk)
-	if !ok {
-		return
-	}
-	var is bool = doko.beats(cdef, catk)
-	if exp != is {
-		if exp {
-			t.Errorf("Attacker didn't win, they should have with %s vs %s",
-				def, atk)
-		} else {
-			t.Errorf("Attacker did win, they shouldn't have with %s vs %s",
-				def, atk)
-		}
 	}
 }

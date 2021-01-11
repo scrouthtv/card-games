@@ -215,6 +215,8 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 	return false
 }
 
+// playerWonTrick makes the selected player pick
+// up the current trick on the table
 func (d *Doko) playerWonTrick(winner int) {
 	log.Printf("Player %d won the trick", winner)
 	var ok bool
