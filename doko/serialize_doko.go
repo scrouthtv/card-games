@@ -70,7 +70,7 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 			deck.WriteBinary(buf)
 		}
 	default:
-		buf.WriteByte(0)
+		buf.WriteByte(255)
 	}
 
 }

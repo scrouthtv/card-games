@@ -151,7 +151,9 @@ func (d *Doko) Progress() (int, int) {
 		prog += hand.Length()
 	}
 
-	return 52 - prog, prog
+	const max int = 48
+
+	return max - prog, max
 }
 
 var dokoValueOrder []int = []int{9, logic.Jack, logic.Queen, logic.King, 10, logic.Ace}

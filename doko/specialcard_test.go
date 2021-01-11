@@ -6,6 +6,18 @@ import (
 	"github.com/scrouthtv/card-games/logic"
 )
 
+func TestFoxMeta(t *testing.T) {
+	var fox scoring = newFox()
+
+	if fox.Name() != "Fuchs" {
+		t.Errorf("Fox name should be Fuchs, is %s", fox.Name())
+	}
+
+	if fox.Reason() != ReasonFox {
+		t.Errorf("Fox reason should be %d, is %d", ReasonFox, fox.Reason())
+	}
+}
+
 func TestFoxFinder(t *testing.T) {
 	var gs *GameStub = &GameStub{logic.StatePreparing}
 	var doko *Doko = NewDoko(gs)
