@@ -43,10 +43,10 @@ func TestCardTracer(t *testing.T) {
 
 	// Play some cards
 	for i = 0; i < 5; i++ {
-		ds.playOnce()
-		ds.playOnce()
-		ds.playOnce()
-		ds.playOnce()
+		ds.playOnce(t)
+		ds.playOnce(t)
+		ds.playOnce(t)
+		ds.playOnce(t)
 		ds.assertPickup(t, ds.doko.active, true)
 	}
 
@@ -180,9 +180,10 @@ func (ds *DokoSim) TestFriends(t *testing.T, re []int, contra []int) {
 }
 
 // Makes the active player play the first allowed card
-func (ds *DokoSim) playOnce() {
+func (ds *DokoSim) playOnce(t *testing.T) {
+	t.Helper()
 	var card *logic.Card = ds.doko.AllowedCards().Get(0)
-	ds.assertCardMove(nil, card.Short(), true)
+	ds.assertCardMove(t, card.Short(), true)
 }
 
 func TestValues(t *testing.T) {
