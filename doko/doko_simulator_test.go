@@ -76,6 +76,9 @@ func (ds *DokoSim) String() string {
 }
 
 func (ds *DokoSim) TestHand(t *testing.T, player int, cards *logic.Deck) {
+	if t != nil {
+		t.Helper()
+	}
 	if !ds.doko.hands[player].Equal(cards) {
 		t.Errorf("Player %d has wrong hand:", player)
 		t.Logf("Expected: %s", cards)
@@ -84,6 +87,9 @@ func (ds *DokoSim) TestHand(t *testing.T, player int, cards *logic.Deck) {
 }
 
 func (ds *DokoSim) TestAllHands(t *testing.T, hands map[int]*logic.Deck) {
+	if t != nil {
+		t.Helper()
+	}
 	var player int
 	var deck *logic.Deck
 	for player, deck = range hands {
@@ -92,6 +98,9 @@ func (ds *DokoSim) TestAllHands(t *testing.T, hands map[int]*logic.Deck) {
 }
 
 func (ds *DokoSim) TestWondeck(t *testing.T, player int, cards *logic.Deck) {
+	if t != nil {
+		t.Helper()
+	}
 	if !ds.doko.won[player].Equal(cards) {
 		t.Errorf("Player %d has wrong cards won:", player)
 		t.Logf("Expected: %s", cards)
@@ -100,6 +109,9 @@ func (ds *DokoSim) TestWondeck(t *testing.T, player int, cards *logic.Deck) {
 }
 
 func (ds *DokoSim) TestAllWondecks(t *testing.T, won map[int]*logic.Deck) {
+	if t != nil {
+		t.Helper()
+	}
 	var player int
 	var deck *logic.Deck
 	for player, deck = range won {
@@ -108,6 +120,9 @@ func (ds *DokoSim) TestAllWondecks(t *testing.T, won map[int]*logic.Deck) {
 }
 
 func (ds *DokoSim) TestTable(t *testing.T, table *logic.Deck) {
+	if t != nil {
+		t.Helper()
+	}
 	if !ds.doko.table.Equal(table) {
 		t.Errorf("Table contents is wrong:")
 		t.Logf("Expected: %s", table)
@@ -371,6 +386,9 @@ func (ds *DokoSim) addCardByShort(d *logic.Deck, short string) {
 }
 
 func (ds *DokoSim) assertCardMove(t *testing.T, short string, exp bool) {
+	if t != nil {
+		t.Helper()
+	}
 	var ok bool = ds.Move("card " + short)
 	if ok != exp {
 		if ok {
@@ -384,6 +402,9 @@ func (ds *DokoSim) assertCardMove(t *testing.T, short string, exp bool) {
 }
 
 func (ds *DokoSim) assertPickup(t *testing.T, player int, exp bool) {
+	if t != nil {
+		t.Helper()
+	}
 	var p *logic.Packet = logic.NewPacket("pickup")
 	var ok bool = ds.doko.PlayerMove(player, p)
 	if ok != exp {
