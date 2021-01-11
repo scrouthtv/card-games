@@ -12,7 +12,7 @@ rules:
   getter-return: 2
   no-setter-return: 2
 
-  no-cond-asign: 1
+  no-cond-assign: 1
   no-dupe-args: 2
   no-dupe-else-if: 2
   no-dupe-keys: 2
@@ -30,7 +30,7 @@ rules:
   use-isnan: 2
   no-constructor-return: 1
   no-invalid-this: 2
-  no-magic-spaces: 1
+  no-multi-spaces: 1
   no-octal: 1
   no-redeclare: 2
   no-self-assign: 1
