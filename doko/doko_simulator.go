@@ -2,6 +2,8 @@ package doko
 
 import "strings"
 import "strconv"
+import "testing"
+
 import "github.com/scrouthtv/card-games/logic"
 
 // GameStub is a game that is not connected to a hub or clients,
@@ -80,20 +82,37 @@ func (ds *DokoSim) addCardByShort(d *logic.Deck, short string) {
 	}
 }
 
-func (ds *DokoSim) assertCardMove(t *testing.T, short string, exp bool) {
+// playTrick plays a full trick. short specifies the cards to be played
+// in 4x whitespace-delimited cards
+func (ds *DokoSim) playTrick(t *testing.T, short string) {
+	t.Helper()
+	var cards []string = strings.Split(short, " ")
+	if len(cards) != 4 {
+		t.Error("Wrong amount of cards specified")
+	}
+	var move string
+	for _, move = range cards {
+		ds.assertCardMove(t, move, true)
+	}
+	ds.assertPickup(t, ds.doko.active, true)
+}
+
+func (ds *DokoSim) assertCardMove(t *testing.T, short string, exp bool) bool {
 	if t != nil {
 		t.Helper()
 	}
 	var ok bool = ds.Move("card " + short)
 	if ok != exp {
 		if ok {
-			t.Error("Move did succeed, it shouldn't have")
+			t.Errorf("Card %s did succeed, it shouldn't have", short)
 			t.FailNow()
 		} else {
-			t.Error("Move didn't succeed, it should have")
+			t.Errorf("Card %s didn't succeed, it should have", short)
 			t.FailNow()
 		}
+		return false
 	}
+	return true
 }
 
 func (ds *DokoSim) assertPickup(t *testing.T, player int, exp bool) {
