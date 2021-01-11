@@ -31,6 +31,7 @@ type scoring interface {
 	Name() string
 	Score(doko *Doko) (int, int)
 	MarkCards(doko *Doko) []*logic.Card
+	Reason() int
 }
 
 func dokoCardValue(c *logic.Card) int {
@@ -79,6 +80,10 @@ func (d *Doko) Reset() bool {
 	d.playable = true
 
 	return true
+}
+
+func (d *Doko) Active() int {
+	return d.active
 }
 
 // Start starts this game
