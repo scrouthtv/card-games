@@ -22,7 +22,9 @@ func (d *Doko) Teams() ([]int, []int) {
 	return repair, contrapair
 }
 
-type DokoScore struct {
+// Score contains both the score and the reasons
+// for a DokoGame
+type Score struct {
 	scores        []int
 	rereasons     []int
 	contrareasons []int
@@ -35,13 +37,13 @@ const (
 	// ReasonAgainstTheElders indicates that the contra team
 	// got a point because they beat the re party
 	ReasonAgainstTheElders
-	// ResonNo90 indicates that the winning team got a point
+	// ReasonNo90 indicates that the winning team got a point
 	// because the loosing team didn't reach 90 eyes
 	ReasonNo90
-	// ResonNo60 indicates that the winning team got a point
+	// ReasonNo60 indicates that the winning team got a point
 	// because the loosing team didn't reach 60 eyes
 	ReasonNo60
-	// ResonNo30 indicates that the winning team got a point
+	// ReasonNo30 indicates that the winning team got a point
 	// because the loosing team didn't reach 30 eyes
 	ReasonNo30
 	// ReasonBlack indicates that the winning team got a point
@@ -50,13 +52,15 @@ const (
 	reasonMaxEyes
 )
 
-func EmptyScore() *DokoScore {
-	return &DokoScore{[]int{0, 0, 0, 0}, make([]int, 0), make([]int, 0)}
+// EmptyScore creates a new doko score with 0 score for each player
+// and an empty reason list for both re and contra
+func EmptyScore() *Score {
+	return &Score{[]int{0, 0, 0, 0}, make([]int, 0), make([]int, 0)}
 }
 
 // extraEyes returns points for no 90/60/30 and black
 // as well as adding the reasons to the score
-func (d *Doko) extraEyes(s *DokoScore, revalue int, contravalue int) (int, int) {
+func (d *Doko) extraEyes(s *Score, revalue int, contravalue int) (int, int) {
 	var lval int
 	if revalue > contravalue {
 		lval = contravalue
@@ -90,19 +94,18 @@ func (d *Doko) extraEyes(s *DokoScore, revalue int, contravalue int) (int, int) 
 	if revalue > contravalue {
 		s.rereasons = append(s.rereasons, wreasons...)
 		return wscore, 0
-	} else {
-		s.contrareasons = append(s.contrareasons, wreasons...)
-		return 0, wscore
 	}
+	s.contrareasons = append(s.contrareasons, wreasons...)
+	return 0, wscore
 }
 
 // Scores calculates
-func (d *Doko) Scores() *DokoScore {
+func (d *Doko) Scores() *Score {
 	if d == nil {
 		return EmptyScore()
 	}
 
-	var score *DokoScore = EmptyScore()
+	var score *Score = EmptyScore()
 
 	var revalue, contravalue = d.Values()
 

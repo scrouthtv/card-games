@@ -144,6 +144,9 @@ func (d *Doko) beats(def *logic.Card, atk *logic.Card) bool {
 	}
 }
 
+// Progress defines how far this game has gone
+// the first value indicates how many cards have already been played,
+// the second indicates how many cards have to be played at total
 func (d *Doko) Progress() (int, int) {
 	var prog int = 0
 	var hand *logic.Deck

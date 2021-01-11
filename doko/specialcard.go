@@ -13,6 +13,8 @@ type specialCard struct {
 }
 
 const (
+	// ReasonFox indicates that the team got a point for catching an enemie's
+	// fox (diamonds ace)
 	ReasonFox = iota + reasonMaxEyes
 	reasonMaxSpecials
 )

@@ -82,6 +82,7 @@ func (d *Doko) Reset() bool {
 	return true
 }
 
+// Active returns the identifier of the currently active player
 func (d *Doko) Active() int {
 	return d.active
 }
