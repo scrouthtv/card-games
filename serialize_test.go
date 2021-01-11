@@ -7,6 +7,11 @@ import (
 )
 
 func TestExportProps(t *testing.T) {
+	var doexp string = os.Getenv("DO_EXPORT")
+	if doexp != "1" {
+		t.Skip("Set DO_EXPORT to 1 to export serialize-props.mjs")
+	}
+
 	var f *os.File
 	var err error
 	f, err = os.Create("./static/serialize-props.mjs")
