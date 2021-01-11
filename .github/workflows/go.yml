@@ -26,9 +26,9 @@ jobs:
 
     - name: Test
       run: |
-        go test . -cover
+        go test .
         cd doko
         go test . -cover
         cd ../logic
-        go test .
+        go test . -cover
         cd ..
