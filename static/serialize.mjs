@@ -145,6 +145,42 @@ class Deck {
   }
 }
 
+class DokoScore {
+
+	constructor() {
+		this.scores = [ 0, 0, 0, 0 ];
+		this.rereasons = [];
+		this.contrareasons = [];
+	}
+
+	/**
+	 * @param {ByteBuffer} buf
+	 */
+	static fromBinary(buf) {
+		var ds = new DokoScore();
+		var slen = buf.getUint8();
+		for (var i = 0; i < slen; i++) {
+			ds.scores.push(buf.getUint8());
+		}
+		ds.rereasons = arrayFromBuf(buf);
+		ds.contrareasons = arrayFromBuf(buf);
+		return ds;
+	}
+
+}
+
+/**
+ * @param {ByteBuffer} buf
+ */
+function arrayFromBuf(buf) {
+	var arr = [];
+	var len = buf.getUint8();
+	for (var i = 0; i < len; i++) {
+		arr.push(buf.getUint8());
+	}
+	return arr;
+}
+
 /**
  * @interface
  */
@@ -198,6 +234,9 @@ class DokoGame {
         break;
       case stateEnded:
         dg.state = stateEnded;
+
+				dg.scores = DokoScore.fromBinary(buf);
+
 				var player;
 				dg.won = [];
 				for (player = 0; player < 4; player++) {

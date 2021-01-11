@@ -100,7 +100,6 @@ function redraw() {
       elem.setCard(table[i]);
       elem.classList.remove("hidden");
       if (!game.ruleset.playable) {
-        console.log("is not playable");
         elem.classList.add("allowed");
         if (game.ruleset.active == game.ruleset.me) {
           elem.classList.add("active");
@@ -127,9 +126,13 @@ function redraw() {
           "Hier ist " + i + "'s Stich";
       }
     }
-  } else {
-    console.log("Not painting this state");
-  }
+	} else if (game.ruleset.state == stateEnded) {
+		console.log(game)
+	} else {
+    console.log("Not painting this state (" + game.state + ")");
+		console.log(game)
+		console.log(stateEnded)
+	}
 }
 
 function drawStorage(who, destination) {

@@ -24,7 +24,8 @@ func writeProps(w io.Writer) {
 	writeJSintconst(w, "reasonNo60", doko.ReasonNo60)
 	writeJSintconst(w, "reasonNo30", doko.ReasonNo30)
 	writeJSintconst(w, "reasonBlack", doko.ReasonBlack)
-	w.Write([]byte("\nexport { cardMaxSuit, valueOrder, dokoGameUUID, statePreparing, statePlaying, stateEnded, dokoTrumpOrder };\n"))
+	writeJSintconst(w, "reasonFox", doko.ReasonFox)
+	w.Write([]byte("\nexport { cardMaxSuit, valueOrder, dokoGameUUID, statePreparing, statePlaying, stateEnded, dokoTrumpOrder, reasonWon, reasonAgainstTheElders, reasonNo90, reasonNo60, reasonNo30, reasonBlack, reasonFox };\n"))
 }
 
 func writeJSintconst(w io.Writer, name string, value int) {
