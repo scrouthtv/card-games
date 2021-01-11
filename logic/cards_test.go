@@ -1,9 +1,25 @@
 package logic
 
 import (
+	"fmt"
+	"os"
 	"testing"
 	"time"
 )
+
+func TestMain(m *testing.M) {
+	var exit int = m.Run()
+
+	if exit == 0 && testing.CoverMode() != "" {
+		var c float64 = testing.Coverage()
+		if c < 0.8 {
+			fmt.Printf("Tests passed but too little covered, got %2.0f %%, should be 80 %%\n", c*100)
+			exit = -1
+		}
+	}
+
+	os.Exit(exit)
+}
 
 func TestCardConsts(t *testing.T) {
 	if Ace != 1 {
