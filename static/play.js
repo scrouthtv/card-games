@@ -1,7 +1,7 @@
-import { Game, ByteBuffer } from './serialize.mjs';
-import { statePreparing, statePlaying, stateEnded } from './serialize-props.mjs';
-import { CardElement } from './cardElement.mjs';
-export { join, play, pickup }
+import { Game, ByteBuffer } from "./serialize.mjs";
+import { statePreparing, statePlaying, stateEnded } from "./serialize-props.mjs";
+import { CardElement } from "./cardElement.mjs";
+export { join, play, pickup };
 
 function join(id) {
   if (!conn) {
@@ -25,7 +25,7 @@ if (window["WebSocket"]) {
   conn = new WebSocket("ws://" + document.location.host + "/ws");
   conn.binaryType = "arraybuffer";
   conn.onclose = function () {
-    alert("<b>Connection closed.</b>");
+    console.log("Connection closed.");
   };
   conn.onmessage = function (evt) {
     game = Game.fromBinary(new ByteBuffer(evt.data));
@@ -128,11 +128,11 @@ function redraw() {
       }
     }
 	} else if (game.ruleset.state == stateEnded) {
-		console.log(game)
+		console.log(game);
 	} else {
     console.log("Not painting this state (" + game.state + ")");
-		console.log(game)
-		console.log(stateEnded)
+		console.log(game);
+		console.log(stateEnded);
 	}
 }
 
@@ -171,7 +171,7 @@ function drawStorage(who, destination) {
     card.setCard(specials.cards[i]);
     storage.appendChild(card);
   }
-  return;
+  
 }
 
 function changeSize() {
