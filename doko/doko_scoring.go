@@ -68,7 +68,49 @@ const (
 )
 
 func EmptyScore() *DokoScore {
-	return &DokoScore{[]int{0, 0, 0, 0}, make([]int, 3), make([]int, 3)}
+	return &DokoScore{[]int{0, 0, 0, 0}, make([]int, 0), make([]int, 0)}
+}
+
+// extraEyes returns points for no 90/60/30 and black
+// as well as adding the reasons to the score
+func (d *Doko) extraEyes(s *DokoScore, revalue int, contravalue int) (int, int) {
+	var lval int
+	if revalue > contravalue {
+		lval = contravalue
+	} else if revalue == contravalue {
+		return 0, 0
+	} else {
+		lval = revalue
+	}
+
+	var wscore int = 0
+	var wreasons []int
+
+	switch {
+	case lval == 0:
+		wscore++
+		wreasons = append(wreasons, ReasonBlack)
+		fallthrough
+	case lval < 30:
+		wscore++
+		wreasons = append(wreasons, ReasonNo30)
+		fallthrough
+	case lval < 60:
+		wscore++
+		wreasons = append(wreasons, ReasonNo60)
+		fallthrough
+	case lval < 90:
+		wscore++
+		wreasons = append(wreasons, ReasonNo90)
+	}
+
+	if revalue > contravalue {
+		s.rereasons = append(s.rereasons, wreasons...)
+		return wscore, 0
+	} else {
+		s.contrareasons = append(s.contrareasons, wreasons...)
+		return 0, wscore
+	}
 }
 
 // Scores calculates
@@ -84,18 +126,23 @@ func (d *Doko) Scores() *DokoScore {
 	// Score by won cards:
 	var rescore, contrascore = 0, 0
 	if revalue > contravalue {
-		revalue = 1
+		rescore = 1
 		score.rereasons = append(score.rereasons, ReasonWon)
 	} else if revalue == contravalue {
-		contravalue = 1
+		contrascore = 1
 		score.contrareasons = append(score.contrareasons, ReasonAgainstTheElders)
 	} else {
-		contravalue = 2
+		contrascore = 2
 		score.contrareasons = append(score.contrareasons, ReasonAgainstTheElders, ReasonWon)
 	}
 
-	// Extra scoring features:
 	var rtmp, ctmp int
+	// Extra score for thresholds:
+	rtmp, ctmp = d.extraEyes(score, revalue, contravalue)
+	rescore += rtmp
+	contrascore += ctmp
+
+	// Extra scoring features:
 	var s scoring
 	for _, s = range d.features {
 		rtmp, ctmp = s.Score(d)
@@ -134,10 +181,10 @@ func (d *Doko) Values() (int, int) {
 
 	var player int
 	for _, player = range repair {
-		recards.Merge(d.start[player])
+		recards.Merge(d.won[player])
 	}
 	for _, player = range contrapair {
-		contracards.Merge(d.start[player])
+		contracards.Merge(d.won[player])
 	}
 
 	var revalue = recards.Value(dokoCardValue)
