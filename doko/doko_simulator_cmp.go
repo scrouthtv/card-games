@@ -31,8 +31,8 @@ func (ds *DokoSim) TestWondeck(t *testing.T, player int, cards *logic.Deck) {
 	}
 	if !ds.doko.won[player].Equal(cards) {
 		t.Errorf("Player %d has wrong cards won:", player)
-		t.Logf("Expected: %s", cards)
-		t.Logf("Got: %s", ds.doko.won[player])
+		t.Logf("Exp: %s", cards.Short())
+		t.Logf("Got: %s", ds.doko.won[player].Short())
 	}
 }
 
@@ -44,6 +44,27 @@ func (ds *DokoSim) TestAllWondecks(t *testing.T, won map[int]*logic.Deck) {
 	var deck *logic.Deck
 	for player, deck = range won {
 		ds.TestWondeck(t, player, deck)
+	}
+}
+
+func cmpia(t *testing.T, what string, is []int, should []int) {
+	t.Helper()
+	if len(is) != len(should) {
+		t.Errorf("%s has wrong amount, is %d, should be %d",
+			what, len(is), len(should))
+		t.Logf("Full array: %v", is)
+		t.Logf("Expected:   %v", should)
+	} else {
+		var i, k int
+		for i, k = range is {
+			if k != should[i] {
+				t.Errorf("%s is wrong @ %d: is %d, should be %d",
+					what, i, k, should[i])
+				t.Logf("Full array: %v", is)
+				t.Logf("Expected:   %v", should)
+				return
+			}
+		}
 	}
 }
 

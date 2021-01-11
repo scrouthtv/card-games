@@ -259,33 +259,102 @@ func TestGameEnd(t *testing.T) {
 	var ds DokoSim = DokoSim{doko}
 	ds.doko.Start()
 
-	ds.doko.hands[0] = logic.DeserializeDeck("hk, ca, c10, ca, da, h9, d9, s10, cq, cj, dj, dk")
-	ds.doko.hands[1] = logic.DeserializeDeck("c10, sa, dj, h10, sq, ck, ck, h9, dq, hj, sq, sa")
-	ds.doko.hands[2] = logic.DeserializeDeck("cq, sk, sj, da, s10, s9, dq, ha, hq, hj, d10, dk")
-	ds.doko.hands[3] = logic.DeserializeDeck("sj, h10, sk, d9, hk, ha, hq, s9, d10, c9, c9, cj")
+	ds.doko.hands[0] = logic.DeserializeDeck("h10, cq, hq, hq, dq, hj, da, ck, ck, sa, s9, h9")
+	ds.doko.hands[1] = logic.DeserializeDeck("h10, sq, cj, cj, sj, sj, hj, dj, dj, ca, c10, s9")
+	ds.doko.hands[2] = logic.DeserializeDeck("cq, da, d10, d10, d9, sa, s10, sk, sk, ha, hk, ha")
+	ds.doko.hands[3] = logic.DeserializeDeck("sq, dq, ca, c9, dk, dk, d9, c10, c9, s10, h9, hk")
 
 	var i int
 	for i = 0; i < 4; i++ {
 		doko.start[i] = doko.hands[i].Clone()
 	}
 
-	// Play the whole game
-	for i = 0; i < 12; i++ {
-		ds.playOnce(t)
-		ds.playOnce(t)
-		ds.playOnce(t)
-		ds.playOnce(t)
-		ds.assertPickup(t, doko.active, true)
-	}
+	// 0 & 2 play together
 
-	t.Log(ds.String())
-	var won *logic.Deck
+	// Play the whole game
+	ds.playTrick(t, "ck c10 da c9")   // 2 wins their own fox
+	ds.playTrick(t, "ha hk h9 s9")    // 2 wins
+	ds.playTrick(t, "sa s10 sa dj")   // 1 wins
+	ds.playTrick(t, "h10 d10 d9 h10") // 0 wins, they played the snd h10
+	ds.playTrick(t, "da dj d10 sq")   // 3 wins the enemies' fox
+
+	// 0: cq, hq, hq, dq, hj, ck, s9
+	// 1: sq, cj, cj, sj, sj, hj, ca
+	// 2: cq, d9, s10, sk, sk, hk, ha
+	// 3: dq, ca, dk, dk, c10, c9, h9 <-
+
+	ds.playTrick(t, "h9 cq sj ha")  // 0 wins
+	ds.playTrick(t, "ck ca d9 c9")  // 2 wins
+	ds.playTrick(t, "s10 dk s9 hj") // 1 wins
+	ds.playTrick(t, "sq cq dq dq")  // 2 wins
+
+	// 0: hj, hq, hq
+	// 1: cj, cj, sj
+	// 2: sk, sk, hk <-
+	// 3: ca, dk, c10
+
+	ds.playTrick(t, "hk dk hj sj")  // 1 wins
+	ds.playTrick(t, "cj sk c10 hq") // 0 wins
+	ds.playTrick(t, "hq cj sk ca")  // 0 wins
+
 	for i = 0; i < 4; i++ {
-		won = doko.won[i]
-		if won == nil {
-			t.Logf("Won %d: nil", i)
-		} else {
-			t.Logf("Won %d: %s", i, won.Short())
+		if doko.hands[i].Length() != 0 {
+			t.Errorf("Player %d still has cards", i)
 		}
 	}
+	if doko.table.Length() != 0 {
+		t.Error("Table still has cards")
+	}
+
+	t.Run("Test won decks", func(t *testing.T) {
+		var won map[int]*logic.Deck = make(map[int]*logic.Deck)
+		won[0] = logic.DeserializeDeck("h10, d10, d9, h10, h9, cq, sj, ha, cj, sk, c10, hq, hq, cj, sk, ca")
+		won[1] = logic.DeserializeDeck("sa, s10, sa, dj, s10, dk, s9, hj, hk, dk, hj, sj")
+		won[2] = logic.DeserializeDeck("ck, c10, da, c9, ha, hk, h9, s9, ck, ca, d9, c9, sq, cq, dq, dq")
+		won[3] = logic.DeserializeDeck("da, dj, d10, sq")
+		ds.TestAllWondecks(t, won)
+	})
+
+	t.Run("Meta tests", func(t *testing.T) {
+		// 0 & 2 are re, 1 & 3 contra
+		ds.TestFriends(t, []int{0, 2}, []int{1, 3})
+	})
+
+	// 0: h10, d10, d9, h10, hk, dk, cq, sj, hq, cj, sk, c10, hq, cj, sk, ca
+	// 2: ck, c10, da, c9, ha, hk, h9, s9, ca, d9, c9, ck, sq, cq, dq, dq
+
+	// 1: sa, s10, sa, dj, ha, hj, sj, h9, s10, dk, s9, hj
+	// 3: da, dj, d10, sq
+
+	t.Run("Test scores", func(t *testing.T) {
+		var revalue, contravalue int = doko.Values()
+
+		var reteam, contrateam []int = doko.Teams()
+
+		var expReV, expCoV int = 152, 88
+
+		if revalue != expReV {
+			t.Errorf("Re eyes should be %d, is %d", expReV, revalue)
+			t.Logf("Re team is %v", reteam)
+		}
+		if contravalue != expCoV {
+			t.Errorf("Contra eyes should be %d, is %d", expCoV, contravalue)
+			t.Logf("Contra team is %v", contrateam)
+		}
+
+		if t.Failed() {
+			t.FailNow()
+		}
+
+		var s *DokoScore = doko.Scores()
+		// Re (0, 2) +1 won +1 no90
+		// Co (1, 3) +1 fox
+		var expScores []int = []int{2, 1, 2, 1}
+		var expRe []int = []int{ReasonWon, ReasonNo90}
+		var expContra []int = []int{ReasonFox}
+
+		cmpia(t, "Scores", s.scores, expScores)
+		cmpia(t, "Re r", s.rereasons, expRe)
+		cmpia(t, "Contra r", s.contrareasons, expContra)
+	})
 }
