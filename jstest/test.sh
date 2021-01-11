@@ -2,7 +2,7 @@
 
 cd $(dirname $0)
 pushd .. > /dev/null
-go test -run ExportProps
+DO_EXPORT=1 go test -run ExportProps
 popd > /dev/null
 
 for f in $(ls test*.mjs); do
