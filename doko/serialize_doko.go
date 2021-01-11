@@ -75,7 +75,8 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 
 }
 
-func (s *DokoScore) WriteBinary(buf *bytes.Buffer) {
+// WriteBinary writes a score's values and reasons to a buffer
+func (s *Score) WriteBinary(buf *bytes.Buffer) {
 	buf.WriteByte(byte(len(s.scores)))
 	var score int
 	for _, score = range s.scores {

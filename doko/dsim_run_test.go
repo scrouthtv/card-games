@@ -346,7 +346,7 @@ func TestGameEnd(t *testing.T) {
 			t.FailNow()
 		}
 
-		var s *DokoScore = doko.Scores()
+		var s *Score = doko.Scores()
 		// Re (0, 2) +1 won +1 no90
 		// Co (1, 3) +1 fox
 		var expScores []int = []int{2, 1, 2, 1}
