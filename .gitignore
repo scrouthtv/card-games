@@ -19,3 +19,7 @@ decks2/
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Node modules:
+node_modules/
+package-lock.json

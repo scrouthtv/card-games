@@ -10,7 +10,27 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - name: Super-Linter
-      uses: github/super-linter@v3.14.0
+    - name: Check out Git repository
+      uses: actions/checkout@v2
+
+    - name: Install Go
+      uses: actions/setup-go@v2
+
+    - name: Install Go Linter
+      run: go get -u golang.org/x/lint/golint
+
+    - name: Install Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '15'
+
+    - name: Install ESLint and Prettier
+      run: npm install eslint prettier
+
     - name: Lint Action
       uses: wearerequired/lint-action@v1.7.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        eslint: true
+        prettier: true
+        golint: true
