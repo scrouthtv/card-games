@@ -41,9 +41,9 @@ rules:
   no-warning-comments: 1
   no-shadow: 1
 
-  no-console: 1
-  no-debugger: 1
-  no-alert: 2
+  no-console: 0
+  no-debugger: 0
+  no-alert: 0
   no-proto: 1
 
   max-len:
