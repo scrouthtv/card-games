@@ -64,6 +64,7 @@ const (
 	// ReasonBlack indicates that the winning team got a point
 	// because the loosing team didn't reach any eyes
 	ReasonBlack
+	reasonMaxEyes
 )
 
 func EmptyScore() *DokoScore {
@@ -100,6 +101,12 @@ func (d *Doko) Scores() *DokoScore {
 		rtmp, ctmp = s.Score(d)
 		rescore += rtmp
 		contrascore += ctmp
+		if rtmp > 0 {
+			score.rereasons = append(score.rereasons, s.Reason())
+		}
+		if ctmp > 0 {
+			score.contrareasons = append(score.contrareasons, s.Reason())
+		}
 	}
 
 	// Split score for each player:

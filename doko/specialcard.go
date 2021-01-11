@@ -12,6 +12,11 @@ type specialCard struct {
 	card logic.Card
 }
 
+const (
+	ReasonFox = iota + reasonMaxEyes
+	reasonMaxSpecials
+)
+
 func newFox() scoring {
 	var fox specialCard = specialCard{*logic.NewCard(logic.Diamonds, logic.Ace)}
 	return &fox
@@ -19,6 +24,10 @@ func newFox() scoring {
 
 func (f *specialCard) Name() string {
 	return "Fuchs"
+}
+
+func (f *specialCard) Reason() int {
+	return ReasonFox
 }
 
 func (f *specialCard) Score(doko *Doko) (int, int) {
