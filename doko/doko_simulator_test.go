@@ -132,6 +132,20 @@ func (ds *DokoSim) TestTable(t *testing.T, table *logic.Deck) {
 	}
 }
 
+func (ds *DokoSim) TestProgress(t *testing.T, shouldp int, shouldt int) {
+	if t != nil {
+		t.Helper()
+	}
+
+	var isp, ist int = ds.doko.Progress()
+	if shouldp != -1 && isp != shouldp {
+		t.Errorf("Wrong progress, should be %d, is %d", shouldp, isp)
+	}
+	if shouldt != -1 && ist != shouldt {
+		t.Errorf("Wrong progress, should be %d, is %d", shouldt, ist)
+	}
+}
+
 // Example game:
 // hk ca c10 ca da h9 d9 s10 cq cj dj dk
 // c10 sa dj h10 sq ck ck h9 dq hj sq sa
@@ -155,6 +169,8 @@ func TestStubGame(t *testing.T) {
 		if ok {
 			t.Error("Player 2 shouldn't be able to pick up now either")
 		}
+
+		ds.TestProgress(t, 0, 48)
 	})
 
 	ds.doko.Start()

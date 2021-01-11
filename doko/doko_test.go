@@ -3,6 +3,7 @@ package doko
 import (
 	"fmt"
 	"os"
+	"sort"
 	"testing"
 
 	"github.com/scrouthtv/card-games/logic"
@@ -72,7 +73,22 @@ func TestCardTracer(t *testing.T) {
 
 	}
 
-	// Check 3: Does the whoWon() work?
+	// Check 3: Do all three functions return -1 on wrong inputs?
+	c = logic.NewCard(logic.Spades, logic.Ace)
+	owner = doko.origOwner(c)
+	if owner != -1 {
+		t.Errorf("Determined an owner for a card that shouldn't have one")
+	}
+	owner = doko.whoWon(c)
+	if owner != -1 {
+		t.Errorf("Determined a winner for a card that shouldn't have one")
+	}
+	owner = doko.whenWon(c)
+	if owner != -1 {
+		t.Errorf("Determined a time of winning for a card that shouldn't have one")
+	}
+
+	// Check 4: Does the whoWon() work?
 	var winner int
 	for i, deck = range doko.won {
 		if deck == nil {
@@ -83,8 +99,13 @@ func TestCardTracer(t *testing.T) {
 			if winner != i {
 				t.Errorf("Wrong winner for card %d, should be %d, is %d", j, i, winner)
 			}
+			winner = doko.whenWon(c)
+			if winner != j {
+				t.Errorf("Wrong time of winning for card %d, should be %d, is %d", j, j, winner)
+			}
 		}
 	}
+
 }
 
 func TestFriends(t *testing.T) {
@@ -104,12 +125,57 @@ func TestFriends(t *testing.T) {
 		doko.start[i] = doko.hands[i].Clone()
 	}
 
-	//t.Log(ds.String())
-
-	t.Log(doko.Teams())
-
 	if !doko.IsFriend(0, 2) {
 		t.Error("0 and 2 should be friends")
+	}
+
+	if !doko.IsFriend(1, 1) {
+		t.Error("1 and 1 should be friends")
+	}
+
+	if doko.IsFriend(0, 1) {
+		t.Error("0 and 1 should be friends")
+	}
+
+	(&DokoSim{doko}).TestFriends(t, []int{0, 2}, []int{1, 3})
+}
+
+func (ds *DokoSim) TestFriends(t *testing.T, re []int, contra []int) {
+	sort.SliceStable(re, func(i int, j int) bool {
+		return re[i] > re[j]
+	})
+	sort.SliceStable(contra, func(i int, j int) bool {
+		return contra[i] > contra[j]
+	})
+	var isre, iscontra []int = ds.doko.Teams()
+	sort.SliceStable(isre, func(i int, j int) bool {
+		return isre[i] > isre[j]
+	})
+	sort.SliceStable(iscontra, func(i int, j int) bool {
+		return iscontra[i] > iscontra[j]
+	})
+
+	if len(re) != len(isre) {
+		t.Errorf("Re team should have %d players, does have %d players",
+			len(re), len(isre))
+	}
+	if len(contra) != len(iscontra) {
+		t.Errorf("Contra team should have %d players, does have %d players",
+			len(contra), len(iscontra))
+	}
+
+	var i, k int
+	for i, k = range re {
+		if k != isre[i] {
+			t.Errorf("Re team should have player %d, does have player %d",
+				k, isre[i])
+		}
+	}
+	for i, k = range contra {
+		if k != iscontra[i] {
+			t.Errorf("Contra team should have player %d, does have player %d",
+				k, iscontra[i])
+		}
 	}
 }
 
