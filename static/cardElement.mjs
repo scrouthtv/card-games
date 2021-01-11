@@ -37,4 +37,6 @@ class CardElement extends HTMLElement {
   }
 }
 
-customElements.define("spielekiste-card", CardElement);
+
+export { CardElement };
+//customElements.define("spielekiste-card", CardElement);

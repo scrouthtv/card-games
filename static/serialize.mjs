@@ -225,9 +225,8 @@ class DokoGame {
         var i;
         for (i = 0; i < 4; i++) dg.won[i] = buf.getUint8();
 
-        var player;
         dg.special = [];
-        for (player = 0; player < 4; player++) {
+        for (var player = 0; player < 4; player++) {
           player = buf.getUint8();
           dg.special[player] = Deck.fromBinary(buf);
         }
@@ -237,9 +236,8 @@ class DokoGame {
 
 				dg.scores = DokoScore.fromBinary(buf);
 
-				var player;
 				dg.won = [];
-				for (player = 0; player < 4; player++) {
+				for (var player = 0; player < 4; player++) {
 					player = buf.getUint8();
 					dg.won[player] = Deck.fromBinary(buf);
 				}

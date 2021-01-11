@@ -1,5 +1,6 @@
-import { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer } from './serialize.mjs';
+import { Game, ByteBuffer } from './serialize.mjs';
 import { statePreparing, statePlaying, stateEnded } from './serialize-props.mjs';
+import { CardElement } from './cardElement.mjs';
 export { join, play, pickup }
 
 function join(id) {
@@ -23,14 +24,14 @@ if (id == undefined) {
 if (window["WebSocket"]) {
   conn = new WebSocket("ws://" + document.location.host + "/ws");
   conn.binaryType = "arraybuffer";
-  conn.onclose = function (evt) {
+  conn.onclose = function () {
     alert("<b>Connection closed.</b>");
   };
   conn.onmessage = function (evt) {
     game = Game.fromBinary(new ByteBuffer(evt.data));
     redraw();
   };
-  conn.onopen = function (evt) {
+  conn.onopen = function () {
     console.log("Connection is open");
     join(id);
   };
@@ -96,7 +97,7 @@ function redraw() {
     for (; i < 12; i++)
       document.getElementById("hand" + (i + 1)).classList.add("hidden");
     for (i = 0; i < table.length; i++) {
-      var elem = document.getElementById("table" + (i + 1));
+      elem = document.getElementById("table" + (i + 1));
       elem.setCard(table[i]);
       elem.classList.remove("hidden");
       if (!game.ruleset.playable) {
@@ -143,10 +144,10 @@ function drawStorage(who, destination) {
   if (specials != undefined) specialAmt = specials.cards.length;
 
   for (var i = storage.children.length; i < amount - specialAmt; i++) {
-    var card = new CardElement();
-    card.classList.add("card");
-    card.classList.add("small");
-    storage.appendChild(card);
+    var elem = new CardElement();
+    elem.classList.add("card");
+    elem.classList.add("small");
+    storage.appendChild(elem);
   }
 
   if (specials == undefined) return;
