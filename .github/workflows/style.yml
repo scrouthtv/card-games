@@ -17,19 +17,23 @@ jobs:
       uses: actions/setup-go@v2
 
     - name: Install Go Linter
-      run: go get -u golang.org/x/lint/golint
+      run: |
+        go get -u golang.org/x/lint/golint
+        echo "${HOME}/go/bin" >> $GITHUB_PATH
 
     - name: Install Node.js
       uses: actions/setup-node@v1
       with:
         node-version: '15'
 
-    - name: Install ESLint and Prettier
-      run: npm install eslint prettier
+    - name: Install ESLint
+      run: npm install eslint
 
     - name: Lint Action
       uses: wearerequired/lint-action@v1.7.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         eslint: true
+        eslint_dir: static/
         golint: true
+        golint_args: ./...

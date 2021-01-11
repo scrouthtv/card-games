@@ -6,4 +6,62 @@ extends: 'eslint:recommended'
 parserOptions:
   ecmaVersion: 12
   sourceType: module
-rules: {}
+rules: 
+  semi: 1
+  quotes: [error, double]
+  getter-return: 2
+  no-setter-return: 2
+
+  no-cond-asign: 1
+  no-dupe-args: 2
+  no-dupe-else-if: 2
+  no-dupe-keys: 2
+  no-empty: 1
+  no-extra-parens: 1
+  no-extra-semi: 1
+  no-func-assign: 2
+  no-import-assign: 2
+  no-inner-declarations: 1
+  no-irregular-whitespace: 1
+  no-obj-calls: 2
+  no-promise-executor-return: 1
+  no-unexpected-multiline: 1
+  no-unreachable: 1
+  use-isnan: 2
+  no-constructor-return: 1
+  no-invalid-this: 2
+  no-magic-spaces: 1
+  no-octal: 1
+  no-redeclare: 2
+  no-self-assign: 1
+  no-self-compare: 1
+  no-unused-expressions: 1
+  no-useless-concat: 1
+  no-useless-return: 1
+  no-warning-comments: 1
+  no-shadow: 1
+
+  no-console: 1
+  no-debugger: 1
+  no-alert: 2
+  no-proto: 1
+
+  max-len:
+    - error
+    - code: 120
+  complexity: 2
+  max-depth: 2
+  consistent-return: 2
+
+  default-case-last: 1
+  dot-location: 1
+  array-bracket-spacing: 1
+  brace-style: 1
+  camelcase: 1
+  comma-dangle: 1
+  comma-style: 1
+  lines-between-class-members: 1
+  no-lonely-if: 1
+  no-unneeded-ternary: 1
+  spaced-comment: 1
+  no-duplicate-imports: 1
