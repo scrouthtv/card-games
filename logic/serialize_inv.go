@@ -28,13 +28,3 @@ func (d *Deck) WriteBinary(buf *bytes.Buffer) {
 		buf.WriteByte(c.ToBinary())
 	}
 }
-
-// WriteBinary appends the inventory to a bytes buffer
-func (inv *Inventory) WriteBinary(buf *bytes.Buffer) {
-	buf.WriteByte((byte(inv.Length())))
-
-	var d *Deck
-	for _, d = range *inv {
-		d.WriteBinary(buf)
-	}
-}
