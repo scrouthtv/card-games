@@ -216,10 +216,11 @@ class DokoGame {
     var stateInfo = buf.getInt8();
     var state = stateInfo & 0b11;
     switch (state) {
-      case statePreparing:
+      case statePreparing: {
         dg.state = statePreparing;
         break;
-      case statePlaying:
+			}
+      case statePlaying: {
         dg.state = statePlaying;
         dg.active = 	(stateInfo & 0b00001100) >> 2;
         dg.me = (stateInfo & 0b00110000) >> 4;
@@ -227,31 +228,28 @@ class DokoGame {
         dg.hand = Deck.fromBinary(buf);
         dg.table = Deck.fromBinary(buf);
         dg.won = [];
-        var i;
+        let i;
         for (i = 0; i < 4; i++) dg.won[i] = buf.getUint8();
 
         dg.special = [];
-        for (var player = 0; player < 4; player++) {
+        for (let player = 0; player < 4; player++) {
           player = buf.getUint8();
           dg.special[player] = Deck.fromBinary(buf);
         }
         break;
-      case stateEnded:
+			}
+      case stateEnded: {
         dg.state = stateEnded;
 
 				dg.scores = DokoScore.fromBinary(buf);
 
 				dg.won = [];
-				/* eslint-disable no-redeclare */
-				// False positive, see
-				// https://github.com/eslint/eslint/issues/13998
-				var player;
-				/* eslint-enable no-redeclare */
-				for (player = 0; player < 4; player++) {
+				for (let player = 0; player < 4; player++) {
 					player = buf.getUint8();
 					dg.won[player] = Deck.fromBinary(buf);
 				}
         break;
+			}
       default:
         dg.state = -1;
         break;
