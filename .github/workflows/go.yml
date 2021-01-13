@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build_go:
+  go:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -38,7 +38,4 @@ jobs:
         echo "${HOME}/go/bin" >> $GITHUB_PATH
 
     - name: Lint
-      uses: wearerequired/lint-action@v1.7.0
-      with: github_token: $ {{ secrets.GITHUB_TOKEN }}
-      golint: true
-      golint_args: ./...
+      run: golint ./...
