@@ -25,7 +25,7 @@ jobs:
       run: ./jstest/test.sh
 
     - name: Install ESLint
-      run: npm install eslint
+      run: npm -g install eslint
 
     - name: Lint
       run: eslint static/*.js static/*.mjs
