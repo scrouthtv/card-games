@@ -25,7 +25,7 @@ func writeProps(w io.Writer) {
 	writeJSintconst(w, "reasonNo30", doko.ReasonNo30)
 	writeJSintconst(w, "reasonBlack", doko.ReasonBlack)
 	writeJSintconst(w, "reasonFox", doko.ReasonFox)
-	w.Write([]byte("\nexport { cardMaxSuit, valueOrder, dokoGameUUID, statePreparing, statePlaying, stateEnded, dokoTrumpOrder, reasonWon, reasonAgainstTheElders, reasonNo90, reasonNo60, reasonNo30, reasonBlack, reasonFox };\n"))
+	w.Write([]byte("\nexport { cardMaxSuit, valueOrder, dokoGameUUID, statePreparing, statePlaying,\n stateEnded, dokoTrumpOrder, reasonWon, reasonAgainstTheElders, reasonNo90, reasonNo60,\n reasonNo30, reasonBlack, reasonFox };\n"))
 }
 
 func writeJSintconst(w io.Writer, name string, value int) {
@@ -55,7 +55,7 @@ func intSliceToString(slice []int) string {
 
 func cardSliceToString(slice []logic.Card) string {
 	var out strings.Builder
-	out.WriteString("[ ")
+	out.WriteString("[")
 
 	var k int
 	var c logic.Card
@@ -65,7 +65,7 @@ func cardSliceToString(slice []logic.Card) string {
 		}
 		out.WriteString(fmt.Sprintf("\"%s\"", c.Short()))
 	}
-	out.WriteString(" ]")
+	out.WriteString("]")
 
 	return out.String()
 }
