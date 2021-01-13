@@ -16,13 +16,16 @@ func NewPacket(command string) *Packet {
 
 // Action returns the action of this packet
 func (p *Packet) Action() string {
+	if p == nil {
+		return ""
+	}
 	return (*p)[0]
 }
 
 // Args returns the arguments of this picket, if any
 func (p *Packet) Args() []string {
-	if len(*p) < 1 {
-		return []string{}
+	if p == nil {
+		return nil
 	}
 	return (*p)[1:]
 }
