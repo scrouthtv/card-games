@@ -32,7 +32,7 @@ if (window["WebSocket"]) {
 		const gameID = initBuf.getInt8();
 		switch (gameID) {
 			case dokoGameUUID:
-				setupGame();
+				setupGame(initBuf);
 				break;
 			default:
 				console.log("I don't know this game");
@@ -189,7 +189,7 @@ function changeSize() {
 
 window.onresize = changeSize;
 
-function setupGame() {
+function setupGame(initBuf) {
 	const screen = document.getElementById("gamescreen");
 
 	var elem = document.createElement("div");
@@ -207,7 +207,6 @@ function setupGame() {
 		card.setAttribute("onclick", "pickup()");
 		elem.appendChild(card);
 	}
-	console.log(elem);
 	screen.appendChild(elem);
 
 	// Create my hand
@@ -248,4 +247,9 @@ function setupGame() {
 		game = Game.fromBinary(new ByteBuffer(evt.data));
 		redraw();
 	};
+
+	if (initBuf.hasNext()) {
+		game = Game.fromBinary(initBuf);
+		redraw();
+	}
 }
