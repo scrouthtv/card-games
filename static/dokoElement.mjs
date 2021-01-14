@@ -1,5 +1,5 @@
-import { Game, ByteBuffer } from "./serialize.mjs";
-import { statePreparing, statePlaying, stateEnded, dokoGameUUID } from "./serialize-props.mjs";
+import { Game } from "./serialize.mjs";
+import { statePreparing, statePlaying, stateEnded } from "./serialize-props.mjs";
 import { CardElement } from "./cardElement.mjs";
 export { DokoAreaElement };
 
@@ -17,6 +17,11 @@ class DokoAreaElement extends HTMLElement {
 		this.logic = null;
 
 		this.initScreen();
+	}
+
+	play(evt) {
+		var card = evt.target.getCard();
+		this.conn.send(`card ${card.toString().toLowerCase()}`);
 	}
 
 	/**
@@ -56,7 +61,8 @@ class DokoAreaElement extends HTMLElement {
 			card = new CardElement();
 			card.classList.add("card");
 			card.id = "hand" + i;
-			card.setAttribute("onclick", "play('" + i + "')");
+			//card.setAttribute("onclick", "play('" + i + "')");
+			card.onclick = (evt) => this.play(evt);
 			elem.appendChild(card);
 		}
 		screen.appendChild(elem);
