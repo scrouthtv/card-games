@@ -20,8 +20,14 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	play(evt) {
+		if (this.logic.ruleset.active != this.logic.ruleset.me) return;
 		var card = evt.target.getCard();
 		this.conn.send(`card ${card.toString().toLowerCase()}`);
+	}
+
+	pickup() {
+		if (this.logic.ruleset.active != this.logic.ruleset.me) return;
+		this.conn.send("pickup");
 	}
 
 	/**
@@ -49,7 +55,7 @@ class DokoAreaElement extends HTMLElement {
 			card = new CardElement();
 			card.classList.add("card", "hidden");
 			card.id = "table" + i;
-			card.setAttribute("onclick", "pickup()");
+			card.onclick = () => this.pickup();
 			elem.appendChild(card);
 		}
 		screen.appendChild(elem);
@@ -61,7 +67,6 @@ class DokoAreaElement extends HTMLElement {
 			card = new CardElement();
 			card.classList.add("card");
 			card.id = "hand" + i;
-			//card.setAttribute("onclick", "play('" + i + "')");
 			card.onclick = (evt) => this.play(evt);
 			elem.appendChild(card);
 		}
@@ -211,15 +216,3 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 }
-
-/*function play(cint) {
-  var card = document.getElementById("hand" + cint).getCard();
-  conn.send(`card ${card.toString().toLowerCase()}`);
-}
-
-function pickup() {
-  if (game.ruleset.active != game.ruleset.me) return;
-  conn.send("pickup");
-}
-
-}*/
