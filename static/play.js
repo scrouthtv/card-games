@@ -40,7 +40,7 @@ if (window["WebSocket"]) {
 		const gameID = buf.getInt8();
 		switch (gameID) {
 			case dokoGameUUID:
-				gamearea = new DokoAreaElement(container, conn);
+				gamearea = new DokoAreaElement(conn);
 				gamearea.msg(buf);
 				break;
 			default:

@@ -3,18 +3,60 @@ import { statePreparing, statePlaying, stateEnded } from "./serialize-props.mjs"
 import { CardElement } from "./cardElement.mjs";
 export { DokoAreaElement };
 
+class StorageElement extends HTMLElement {
+	
+	constructor(logic, who) {
+		super();
+
+		this.logic = logic;
+		this.player = who;
+
+		this.root = this.attachShadow({ mode: "closed" });
+
+		var elem = document.createElement("span");
+		elem.id = "player" + who;
+
+		var message = document.createElement("span");
+		message.id = "player" + who + "message";
+		message.innerHTML = "Hier ist ein Stich:";
+		elem.appendChild(message);
+		this.message = message;
+
+		elem.appendChild(document.createElement("br"));
+		elem.appendChild(document.createElement("br"));
+
+		var storage = document.createElement("span");
+		storage.id = "storage" + storage;
+		elem.appendChild(storage);
+		this.storage = storage;
+
+		var specials = document.createElement("span");
+		specials.id = "special" + storage;
+		elem.appendChild(specials);
+		this.specials = specials;
+		
+		this.root.appendChild(elem);
+	}
+
+	update() {
+		console.log(this.logic);
+	}
+
+}
+customElements.define("doko-storage", StorageElement);
+
 class DokoAreaElement extends HTMLElement {
 
-	constructor(container, conn) {
+	constructor(conn) {
 		super();
 
 		console.log("here we have a new game");
 
-		this.container = container;
-
 		this.conn = conn;
 
 		this.logic = null;
+
+		this.root = this.attachShadow({ mode: "closed" });
 
 		this.initScreen();
 	}
@@ -41,11 +83,10 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	initScreen() {
-		const screen = document.getElementById("gamescreen");
-
 		var elem = document.createElement("div");
 		elem.id = "textinfo";
-		screen.appendChild(elem);
+		this.root.appendChild(elem);
+		this.textinfo = elem;
 
 		// Create the table
 		elem = document.createElement("span");
@@ -58,7 +99,8 @@ class DokoAreaElement extends HTMLElement {
 			card.onclick = () => this.pickup();
 			elem.appendChild(card);
 		}
-		screen.appendChild(elem);
+		this.root.appendChild(elem);
+		this.table = elem;
 
 		// Create my hand
 		elem = document.createElement("span");
@@ -70,32 +112,12 @@ class DokoAreaElement extends HTMLElement {
 			card.onclick = (evt) => this.play(evt);
 			elem.appendChild(card);
 		}
-		screen.appendChild(elem);
+		this.root.appendChild(elem);
+		this.hand = elem;
 
-		// Create the storages
-		const storages = ["me", "0", "1", "2"];
-		var ielem;
-		for (var storage of storages) {
-			elem = document.createElement("span");
-			elem.id = "player" + storage;
-
-			ielem = document.createElement("span");
-			ielem.id = "player" + storage + "message";
-			ielem.innerHTML = "Hier ist ein Stich:";
-			elem.appendChild(ielem);
-			elem.appendChild(document.createElement("br"));
-			elem.appendChild(document.createElement("br"));
-
-			ielem = document.createElement("span");
-			ielem.id = "storage" + storage;
-			elem.appendChild(ielem);
-
-			ielem = document.createElement("span");
-			ielem.id = "special" + storage;
-			elem.appendChild(ielem);
-			
-			screen.appendChild(elem);
-		}
+		this.storage = [];
+		for (i = 0; i < 4; i++)
+			this.storage[i] = new StorageElement(i, this.ruleset);
 	}
 
 	redraw() {
@@ -104,11 +126,11 @@ class DokoAreaElement extends HTMLElement {
 		}
 
 		if (this.logic.ruleset.state == statePreparing)
-			document.getElementById("textinfo").innerHTML = "Game is still preparing";
+			this.textinfo.innerHTML = "Game is still preparing";
 		else if (this.logic.ruleset.active == this.logic.ruleset.me)
-			document.getElementById("textinfo").innerHTML = "It's your turn!";
+			this.textinfo.innerHTML = "It's your turn!";
 		else
-			document.getElementById("textinfo").innerHTML = `
+			this.textinfo.innerHTML = `
 							It's ${this.logic.ruleset.active}'s turn,
 							you are ${this.logic.ruleset.me}!`;
 
@@ -118,7 +140,7 @@ class DokoAreaElement extends HTMLElement {
 			var allowed = this.logic.ruleset.allowedCards();
 			var elem;
 			for (var i = 0; i < hand.length; i++) {
-				elem = document.getElementById("hand" + (i + 1));
+				elem = this.hand.children.item(i);
 				elem.setCard(hand[i]);
 				elem.classList.remove("hidden");
 				if (this.logic.ruleset.playable) {
@@ -137,10 +159,14 @@ class DokoAreaElement extends HTMLElement {
 					elem.classList.remove("active");
 				}
 			}
+
+			// hide the other cards:
 			for (; i < 12; i++)
-				document.getElementById("hand" + (i + 1)).classList.add("hidden");
+				this.hand.children.item(i).classList.add("hidden");
+
+			// set the table:
 			for (i = 0; i < table.length; i++) {
-				elem = document.getElementById("table" + (i + 1));
+				elem = this.table.children.items(i);
 				elem.setCard(table[i]);
 				elem.classList.remove("hidden");
 				if (!this.logic.ruleset.playable) {
@@ -154,21 +180,13 @@ class DokoAreaElement extends HTMLElement {
 					elem.classList.remove("allowed");
 				}
 			}
-			for (; i < 4; i++)
-				document.getElementById("table" + (i + 1)).classList.add("hidden");
 
-			var me = this.logic.ruleset.me;
-			for (i = 0; i < 4; i++) {
-				if (i < me) {
-					this.drawStorage(i, i);
-					document.getElementById("player" + i + "message").innerText =
-						"Hier ist " + i + "'s Stich";
-				} else if (i == me) this.drawStorage(i, "me");
-				else {
-					this.drawStorage(i, i - 1);
-					document.getElementById("player" + (i - 1) + "message").innerText =
-						"Hier ist " + i + "'s Stich";
-				}
+			// hide the rest of the table:
+			for (; i < 4; i++)
+				this.table.children.item(i).classList.add("hidden");
+
+			for (var storage of this.storage) {
+				storage.update();
 			}
 		} else if (this.logic.ruleset.state == stateEnded) {
 			console.log(this.logic);
@@ -180,7 +198,7 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	drawStorage(who, destination) {
-		var storage = document.getElementById("storage" + destination);
+		var storage = this.storage[destination];
 		var amount = this.logic.ruleset.won[who];
 		var specials = this.logic.ruleset.special[who];
 		var specialAmt = 0;
@@ -194,7 +212,8 @@ class DokoAreaElement extends HTMLElement {
 		}
 
 		if (specials == undefined) return;
-		storage = document.getElementById("special" + destination);
+		console.log(this.storage[destination]);
+		storage = this.storage[destination].children.items(3);
 
 		// Remove special cards that have become irrelevant since last update:
 		while (storage.children.length > specialAmt) {
@@ -207,7 +226,6 @@ class DokoAreaElement extends HTMLElement {
 			}
 		}
 		for (; i < specials.cards.length; i++) {
-			document.getElementById("adding a special card");
 			var card = new CardElement();
 			card.classList.add("card", "small");
 			card.setCard(specials.cards[i]);
