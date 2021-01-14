@@ -316,6 +316,7 @@ class Game {
     var g = new Game();
     switch (buf.getInt8()) {
       case dokoGameUUID:
+				console.log("This is a doko game");
         g.ruleset = DokoGame.fromBinary(buf);
         break;
       default:
