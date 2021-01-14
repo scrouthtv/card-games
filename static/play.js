@@ -36,11 +36,11 @@ if (window["WebSocket"]) {
 			return;
 		}
 
-		const container = document.getElementById("gamescreen");
 		const gameID = buf.getInt8();
 		switch (gameID) {
 			case dokoGameUUID:
 				gamearea = new DokoAreaElement(conn);
+				document.getElementById("gamescreen").appendChild(gamearea);
 				gamearea.msg(buf);
 				break;
 			default:

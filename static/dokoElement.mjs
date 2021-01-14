@@ -38,8 +38,9 @@ class StorageElement extends HTMLElement {
 		this.root.appendChild(elem);
 	}
 
-	update() {
+	update(who) {
 		console.log(this.logic);
+		console.log(who);
 	}
 
 }
@@ -50,13 +51,15 @@ class DokoAreaElement extends HTMLElement {
 	constructor(conn) {
 		super();
 
-		console.log("here we have a new game");
-
 		this.conn = conn;
 
 		this.logic = null;
 
-		this.root = this.attachShadow({ mode: "closed" });
+		this.root = document.createElement("div");
+		this.root.id = "gamescreen";
+
+		var shadow = this.attachShadow({ mode: "open" });
+		shadow.appendChild(this.root);
 
 		this.initScreen();
 	}
@@ -185,16 +188,24 @@ class DokoAreaElement extends HTMLElement {
 			for (; i < 4; i++)
 				this.table.children.item(i).classList.add("hidden");
 
-			for (var storage of this.storage) {
-				storage.update();
+			for (i = 0; i < 4; i++) {
+				if (i < this.logic.ruleset.me)
+					this.storage[i].update(i.toString());
+				else if (i == this.logic.ruleset.me)
+					this.storage[i].update("me");
+				else
+					this.storage[i].update((i - 1).toString());
 			}
 		} else if (this.logic.ruleset.state == stateEnded) {
-			console.log(this.logic);
+			console.log(this.logic.ruleset);
 		} else {
-			console.log("Not painting this state (" + this.logic.state + ")");
+			console.log("Not painting this state (" + this.logic.ruleset.state + ")");
 			console.log(this.logic);
+			console.log(statePreparing);
+			console.log(statePlaying);
 			console.log(stateEnded);
 		}
+		console.log(this.logic);
 	}
 
 	drawStorage(who, destination) {
