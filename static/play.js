@@ -1,5 +1,5 @@
 import { Game, ByteBuffer } from "./serialize.mjs";
-import { statePreparing, statePlaying, stateEnded } from "./serialize-props.mjs";
+import { statePreparing, statePlaying, stateEnded, dokoGameUUID } from "./serialize-props.mjs";
 import { CardElement } from "./cardElement.mjs";
 export { join, play, pickup };
 
@@ -28,8 +28,16 @@ if (window["WebSocket"]) {
     console.log("Connection closed.");
   };
   conn.onmessage = function (evt) {
-    game = Game.fromBinary(new ByteBuffer(evt.data));
-    redraw();
+		const initBuf = new ByteBuffer(evt.data);
+		const gameID = initBuf.getInt8();
+		switch (gameID) {
+			case dokoGameUUID:
+				setupGame();
+				break;
+			default:
+				console.log("I don't know this game");
+				break;
+		}
   };
   conn.onopen = function () {
     console.log("Connection is open");
@@ -166,8 +174,7 @@ function drawStorage(who, destination) {
   for (; i < specials.cards.length; i++) {
     document.getElementById("adding a special card");
     var card = new CardElement();
-    card.classList.add("card");
-    card.classList.add("small");
+    card.classList.add("card", "small");
     card.setCard(specials.cards[i]);
     storage.appendChild(card);
   }
@@ -181,3 +188,64 @@ function changeSize() {
 }
 
 window.onresize = changeSize;
+
+function setupGame() {
+	const screen = document.getElementById("gamescreen");
+
+	var elem = document.createElement("div");
+	elem.id = "textinfo";
+	screen.appendChild(elem);
+
+	// Create the table
+	elem = document.createElement("span");
+	elem.id = "table";
+	var card;
+	for (var i = 1; i <= 4; i++) {
+		card = new CardElement();
+		card.classList.add("card", "hidden");
+		card.id = "table" + i;
+		card.setAttribute("onclick", "pickup()");
+		elem.appendChild(card);
+	}
+	console.log(elem);
+	screen.appendChild(elem);
+
+	// Create my hand
+	elem = document.createElement("span");
+	elem.id = "hand";
+	for (i = 1; i <= 12; i++) {
+		card = new CardElement();
+		card.classList.add("card");
+		card.id = "hand" + i;
+		card.setAttribute("onclick", "play('" + i + "')");
+		elem.appendChild(card);
+	}
+	screen.appendChild(elem);
+
+	// Create the storages
+	const storages = ["me", "0", "1", "2"];
+	var ielem;
+	for (var storage of storages) {
+		elem = document.createElement("span");
+		elem.id = "player" + storage;
+
+		ielem = document.createElement("span");
+		ielem.id = "player" + storage + "message";
+		elem.appendChild(ielem);
+
+		ielem = document.createElement("span");
+		ielem.id = "storage" + storage;
+		elem.appendChild(ielem);
+
+		ielem = document.createElement("span");
+		ielem.id = "special" + storage;
+		elem.appendChild(ielem);
+		
+		screen.appendChild(elem);
+	}
+
+	conn.onmessage = function(evt) {
+		game = Game.fromBinary(new ByteBuffer(evt.data));
+		redraw();
+	};
+}

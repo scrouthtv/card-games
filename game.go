@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/scrouthtv/card-games/logic"
+	"github.com/scrouthtv/card-games/doko"
 )
 
 // Game contains server-relevant information about a game
@@ -117,6 +118,9 @@ func (g *Game) playerJoin(player logic.Player) bool {
 	}
 
 	g.players[playerID] = player
+
+	player.Send([]byte {doko.DokoGameUUID});
+
 	g.hub.logGames()
 	g.StartIfReady()
 	g.hub.sendUpdates(g)
