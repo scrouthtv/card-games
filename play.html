@@ -4,12 +4,11 @@
         <title>Lennis Spielekiste</title>
         <link rel="stylesheet" href="style.css" />
 				<script type="module">
-				import { join, play, pickup } from './play.js';
+				import './play.js';
 				import { CardElement } from './cardElement.mjs';
+				import { DokoAreaElement } from './dokoElement.mjs';
 				customElements.define("spielekiste-card", CardElement);
-				window.join = join;
-				window.play = play;
-				window.pickup = pickup;
+				customElements.define("doko-area", DokoAreaElement);
 				</script>
     </head>
     <body>
