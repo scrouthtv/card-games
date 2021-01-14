@@ -230,7 +230,10 @@ function setupGame(initBuf) {
 
 		ielem = document.createElement("span");
 		ielem.id = "player" + storage + "message";
+		ielem.innerHTML = "Hier ist ein Stich:";
 		elem.appendChild(ielem);
+		elem.appendChild(document.createElement("br"));
+		elem.appendChild(document.createElement("br"));
 
 		ielem = document.createElement("span");
 		ielem.id = "storage" + storage;
