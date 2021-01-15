@@ -1,0 +1,143 @@
+@import "sane.css";
+
+.card {
+    position: absolute;
+}
+
+#hand .card {
+    transform:
+        translate(-100%, 0)
+        rotate( calc(var(--nth-child) * 7.5deg - 45deg) )
+        translate(50%, -50%);
+    transform-origin: bottom right;
+    bottom: -24%;
+    left: 50%;
+}
+
+.card.allowed.active {
+    cursor: pointer;
+}
+.card {
+    width: 205.75px;
+    height: 320.25px;
+    -webkit-filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5))
+}
+
+.card img {
+    width: 100%;
+}
+
+.card.small {
+    width: 102.875px;
+    height: 160.0125px;
+    -webkit-filter: drop-shadow(6x 6px 12px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5))
+}
+
+.card.allowed::before {
+	background-color: #cacaca;
+	opacity: .5;
+	display: block;
+	content: '';
+	position: absolute;
+	width: 110%;
+	left: -5%;
+	height: 106%;
+	top: -3%;
+	z-index: -1;
+	border-radius: 20px;
+}
+
+.card.allowed.active::before {
+	background-color: #90caf9;
+}
+
+.card.allowed.active:hover::before {
+	background-color: red;
+	transition: background-color 0.05s;
+}
+
+#hand .card.allowed.active {
+    transform:
+        translate(-100%, 0)
+        rotate( calc(var(--nth-child) * 7.5deg - 45deg) )
+        translate(50%, -70%) !important;
+		transition: transform;
+}
+
+#playerme {
+    position: absolute;
+    bottom: 20%;
+    right: 2%;
+}
+
+#storageme .card {
+    left: 20%;
+    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
+}
+
+#specialme .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
+
+#player0 {
+    position: absolute;
+    top: 3%;
+    left: 20%;
+}
+
+#storage0 .card {
+    left: 20%;
+    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
+}
+
+#special0 .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
+
+#player1 {
+    position: absolute;
+    top: 3%;
+    left: 50%;
+}
+
+#storage1 .card {
+    left: 20%;
+    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
+}
+
+#special1 .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
+
+#player2 {
+    position: absolute;
+    top: 3%;
+    left: 80%;
+}
+
+#storage2 .card {
+    left: 20%;
+    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
+}
+
+#special2 .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
+
+#table .card {
+    transform:
+        translate(-50%, -50%)
+        rotate( calc(var(--nth-child) * 30deg - 80deg) );
+    left: 50%;
+    top: 50%;
+}
+
+.hidden {
+    display: none;
+}

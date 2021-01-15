@@ -55,11 +55,8 @@ class DokoAreaElement extends HTMLElement {
 
 		this.logic = null;
 
-		this.root = document.createElement("div");
-		this.root.id = "gamescreen";
-
-		var shadow = this.attachShadow({ mode: "open" });
-		shadow.appendChild(this.root);
+		this.root = this.attachShadow({ mode: "open" });
+		this.root.innerHTML = "<link rel=\"stylesheet\" href=\"doko.css\" />";
 
 		this.initScreen();
 	}
