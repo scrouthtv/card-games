@@ -138,11 +138,11 @@ class DokoCallerElement extends HTMLElement {
 
 		var btn;
 		for (let call of calls) {
+			contents.appendChild(document.createElement("br"));
 			btn = document.createElement("button");
 			btn.innerHTML = call.name;
 			btn.onclick = () => call.callback(conn);
 			contents.appendChild(btn);
-			contents.appendChild(document.createElement("br"));
 		}
 
 		this.root.appendChild(contents);

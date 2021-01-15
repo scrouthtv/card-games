@@ -365,35 +365,26 @@ const reshuffle = new DokoCall("Schmeißen",
 		const worstTrump = new Card(1, 11); // Diamonds Jack
 		for (let c of mycards) {
 			if (c.value == 9) nines++;
-			else if (logic.trumpValue(c) > highestTrumpValue)
+			if (logic.trumpValue(c) > highestTrumpValue)
 				highestTrumpValue = logic.trumpValue(c);
 		}
 		return nines >= 5 || highestTrumpValue <= logic.trumpValue(worstTrump);
 	},
 	function (conn) {
-		conn.send("reshuffle");
+		conn.send("call reshuffle");
 	}
 );
 
-const nevercall = new DokoCall("tschüss",
-	function (logic) {
-		return false;
-	},
-	function (conn) {
-		console.log("fvck");
-	}
-);
-
-const alwayscall = new DokoCall("Hallo",
+const healthy = new DokoCall("Gesund",
 	function (logic) {
 		return true;
 	},
 	function (conn) {
-		console.log("yiiha")
+		conn.send("call healthy");
 	}
 )
 
-const calls = [reshuffle, nevercall, alwayscall];
+const calls = [healthy, reshuffle];
 
 class Game {
   /**
