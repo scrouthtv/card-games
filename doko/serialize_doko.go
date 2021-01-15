@@ -53,7 +53,8 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 
 		var player int
 		var deck *logic.Deck
-		for player, deck = range playerspecial {
+		for player = 0; player < 4; player++ {
+			deck = playerspecial[player]
 			buf.WriteByte(byte(player))
 			deck.WriteBinary(buf)
 		}
