@@ -29,9 +29,7 @@ if (window["WebSocket"]) {
   };
   conn.onmessage = function (evt) {
 		const buf = new ByteBuffer(evt.data);
-		console.log("main got a message");
 		if (gamearea != undefined) {
-			console.log("passing through");
 			gamearea.msg(buf);
 			return;
 		}

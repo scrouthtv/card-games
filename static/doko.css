@@ -72,30 +72,10 @@
     right: 2%;
 }
 
-#storageme .card {
-    left: 20%;
-    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
-}
-
-#specialme .card {
-    left: -80%;
-		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
-}
-
 #player0 {
     position: absolute;
     top: 3%;
     left: 20%;
-}
-
-#storage0 .card {
-    left: 20%;
-    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
-}
-
-#special0 .card {
-    left: -80%;
-		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
 }
 
 #player1 {
@@ -104,30 +84,10 @@
     left: 50%;
 }
 
-#storage1 .card {
-    left: 20%;
-    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
-}
-
-#special1 .card {
-    left: -80%;
-		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
-}
-
 #player2 {
     position: absolute;
     top: 3%;
     left: 80%;
-}
-
-#storage2 .card {
-    left: 20%;
-    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
-}
-
-#special2 .card {
-    left: -80%;
-		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
 }
 
 #table .card {

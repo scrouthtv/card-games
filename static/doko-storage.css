@@ -1,0 +1,33 @@
+@import "sane.css";
+
+.card {
+    position: absolute;
+}
+
+.card {
+    width: 205.75px;
+    height: 320.25px;
+    -webkit-filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5))
+}
+
+.card img {
+    width: 100%;
+}
+
+.card.small {
+    width: 102.875px;
+    height: 160.0125px;
+    -webkit-filter: drop-shadow(6x 6px 12px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5))
+}
+
+.storage .card {
+    left: 20%;
+    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
+}
+
+.special .card {
+    left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
