@@ -128,7 +128,9 @@ class DokoCallerElement extends HTMLElement {
 
 		this.logic = logic;
 
-		this.calls = [];
+		let calls = logic.ruleset.availableCalls();
+
+		console.log(calls);
 
 		this.root = this.attachShadow({ mode: "open" });
 		this.root.innerHTML = "<link rel=\"stylesheet\" href=\"doko-call.css\">";
@@ -138,8 +140,6 @@ class DokoCallerElement extends HTMLElement {
 
 		this.root.appendChild(contents);
 	}
-
-
 
 }
 

@@ -334,14 +334,18 @@ class DokoGame {
     }
     return -1;
   }
-}
 
-const reshuffle = new DokoCall("Neu mischen",
-	func (logic) {
-		var mycards = logic.hand[logic.me];
-		console.log(mycards);
+	availableCalls() {
+		var aC = [];
+		for (var call of calls) {
+			if (call.matcher(this)) {
+				aC.push(call);
+			}
+		}
+		return aC;
 	}
-)
+
+}
 
 class DokoCall {
 
@@ -352,6 +356,44 @@ class DokoCall {
 	}
 
 }
+
+const reshuffle = new DokoCall("Neu mischen",
+	function (logic) {
+		var mycards = logic.hand.cards;
+		var nines = 0;
+		var highestTrumpValue;
+		const worstTrump = new Card(1, 11); // Diamonds Jack
+		for (let c of mycards) {
+			if (c.value == 9) nines++;
+			else if (logic.trumpValue(c) > highestTrumpValue)
+				highestTrumpValue = logic.trumpValue(c);
+		}
+		return nines >= 5 || highestTrumpValue <= logic.trumpValue(worstTrump);
+	},
+	function () {
+		console.log("reshuffle");
+	}
+);
+
+const nevercall = new DokoCall("Das sollte nie kommen",
+	function (logic) {
+		return false;
+	},
+	function () {
+		console.log("fvck");
+	}
+);
+
+const alwayscall = new DokoCall("Das sollte immer kommen",
+	function (logic) {
+		return true;
+	},
+	function () {
+		console.log("yiiha")
+	}
+)
+
+const calls = [reshuffle, nevercall, alwayscall];
 
 class Game {
   /**
