@@ -1,6 +1,7 @@
 package doko
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/scrouthtv/card-games/logic"
@@ -246,6 +247,51 @@ func TestStubGame(t *testing.T) {
 		var ok bool = ds.doko.PlayerMove(ds.doko.active, p)
 		if ok {
 			t.Error("Accepted invalid command whoami")
+		}
+	})
+
+	t.Run("18. Test binary serialization", func(t *testing.T) {
+		var shouldbin []byte = []byte {
+			// state              active       me      playable
+			byte(logic.StatePlaying | (1 << 2) | (0 << 4) | (1 << 6)),
+			// hand
+			9, 4, 40, 4, 38, 37, 43, 44, 45, 53,
+			// table
+			0,
+			// won
+			0, 4, 8, 0,
+			// specials[0]: playerID, length
+			0, 0,
+			// specials[1]: playerID, length
+			1, 0,
+			// specials[2]
+			2, 0,
+			// specials[3]
+			3, 0,
+		}
+
+		var buf bytes.Buffer
+		doko.WriteBinary(0, &buf)
+		var isbin []byte = buf.Bytes()
+
+		if len(isbin) != len(shouldbin) {
+			t.Errorf("Wrong length for binary: %d, should be %d",
+				len(isbin), len(shouldbin))
+		}
+
+		var i int
+		var is, should byte
+		for i, is = range isbin {
+			should = shouldbin[i]
+			if is != should {
+				t.Errorf("Wrong byte @ %d: %d, should be %d", 
+					i, is, should)
+			}
+		}
+
+		if t.Failed() {
+			t.Log(isbin)
+			t.Log(shouldbin)
 		}
 	})
 
