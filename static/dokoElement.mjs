@@ -40,7 +40,7 @@ class StorageElement extends HTMLElement {
 	/**
 	 * @param {playerID} the id of the player to draw
 	 */
-	update(playerID) {
+	update() {
 		var rs = this.screen.logic.ruleset;
 
 		var amount = rs.won[this.who];
@@ -225,13 +225,13 @@ class DokoAreaElement extends HTMLElement {
 
 			for (i = 0; i < 4; i++) {
 				if (i < this.logic.ruleset.me) {
-					this.storage[i].update(i.toString());
+					this.storage[i].update();
 					this.storage[i].id = "player" + i;
 				} else if (i == this.logic.ruleset.me) {
-					this.storage[i].update("me");
+					this.storage[i].update();
 					this.storage[i].id = "playerme";
 				} else {
-					this.storage[i].update((i - 1).toString());
+					this.storage[i].update();
 					this.storage[i].id = "player" + (i - 1);
 				}
 			} 
