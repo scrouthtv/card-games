@@ -200,7 +200,7 @@ class DokoGame {
 		this.state = statePreparing;
 		this.active = 0;
 		this.me = 0;
-		this.playable = 0;
+		this.playingState = -1;
 		this.hand = new Deck();
 		this.table = new Deck();
 		this.won = [];
@@ -225,7 +225,7 @@ class DokoGame {
         dg.state = statePlaying;
         dg.active = 	(stateInfo & 0b00001100) >> 2;
         dg.me = (stateInfo & 0b00110000) >> 4;
-				dg.playable = (stateInfo & 0b01000000) >> 6;
+				dg.playingState = (stateInfo & 0b11000000) >> 6;
         dg.hand = Deck.fromBinary(buf);
         dg.table = Deck.fromBinary(buf);
         dg.won = [];
@@ -334,6 +334,23 @@ class DokoGame {
     }
     return -1;
   }
+}
+
+const reshuffle = new DokoCall("Neu mischen",
+	func (logic) {
+		var mycards = logic.hand[logic.me];
+		console.log(mycards);
+	}
+)
+
+class DokoCall {
+
+	constructor(name, matcher, callback) {
+		this.name = name;
+		this.matcher = matcher;
+		this.callback = callback;
+	}
+
 }
 
 class Game {

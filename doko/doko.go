@@ -20,12 +20,17 @@ type Doko struct {
 	// table: inventory
 	table *logic.Deck
 
-	// playable: if set to true, cards can be played,
-	// if set to false, the trick has to be picked up first
-	playable bool
+	// playingState: one of the phases below
+	playingState int
 
 	features []scoring
 }
+
+const (
+	phaseCall = iota
+	phasePlay
+	phasePickup
+)
 
 type scoring interface {
 	Name() string
@@ -54,7 +59,7 @@ func dokoCardValue(c *logic.Card) int {
 // supplied game
 func NewDoko(host logic.IGame) *Doko {
 	var d Doko = Doko{host, -1, nil, nil, nil, nil,
-		true, []scoring{newFox()}}
+		phaseCall, []scoring{newFox()}}
 	d.Reset()
 	return &d
 }
@@ -77,7 +82,7 @@ func (d *Doko) Reset() bool {
 	}
 	d.table = logic.EmptyDeck()
 
-	d.playable = true
+	d.playingState = phasePlay
 
 	return true
 }
@@ -91,7 +96,7 @@ func (d *Doko) Active() int {
 func (d *Doko) Start() {
 	d.active = 0
 	d.g.SetState(logic.StatePlaying)
-	d.playable = true
+	d.playingState = phaseCall
 }
 
 // Info returns the GameInfo for this Doppelkopf game
@@ -127,7 +132,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		// Check 2: does the current trick have to be picked up first
-		if !d.playable {
+		if d.playingState != phasePlay {
 			log.Println("Ignoring because the trick has to be picked up first")
 			return false
 		}
@@ -182,7 +187,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 				winner -= 4
 			}
 			d.active = winner
-			d.playable = false
+			d.playingState = phasePickup
 		} else {
 			d.active++
 			if d.active == 4 {
@@ -200,7 +205,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		// Check 2: does the current trick have to be picked up
-		if d.playable {
+		if d.playingState != phasePickup {
 			log.Println("Ignoring because the trick has to be played first")
 			return false
 		}
@@ -209,7 +214,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		if len(*d.hands[d.active]) == 0 {
 			d.g.SetState(logic.StateEnded)
 		}
-		d.playable = true
+		d.playingState = phasePlay
 		return true
 	}
 
