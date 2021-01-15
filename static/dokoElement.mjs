@@ -98,7 +98,6 @@ class StorageElement extends HTMLElement {
 			}
 		}
 		for (; i < specials.cards.length; i++) {
-			document.getElementById("adding a special card");
 			var card = new CardElement();
 			card.classList.add("card");
 			card.classList.add("small");
@@ -195,6 +194,60 @@ class DokoAreaElement extends HTMLElement {
 		}
 	}
 
+	updateHand() {
+		var hand = this.logic.ruleset.hand.cards;
+		var allowed = this.logic.ruleset.allowedCards();
+		var elem;
+		for (var i = 0; i < hand.length; i++) {
+			elem = this.hand.children.item(i);
+			elem.setCard(hand[i]);
+			elem.classList.remove("hidden");
+			if (this.logic.ruleset.playable) {
+				if (allowed.includes(hand[i])) {
+					elem.classList.add("allowed");
+				} else {
+					elem.classList.remove("allowed");
+				}
+			} else {
+				elem.classList.remove("allowed");
+			}
+
+			if (this.logic.ruleset.playable && this.logic.ruleset.active == this.logic.ruleset.me) {
+				elem.classList.add("active");
+			} else {
+				elem.classList.remove("active");
+			}
+		}
+
+		// hide the other cards:
+		for (; i < 12; i++)
+			this.hand.children.item(i).classList.add("hidden");
+	}
+
+	updateTable() {
+		var table = this.logic.ruleset.table.cards;
+		var elem;
+		for (var i = 0; i < table.length; i++) {
+			elem = this.table.children.item(i);
+			elem.setCard(table[i]);
+			elem.classList.remove("hidden");
+			if (!this.logic.ruleset.playable) {
+				elem.classList.add("allowed");
+				if (this.logic.ruleset.active == this.logic.ruleset.me) {
+					elem.classList.add("active");
+				} else {
+					elem.classList.remove("active");
+				}
+			} else {
+				elem.classList.remove("allowed");
+			}
+		}
+
+		// hide the rest of the table:
+		for (; i < 4; i++)
+			this.table.children.item(i).classList.add("hidden");
+	}
+
 	redraw() {
 		if (this.logic == undefined) {
 			return;
@@ -209,58 +262,15 @@ class DokoAreaElement extends HTMLElement {
 							It's ${this.logic.ruleset.active}'s turn,
 							you are ${this.logic.ruleset.me}!`;
 
-		if (this.logic.ruleset.state == statePlaying) {
-			var hand = this.logic.ruleset.hand.cards;
-			var table = this.logic.ruleset.table.cards;
-			var allowed = this.logic.ruleset.allowedCards();
-			var elem;
-			for (var i = 0; i < hand.length; i++) {
-				elem = this.hand.children.item(i);
-				elem.setCard(hand[i]);
-				elem.classList.remove("hidden");
-				if (this.logic.ruleset.playable) {
-					if (allowed.includes(hand[i])) {
-						elem.classList.add("allowed");
-					} else {
-						elem.classList.remove("allowed");
-					}
-				} else {
-					elem.classList.remove("allowed");
-				}
+		if (this.logic.ruleset.state == statePreparing) {
+			console.log(this.logic);
+			for (let i = 0; i < 4; i++)
+				this.storage[i].update();
+		} else if (this.logic.ruleset.state == statePlaying) {
+			this.updateHand();
+			this.updateTable();
 
-				if (this.logic.ruleset.playable && this.logic.ruleset.active == this.logic.ruleset.me) {
-					elem.classList.add("active");
-				} else {
-					elem.classList.remove("active");
-				}
-			}
-
-			// hide the other cards:
-			for (; i < 12; i++)
-				this.hand.children.item(i).classList.add("hidden");
-
-			// set the table:
-			for (i = 0; i < table.length; i++) {
-				elem = this.table.children.item(i);
-				elem.setCard(table[i]);
-				elem.classList.remove("hidden");
-				if (!this.logic.ruleset.playable) {
-					elem.classList.add("allowed");
-					if (this.logic.ruleset.active == this.logic.ruleset.me) {
-						elem.classList.add("active");
-					} else {
-						elem.classList.remove("active");
-					}
-				} else {
-					elem.classList.remove("allowed");
-				}
-			}
-
-			// hide the rest of the table:
-			for (; i < 4; i++)
-				this.table.children.item(i).classList.add("hidden");
-
-			for (i = 0; i < 4; i++) {
+			for (let i = 0; i < 4; i++) {
 				if (i < this.logic.ruleset.me) {
 					this.storage[i].update();
 					this.storage[i].id = "player" + i;
