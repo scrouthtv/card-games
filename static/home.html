@@ -79,7 +79,7 @@
 		<div id="modal" class="modal hidden" onclick="closeModal();">
 			<div class="content" onclick="submitModal(event);">
 				Enter a name:
-				<input id="name" onsubmit="joinWithName();">
+				<input id="name" onsubmit="joinWithName();" onkeypress="return event.charCode != 32" oninput="this.value = this.value.replace(/\s/g, '')">
 				<button onclick="joinWithName();">Go!</button>
 			</div>
 		</div>

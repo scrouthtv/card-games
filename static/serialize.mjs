@@ -349,6 +349,7 @@ class Game {
 		for (let i = 0; i < players; i++) {
 			g.players.push(buf.readString());
 		}
+		console.log(g.players);
 
     switch (typeID) {
       case dokoGameUUID:

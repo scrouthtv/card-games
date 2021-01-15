@@ -19,7 +19,7 @@ func (g *Game) writePlayerInfo(buf *bytes.Buffer) {
 	var name []byte
 	var b byte
 	for i = 0; i < players; i++ {
-		name = []byte(g.players[i].Name())
+		name = []byte(g.playerNames[i])
 		buf.WriteByte(byte(len(name)))
 		for _, b = range name {
 			buf.WriteByte(b)
