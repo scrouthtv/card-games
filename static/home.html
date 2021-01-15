@@ -3,26 +3,19 @@
 	<head>
 		<title>Lennis Spielekiste</title>
 		<link rel="stylesheet" href="style.css" />
-	</head>
-	<body onload="reloadGames()">
-		
-		<h1>Lennis Spielekiste</h1>
-
-		<table id="gamelist">
-			<thead>
-				<tr><td>name</td><td>game</td><td>players</td></tr>
-			</thead>
-			<tbody></tbody>
-		</table>
-
-		Feel free to create your own:
-		<form id="createGameForm" method="GET" action="/api">
-			<input type="hidden" name="create">
-			<input type="text" name="name" id="nameTextBox" placeholder="Name"><br />
-			<input type="submit" id="creator" value="Create!">
-		</form>
-
 		<script>
+			function submitModal(evt) {
+				evt.stopPropagation();
+			}
+
+			function closeModal() {
+				document.getElementById("modal").classList.add("hidden");
+			}
+
+			function openModal() {
+				document.getElementById("modal").classList.remove("hidden");
+			}
+
 			function reloadGames() {
 				var xhttp = new XMLHttpRequest();
 				var tbl = document.getElementById("gamelist").tBodies[0];
@@ -45,10 +38,52 @@
 				xhttp.send();
 			}
 
-			function joinGame(id) {
-				window.location.href = "play?" + id;
+			function joinGame(gameID) {
+				//window.location.href = "play?" + id;
+				id = gameID;
+				openModal();
 			}
 
+			function joinWithName() {
+				var name = document.getElementById("name").value;
+				console.log(`Joining ${id} as ${name}`);
+			}
+
+			var id;
+
+			document.onkeyup = function(evt) {
+				if (evt.key == "Escape") closeModal();
+			}
+
+		</script>
+	</head>
+	<body onload="reloadGames()">
+		
+		<h1>Lennis Spielekiste</h1>
+
+		<table id="gamelist">
+			<thead>
+				<tr><td>name</td><td>game</td><td>players</td></tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+
+		Feel free to create your own:
+		<form id="createGameForm" method="GET" action="/api">
+			<input type="hidden" name="create">
+			<input type="text" name="name" id="nameTextBox" placeholder="Name"><br />
+			<input type="submit" id="creator" value="Create!">
+		</form>
+
+		<div id="modal" class="modal hidden" onclick="closeModal();">
+			<div class="content" onclick="submitModal(event);">
+				Enter a name:
+				<input id="name">
+				<button onclick="joinWithName();">Go!</button>
+			</div>
+		</div>
+
+		<script>
 			document.getElementById("createGameForm").addEventListener("submit", (ev) => {
 				ev.preventDefault();
 
