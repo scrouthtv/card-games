@@ -123,10 +123,8 @@ customElements.define("doko-storage", StorageElement);
 
 class DokoCallerElement extends HTMLElement {
 
-	constructor(logic) {
+	constructor(logic, conn) {
 		super();
-
-		this.logic = logic;
 
 		let calls = logic.ruleset.availableCalls();
 
@@ -137,6 +135,15 @@ class DokoCallerElement extends HTMLElement {
 
 		var contents = document.createElement("div");
 		contents.id = "contents";
+
+		var btn;
+		for (let call of calls) {
+			btn = document.createElement("button");
+			btn.innerHTML = call.name;
+			btn.onclick = () => call.callback(conn);
+			contents.appendChild(btn);
+			contents.appendChild(document.createElement("br"));
+		}
 
 		this.root.appendChild(contents);
 	}
@@ -305,7 +312,8 @@ class DokoAreaElement extends HTMLElement {
 			}
 		} else if (this.logic.ruleset.state == statePlaying) {
 			if (this.logic.ruleset.playingState == 0) {
-				this.caller = new DokoCallerElement(this.logic);
+				this.updateHand();
+				this.caller = new DokoCallerElement(this.logic, this.conn);
 				this.root.appendChild(this.caller);
 			} else {
 				this.updateHand();

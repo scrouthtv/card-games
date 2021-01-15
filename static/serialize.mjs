@@ -357,7 +357,7 @@ class DokoCall {
 
 }
 
-const reshuffle = new DokoCall("Neu mischen",
+const reshuffle = new DokoCall("Schmeißen",
 	function (logic) {
 		var mycards = logic.hand.cards;
 		var nines = 0;
@@ -370,25 +370,25 @@ const reshuffle = new DokoCall("Neu mischen",
 		}
 		return nines >= 5 || highestTrumpValue <= logic.trumpValue(worstTrump);
 	},
-	function () {
-		console.log("reshuffle");
+	function (conn) {
+		conn.send("reshuffle");
 	}
 );
 
-const nevercall = new DokoCall("Das sollte nie kommen",
+const nevercall = new DokoCall("tschüss",
 	function (logic) {
 		return false;
 	},
-	function () {
+	function (conn) {
 		console.log("fvck");
 	}
 );
 
-const alwayscall = new DokoCall("Das sollte immer kommen",
+const alwayscall = new DokoCall("Hallo",
 	function (logic) {
 		return true;
 	},
-	function () {
+	function (conn) {
 		console.log("yiiha")
 	}
 )

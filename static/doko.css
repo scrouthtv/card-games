@@ -36,14 +36,14 @@ doko-caller {
     width: 205.75px;
     height: 320.25px;
     -webkit-filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
-    filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5))
+    filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
 }
 
 .card.small {
     width: 102.875px;
     height: 160.0125px;
     -webkit-filter: drop-shadow(6x 6px 12px rgba(0, 0, 0, 0.5));
-    filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5))
+    filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5));
 }
 
 .card.allowed::before {
