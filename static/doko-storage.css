@@ -11,10 +11,6 @@
     filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5))
 }
 
-.card img {
-    width: 100%;
-}
-
 .card.small {
     width: 102.875px;
     height: 160.0125px;

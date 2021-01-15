@@ -17,15 +17,12 @@
 .card.allowed.active {
     cursor: pointer;
 }
+
 .card {
     width: 205.75px;
     height: 320.25px;
     -webkit-filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
     filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5))
-}
-
-.card img {
-    width: 100%;
 }
 
 .card.small {
