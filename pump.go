@@ -58,6 +58,10 @@ func (c *Client) Close() {
 	close(c.send)
 }
 
+func (c *Client) Name() string {
+	return "Karlchen"
+}
+
 // readPump pumps messages from the websocket connection to the hub.
 //
 // The application runs readPump in a per-connection goroutine. The application

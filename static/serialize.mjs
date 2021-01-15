@@ -342,7 +342,16 @@ class Game {
   static fromBinary(buf) {
     /** @type {Game} */
     var g = new Game();
-    switch (buf.getInt8()) {
+		var typeID = buf.getInt8();
+
+		this.players = [];
+		var players = buf.getInt8();
+		for (let i = 0; i < players; i++) {
+			this.players.push(buf.readString());
+		}
+		console.log(this.players);
+
+    switch (typeID) {
       case dokoGameUUID:
 				console.log("This is a doko game");
         g.ruleset = DokoGame.fromBinary(buf);
@@ -376,6 +385,15 @@ class ByteBuffer {
   hasNext() {
     return this.offset < this.dataView.byteLength;
   }
+
+	readString() {
+		var length = this.getUint8();
+		var arr = new Uint8Array(length);
+		for (let i = 0; i < length; i++)
+			arr[i] = this.getUint8();
+		var td = new TextDecoder();
+		return td.decode(arr);
+	}
 }
 
 export { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer };
