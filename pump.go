@@ -58,6 +58,7 @@ func (c *Client) Close() {
 	close(c.send)
 }
 
+// Name returns the name of this client
 func (c *Client) Name() string {
 	return "Karlchen"
 }

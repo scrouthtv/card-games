@@ -344,12 +344,11 @@ class Game {
     var g = new Game();
 		var typeID = buf.getInt8();
 
-		this.players = [];
+		g.players = [];
 		var players = buf.getInt8();
 		for (let i = 0; i < players; i++) {
-			this.players.push(buf.readString());
+			g.players.push(buf.readString());
 		}
-		console.log(this.players);
 
     switch (typeID) {
       case dokoGameUUID:

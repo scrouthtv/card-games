@@ -63,6 +63,7 @@ class StorageElement extends HTMLElement {
 	 */
 	update() {
 		var rs = this.screen.logic.ruleset;
+		this.message.innerHTML = this.screen.logic.players[this.who] + ":";
 
 		var amount = rs.won[this.who];
 		if (this.finished && amount != undefined)
