@@ -4,6 +4,12 @@
     position: absolute;
 }
 
+h1 {
+    font-family: Georgia, serif;
+    font-size: 60px;
+}
+
+
 #hand .card {
     transform:
         translate(-100%, 0)
@@ -118,11 +124,31 @@
 }
 
 #table .card {
-    transform:
-        translate(-50%, -50%)
-        rotate( calc(var(--nth-child) * 30deg - 80deg) );
-    left: 50%;
-    top: 50%;
+	transform:
+			translate(-50%, -50%)
+			rotate( calc(var(--nth-child) * 30deg - 80deg) );
+	left: 50%;
+	top: 50%;
+}
+
+#badge {
+	position: absolute;
+	width: 90%;
+	top: 10%;
+	background: rgba(127, 127, 127, 0.5);
+	text-align: center;
+	margin-left: 5%;
+	margin-right: 5%;
+	padding-top: 30px;
+	padding-bottom: 30px;
+}
+
+#badge.winner {
+	background: rgba(0, 127, 0, 0.5);
+}
+
+#badge.looser {
+	background: rgba(127, 0, 0, 0.5);
 }
 
 .hidden {

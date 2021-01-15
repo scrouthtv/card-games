@@ -281,19 +281,29 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	drawEnd() {
-			console.log(this.logic.ruleset);
-			this.hand.classList.add("hidden");
-			this.table.classList.add("hidden");
+		this.hand.classList.add("hidden");
+		this.table.classList.add("hidden");
 
-			var re = 0, contra = 0;
-			for (let i = 0; i < 4; i++) {
-				if (this.logic.ruleset.reteam.includes(i))
-					this.storage[i].id = "re" + re++;
-				else
-					this.storage[i].id = "contra" + contra++;
-				this.storage[i].setFinished(true);
-				this.storage[i].update();
-			}
+		var re = 0, contra = 0;
+		for (let i = 0; i < 4; i++) {
+			if (this.logic.ruleset.reteam.includes(i))
+				this.storage[i].id = "re" + re++;
+			else
+				this.storage[i].id = "contra" + contra++;
+			this.storage[i].setFinished(true);
+			this.storage[i].update();
+		}
+
+		if (this.badge == undefined) {
+			this.badge = document.createElement("h1");
+			this.root.appendChild(this.badge);
+			this.badge.innerHTML = "Someone won!";
+			this.badge.id = "badge";
+			if (this.logic.ruleset.didIWin())
+				this.badge.classList.add("winner");
+			else
+				this.badge.classList.add("looser");
+		}
 	}
 
 	drawStorage(who, destination) {
