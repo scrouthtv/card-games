@@ -165,7 +165,7 @@ class DokoScore {
 		var ds = new DokoScore();
 		var slen = buf.getUint8();
 		for (var i = 0; i < slen; i++) {
-			ds.scores.push(buf.getUint8());
+			ds.scores[i] = buf.getUint8();
 		}
 		ds.rereasons = arrayFromBuf(buf);
 		ds.contrareasons = arrayFromBuf(buf);
@@ -241,6 +241,12 @@ class DokoGame {
       case stateEnded: {
         dg.state = stateEnded;
 
+				var replayers = buf.getUint8();
+				dg.reteam = [];
+				for (let i = 0; i < replayers; i++) {
+					dg.reteam.push(buf.getUint8());
+				}
+
 				dg.scores = DokoScore.fromBinary(buf);
 
 				dg.won = [];
@@ -248,6 +254,12 @@ class DokoGame {
 					player = buf.getUint8();
 					dg.won[player] = Deck.fromBinary(buf);
 				}
+
+        dg.special = [];
+        for (let player = 0; player < 4; player++) {
+          player = buf.getUint8();
+          dg.special[player] = Deck.fromBinary(buf);
+        }
         break;
 			}
       default:

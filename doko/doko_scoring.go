@@ -1,6 +1,7 @@
 package doko
 
 import (
+	"log"
 	"github.com/scrouthtv/card-games/logic"
 )
 
@@ -151,6 +152,8 @@ func (d *Doko) Scores() *Score {
 	for _, player = range contrapair {
 		score.scores[player] = contrascore
 	}
+
+	log.Println(score)
 
 	return score
 }

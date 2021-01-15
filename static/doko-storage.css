@@ -23,7 +23,13 @@
     transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
 }
 
-.special .card {
+.special.playing .card {
     left: -80%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
+
+.special.finished .card {
+    left: 0%;
+		bottom: -900%;
 		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
 }

@@ -33,7 +33,7 @@ func TestEndGame(t *testing.T) {
 
 		var i int
 		var ok bool
-		for i = 0; i < 36; i++ {
+		for i = 0; i < 58; i++ {
 			ok = playOnce(doko)
 			if !ok {
 				t.Errorf("Failed to play #%d", i)

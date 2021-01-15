@@ -63,28 +63,58 @@
 		transition: transform;
 }
 
-#playerme {
+#playerme.playing {
     position: absolute;
     bottom: 20%;
     right: 2%;
 }
 
-#player0 {
+#player0 .playing {
     position: absolute;
     top: 3%;
     left: 20%;
 }
 
-#player1 {
+#player1 .playing {
     position: absolute;
     top: 3%;
     left: 50%;
 }
 
-#player2 {
+#player2 .playing {
     position: absolute;
     top: 3%;
     left: 80%;
+}
+
+#re0.finished {
+	position: absolute;
+	top: 30%;
+	left: 5%;
+}
+
+#re1.finished {
+	position: absolute;
+	top: 30%;
+	left: 25%;
+}
+
+#contra0.finished {
+	position: absolute;
+	top: 30%;
+	left: 85%;
+}
+
+#contra1.finished {
+	position: absolute;
+	top: 30%;
+	left: 65%;
+}
+
+#contra2.finished {
+	position: absolute;
+	top: 30%;
+	left: 45%;
 }
 
 #table .card {

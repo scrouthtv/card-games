@@ -35,6 +35,27 @@ class StorageElement extends HTMLElement {
 		specials.classList.add("special");
 		this.root.appendChild(specials);
 		this.specials = specials;
+
+		this.setFinished(false);
+	}
+
+	/**
+	 * If the game has finished, the storage will draw the won cards, 
+	 * not only the back side.
+	 */
+	setFinished(isFinished) {
+		this.finished = isFinished;
+		if (isFinished) {
+			this.classList.add("finished");
+			this.specials.classList.add("finished");
+			this.classList.remove("playing");
+			this.specials.classList.remove("playing");
+		} else {
+			this.classList.remove("finished");
+			this.specials.classList.remove("finished");
+			this.classList.add("playing");
+			this.specials.classList.add("playing");
+		}
 	}
 
 	/**
@@ -44,16 +65,19 @@ class StorageElement extends HTMLElement {
 		var rs = this.screen.logic.ruleset;
 
 		var amount = rs.won[this.who];
+		if (this.finished && amount != undefined)
+			amount = rs.won[this.who].cards.length;
 		var specials = rs.special[this.who];
 		var specialAmt = 0;
 		if (specials != undefined) specialAmt = specials.cards.length;
-		console.log(specialAmt);
 
 		for (var i = this.storage.children.length; i < amount - specialAmt; i++) {
 			var elem = new CardElement();
 			elem.classList.add("card");
 			elem.classList.add("small");
 			this.storage.appendChild(elem);
+
+			if (this.finished) elem.setCard(rs.won[this.who].cards[i]);
 		}
 
 		if (specials == undefined) return;
@@ -75,6 +99,14 @@ class StorageElement extends HTMLElement {
 			card.classList.add("small");
 			card.setCard(specials.cards[i]);
 			this.specials.appendChild(card);
+		}
+
+		if (this.finished) {
+			var score = rs.scores.scores[this.who];
+			if (score == 1)
+				this.message.innerHTML = "1 Punkt:";
+			else
+				this.message.innerHTML = score + " Punkte:";
 		}
 	}
 }
@@ -111,6 +143,7 @@ class DokoAreaElement extends HTMLElement {
 	 * @type {buf} ByteBuffer
 	 */
 	msg(buf) {
+		console.log("msg");
 		if (buf.dataView.byteLength > 1) {
 			this.logic = Game.fromBinary(buf);
 		}
@@ -236,7 +269,8 @@ class DokoAreaElement extends HTMLElement {
 				}
 			} 
 		} else if (this.logic.ruleset.state == stateEnded) {
-			console.log(this.logic.ruleset);
+			console.log("this is the end");
+			this.drawEnd();
 		} else {
 			console.log("Not painting this state (" + this.logic.ruleset.state + ")");
 			console.log(this.logic);
@@ -244,6 +278,22 @@ class DokoAreaElement extends HTMLElement {
 			console.log(statePlaying);
 			console.log(stateEnded);
 		}
+	}
+
+	drawEnd() {
+			console.log(this.logic.ruleset);
+			this.hand.classList.add("hidden");
+			this.table.classList.add("hidden");
+
+			var re = 0, contra = 0;
+			for (let i = 0; i < 4; i++) {
+				if (this.logic.ruleset.reteam.includes(i))
+					this.storage[i].id = "re" + re++;
+				else
+					this.storage[i].id = "contra" + contra++;
+				this.storage[i].setFinished(true);
+				this.storage[i].update();
+			}
 	}
 
 	drawStorage(who, destination) {
