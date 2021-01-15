@@ -241,6 +241,8 @@ class DokoGame {
       case stateEnded: {
         dg.state = stateEnded;
 
+				this.me = buf.getUint8();
+
 				var replayers = buf.getUint8();
 				dg.reteam = [];
 				for (let i = 0; i < replayers; i++) {
@@ -269,6 +271,17 @@ class DokoGame {
 
     return dg;
   }
+
+	didIWin() {
+		if (this.state != stateEnded) return false;
+
+		var max = this.scores.scores.reduce((a, b) => Math.max(a, b));
+		console.log(max);
+		var mine = this.scores.scores[this.me];
+		console.log(mine);
+
+		return mine >= max;
+	}
 
   allowedCards() {
     if (this.table.length() == 0) {

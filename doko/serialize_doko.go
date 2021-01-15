@@ -62,6 +62,8 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 	case logic.StateEnded:
 		buf.WriteByte(logic.StateEnded)
 
+		buf.WriteByte(byte(player))
+
 		var reteam []int
 		reteam, _ = d.Teams()
 		buf.WriteByte(byte(len(reteam)))
