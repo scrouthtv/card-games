@@ -41,13 +41,6 @@ class StorageElement extends HTMLElement {
 	 * @param {playerID} the id of the player to draw
 	 */
 	update(playerID) {
-		// console.log(this.screen.logic);
-		// console.log(this.screen.logic.ruleset.special)
-		console.log(playerID); // me 0 1 2
-		console.log(this.who); //  0 1 2 3
-		console.log(this.screen.logic.ruleset.special[this.who])
-		console.log(this.screen.logic.ruleset);
-
 		var rs = this.screen.logic.ruleset;
 
 		var amount = rs.won[this.who];
