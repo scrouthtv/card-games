@@ -263,6 +263,7 @@ class DokoGame {
           player = buf.getUint8();
           dg.special[player] = Deck.fromBinary(buf);
         }
+				console.log(dg);
         break;
 			}
       default:

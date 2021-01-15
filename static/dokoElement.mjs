@@ -71,13 +71,17 @@ class StorageElement extends HTMLElement {
 		var specialAmt = 0;
 		if (specials != undefined) specialAmt = specials.cards.length;
 
-		for (var i = this.storage.children.length; i < amount - specialAmt; i++) {
+		for (let i = this.storage.children.length; i < amount - specialAmt; i++) {
 			var elem = new CardElement();
 			elem.classList.add("card");
 			elem.classList.add("small");
 			this.storage.appendChild(elem);
+		}
 
-			if (this.finished) elem.setCard(rs.won[this.who].cards[i]);
+		if (this.finished) {
+			for (let i = 0; i < amount - specialAmt; i++) {
+				this.storage.children.item(i).setCard(rs.won[this.who].cards[i]);
+			}
 		}
 
 		if (specials == undefined) return;
@@ -87,7 +91,7 @@ class StorageElement extends HTMLElement {
 			this.specials.removeChild(this.specials.lastChild);
 		}
 
-		for (i = 0; i < this.specials.children.length; i++) {
+		for (var i = 0; i < this.specials.children.length; i++) {
 			if (this.specials.children[i].getCard() != specials.cards[i]) {
 				this.specials.children[i].setCard(specials.cards[i]);
 			}
