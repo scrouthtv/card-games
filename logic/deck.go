@@ -150,6 +150,9 @@ func (d *Deck) AddAll(cards ...*Card) {
 
 // Merge merges another deck into this, leaving the other intact
 func (d *Deck) Merge(other *Deck) {
+	if other == nil {
+		return
+	}
 	*d = append(*d, *other...)
 }
 
