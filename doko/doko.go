@@ -70,6 +70,7 @@ func (d *Doko) Reset() bool {
 	d.start = make(map[int]*logic.Deck)
 	d.hands = make(map[int]*logic.Deck)
 	d.won = make(map[int]*logic.Deck)
+	d.active = 0
 
 	var doko *logic.Deck = logic.NewDeck([]int{logic.Ace, 9, 10, logic.Jack, logic.Queen, logic.King}).Twice().Shuffle()
 	var dist []*logic.Deck = doko.DistributeAll(4)
@@ -82,7 +83,7 @@ func (d *Doko) Reset() bool {
 	}
 	d.table = logic.EmptyDeck()
 
-	d.playingState = phasePlay
+	d.playingState = phaseCall
 
 	return true
 }
@@ -215,6 +216,44 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 			d.g.SetState(logic.StateEnded)
 		}
 		d.playingState = phasePlay
+		return true
+	case "call":
+		log.Println("Checking call")
+
+		// Check 1: are we currently playing
+		if d.g.State() != logic.StatePlaying {
+			log.Println("Ignoring because we are not playing")
+			return false
+		}
+
+		// Check 2: does the current trick have to be picked up
+		if d.playingState != phaseCall {
+			log.Println("Ignoring because we are not calling")
+			return false
+		}
+
+		// Check 3: enough params?
+		if len(p.Args()) < 1 {
+		log.Println("Missing param")
+			return false
+		}
+
+		// Check 4: do we know that call?
+		var call *dokoCall = callByName(p.Args()[0])
+		if call == nil {
+			log.Println("Unknown call")
+			return false
+		}
+
+		// Check 5: is that call allowed?
+		var ok bool = call.match(d, player)
+		if !ok {
+			log.Println("Invalid call")
+			return false
+		}
+
+		call.runner(d, player)
+
 		return true
 	}
 
