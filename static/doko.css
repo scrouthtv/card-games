@@ -75,19 +75,19 @@ h1 {
     right: 2%;
 }
 
-#player0 .playing {
+#player0.playing {
     position: absolute;
     top: 3%;
     left: 20%;
 }
 
-#player1 .playing {
+#player1.playing {
     position: absolute;
     top: 3%;
     left: 50%;
 }
 
-#player2 .playing {
+#player2.playing {
     position: absolute;
     top: 3%;
     left: 80%;
