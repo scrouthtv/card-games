@@ -64,29 +64,6 @@ h1 {
     filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5))
 }
 
-.card.allowed::before {
-	background-color: #cacaca;
-	opacity: .5;
-	display: block;
-	content: '';
-	position: absolute;
-	width: 110%;
-	left: -5%;
-	height: 106%;
-	top: -3%;
-	z-index: -1;
-	border-radius: 20px;
-}
-
-.card.allowed.active::before {
-	background-color: #90caf9;
-}
-
-.card.allowed.active:hover::before {
-	background-color: red;
-	transition: background-color 0.05s;
-}
-
 .hidden {
     display: none;
 }
