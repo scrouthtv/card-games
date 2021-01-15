@@ -17,6 +17,7 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 	switch d.g.State() {
 	case logic.StatePreparing:
 		buf.WriteByte(logic.StatePreparing)
+		buf.WriteByte(byte(player))
 	case logic.StatePlaying:
 		var playable byte = 0
 		if d.playable {

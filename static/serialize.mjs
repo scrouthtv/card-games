@@ -218,6 +218,7 @@ class DokoGame {
     switch (state) {
       case statePreparing: {
         dg.state = statePreparing;
+				dg.me = buf.getInt8();
         break;
 			}
       case statePlaying: {
@@ -349,7 +350,6 @@ class Game {
 		for (let i = 0; i < players; i++) {
 			g.players.push(buf.readString());
 		}
-		console.log(g.players);
 
     switch (typeID) {
       case dokoGameUUID:
@@ -360,7 +360,6 @@ class Game {
         console.log("Unknown game");
         break;
     }
-
     return g;
   }
 }

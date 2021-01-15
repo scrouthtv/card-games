@@ -63,7 +63,11 @@ class StorageElement extends HTMLElement {
 	 */
 	update() {
 		var rs = this.screen.logic.ruleset;
-		this.message.innerHTML = this.screen.logic.players[this.who] + ":";
+		if (this.screen.logic.players[this.who] == undefined) {
+			this.message.innerHTML = "noch niemand";
+		} else {
+			this.message.innerHTML = this.screen.logic.players[this.who] + ":";
+		}
 
 		var amount = rs.won[this.who];
 		if (this.finished && amount != undefined)
@@ -264,8 +268,18 @@ class DokoAreaElement extends HTMLElement {
 
 		if (this.logic.ruleset.state == statePreparing) {
 			console.log(this.logic);
-			for (let i = 0; i < 4; i++)
-				this.storage[i].update();
+			for (let i = 0; i < 4; i++) {
+				if (i < this.logic.ruleset.me) {
+					this.storage[i].update();
+					this.storage[i].id = "player" + i;
+				} else if (i == this.logic.ruleset.me) {
+					this.storage[i].update();
+					this.storage[i].id = "playerme";
+				} else {
+					this.storage[i].update();
+					this.storage[i].id = "player" + (i - 1);
+				}
+			}
 		} else if (this.logic.ruleset.state == statePlaying) {
 			this.updateHand();
 			this.updateTable();
