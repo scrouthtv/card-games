@@ -121,6 +121,30 @@ class StorageElement extends HTMLElement {
 
 customElements.define("doko-storage", StorageElement);
 
+class DokoCallerElement extends HTMLElement {
+
+	constructor(logic) {
+		super();
+
+		this.logic = logic;
+
+		this.calls = [];
+
+		this.root = this.attachShadow({ mode: "open" });
+		this.root.innerHTML = "<link rel=\"stylesheet\" href=\"doko-call.css\">";
+
+		var contents = document.createElement("div");
+		contents.id = "contents";
+
+		this.root.appendChild(contents);
+	}
+
+
+
+}
+
+customElements.define("doko-caller", DokoCallerElement);
+
 class DokoAreaElement extends HTMLElement {
 
 	constructor(conn) {
@@ -206,7 +230,7 @@ class DokoAreaElement extends HTMLElement {
 			elem = this.hand.children.item(i);
 			elem.setCard(hand[i]);
 			elem.classList.remove("hidden");
-			if (this.logic.ruleset.playable) {
+			if (this.logic.ruleset.playingState == 1) {
 				if (allowed.includes(hand[i])) {
 					elem.classList.add("allowed");
 				} else {
@@ -216,7 +240,7 @@ class DokoAreaElement extends HTMLElement {
 				elem.classList.remove("allowed");
 			}
 
-			if (this.logic.ruleset.playable && this.logic.ruleset.active == this.logic.ruleset.me) {
+			if (this.logic.ruleset.playingState == 1 && this.logic.ruleset.active == this.logic.ruleset.me) {
 				elem.classList.add("active");
 			} else {
 				elem.classList.remove("active");
@@ -235,7 +259,7 @@ class DokoAreaElement extends HTMLElement {
 			elem = this.table.children.item(i);
 			elem.setCard(table[i]);
 			elem.classList.remove("hidden");
-			if (!this.logic.ruleset.playable) {
+			if (this.logic.ruleset.playingState == 2) {
 				elem.classList.add("allowed");
 				if (this.logic.ruleset.active == this.logic.ruleset.me) {
 					elem.classList.add("active");
@@ -267,7 +291,6 @@ class DokoAreaElement extends HTMLElement {
 							you are ${this.logic.ruleset.me}!`;
 
 		if (this.logic.ruleset.state == statePreparing) {
-			console.log(this.logic);
 			for (let i = 0; i < 4; i++) {
 				if (i < this.logic.ruleset.me) {
 					this.storage[i].update();
@@ -281,21 +304,26 @@ class DokoAreaElement extends HTMLElement {
 				}
 			}
 		} else if (this.logic.ruleset.state == statePlaying) {
-			this.updateHand();
-			this.updateTable();
+			if (this.logic.ruleset.playingState == 0) {
+				this.caller = new DokoCallerElement(this.logic);
+				this.root.appendChild(this.caller);
+			} else {
+				this.updateHand();
+				this.updateTable();
 
-			for (let i = 0; i < 4; i++) {
-				if (i < this.logic.ruleset.me) {
-					this.storage[i].update();
-					this.storage[i].id = "player" + i;
-				} else if (i == this.logic.ruleset.me) {
-					this.storage[i].update();
-					this.storage[i].id = "playerme";
-				} else {
-					this.storage[i].update();
-					this.storage[i].id = "player" + (i - 1);
-				}
-			} 
+				for (let i = 0; i < 4; i++) {
+					if (i < this.logic.ruleset.me) {
+						this.storage[i].update();
+						this.storage[i].id = "player" + i;
+					} else if (i == this.logic.ruleset.me) {
+						this.storage[i].update();
+						this.storage[i].id = "playerme";
+					} else {
+						this.storage[i].update();
+						this.storage[i].id = "player" + (i - 1);
+					}
+				} 
+			}
 		} else if (this.logic.ruleset.state == stateEnded) {
 			console.log("this is the end");
 			this.drawEnd();
