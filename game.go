@@ -119,12 +119,18 @@ func (g *Game) playerJoin(player logic.Player) bool {
 
 	g.players[playerID] = player
 
-	player.Send([]byte {doko.DokoGameUUID});
+	player.Send(g.joinInfo(playerID, player));
 
 	g.hub.logGames()
 	g.StartIfReady()
 	g.hub.sendUpdates(g)
 	return true
+}
+
+func (g *Game) joinInfo(id int, player logic.Player) []byte {
+	var buf bytes.Buffer
+	buf.WriteByte(doko.DokoGameUUID)
+	return buf.Bytes()
 }
 
 // First free id, -1 if none are free
