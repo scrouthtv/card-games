@@ -6,6 +6,4 @@ type Player interface {
 	Send(data []byte)
 	// Close closes the client
 	Close()
-	// Name gives the player a (unique) name
-	Name() string
 }
