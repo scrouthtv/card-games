@@ -97,10 +97,14 @@ func (f *specialCard) MarkCards(doko *Doko) []*logic.Card {
 			// somebody already won the card
 			owner = doko.origOwner(c)
 			if tK && doko.IsFriend(owner, winner) {
-				special = append(special[:i], special[i+1:]...)
+				if len(special) > i {
+					special = append(special[:i], special[i+1:]...)
+				}
 			} else if owner == winner {
 				// special card is always irrelevant if i cought it myself
-				special = append(special[:i], special[i+1:]...)
+				if len(special) > i {
+					special = append(special[:i], special[i+1:]...)
+				}
 			}
 		}
 	}
