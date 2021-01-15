@@ -14,6 +14,7 @@
 
 			function openModal() {
 				document.getElementById("modal").classList.remove("hidden");
+				document.getElementById("name").focus();
 			}
 
 			function reloadGames() {
@@ -39,14 +40,14 @@
 			}
 
 			function joinGame(gameID) {
-				//window.location.href = "play?" + id;
 				id = gameID;
 				openModal();
 			}
 
 			function joinWithName() {
 				var name = document.getElementById("name").value;
-				console.log(`Joining ${id} as ${name}`);
+				//console.log(`Joining ${id} as ${name}`);
+				window.location.href = `play?${id}&name=${name}`;
 			}
 
 			var id;
@@ -78,7 +79,7 @@
 		<div id="modal" class="modal hidden" onclick="closeModal();">
 			<div class="content" onclick="submitModal(event);">
 				Enter a name:
-				<input id="name">
+				<input id="name" onsubmit="joinWithName();">
 				<button onclick="joinWithName();">Go!</button>
 			</div>
 		</div>
@@ -99,6 +100,12 @@
 				});
 				XHR.open( "GET", "api" );
 				XHR.send( FD );
+			});
+
+			document.getElementById("name").addEventListener("keyup", function(evt) {
+				if (evt.keyCode === 13) {
+					joinWithName();
+				}
 			});
 		</script>
 
