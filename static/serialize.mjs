@@ -241,7 +241,8 @@ class DokoGame {
       case stateEnded: {
         dg.state = stateEnded;
 
-				this.me = buf.getUint8();
+				dg.me = buf.getUint8();
+				console.log("I am " + this.me);
 
 				var replayers = buf.getUint8();
 				dg.reteam = [];
@@ -276,9 +277,7 @@ class DokoGame {
 		if (this.state != stateEnded) return false;
 
 		var max = this.scores.scores.reduce((a, b) => Math.max(a, b));
-		console.log(max);
 		var mine = this.scores.scores[this.me];
-		console.log(mine);
 
 		return mine >= max;
 	}

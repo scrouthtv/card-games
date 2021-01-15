@@ -143,7 +143,6 @@ class DokoAreaElement extends HTMLElement {
 	 * @type {buf} ByteBuffer
 	 */
 	msg(buf) {
-		console.log("msg");
 		if (buf.dataView.byteLength > 1) {
 			this.logic = Game.fromBinary(buf);
 		}
@@ -299,11 +298,14 @@ class DokoAreaElement extends HTMLElement {
 			this.root.appendChild(this.badge);
 			this.badge.innerHTML = "Someone won!";
 			this.badge.id = "badge";
-			if (this.logic.ruleset.didIWin())
+			if (this.logic.ruleset.didIWin()) {
 				this.badge.classList.add("winner");
-			else
+				this.badge.innerHTML = "You win!";
+			} else {
 				this.badge.classList.add("looser");
-		}
+				this.badge.innerHTML = "You loose!";
+			}
+		} 
 	}
 
 	drawStorage(who, destination) {
