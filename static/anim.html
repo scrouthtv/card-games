@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="module">
+			import { CardElement } from './cardElement.mjs';
+			import { Card } from './serialize.mjs';
+			import { DokoAreaElement } from './dokoElement.mjs';
+			customElements.define("spielekiste-card", CardElement);
+			customElements.define("doko-area", DokoAreaElement);
+
+			window.onload = function () {
+				const screen = document.getElementById("gamescreen");
+				const gscreen = new DokoAreaElement(null)
+				screen.appendChild(gscreen);
+				gscreen.NOPRODUCTIONexampleCards();
+
+				window.setTimeout((ev) => gscreen.animateHandToTable(3), 1000);
+			}
+		</script>
+		<link rel="stylesheet" href="./style.css" />
+		<style>
+			body {
+				background-color: rgb(0, 0, 100);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="gamescreen">
+		</div>
+	</body>
+</html>

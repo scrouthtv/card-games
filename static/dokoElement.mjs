@@ -1,4 +1,4 @@
-import { Game } from "./serialize.mjs";
+import { Card, Game } from "./serialize.mjs";
 import { statePreparing, statePlaying, stateEnded } from "./serialize-props.mjs";
 import { CardElement } from "./cardElement.mjs";
 export { DokoAreaElement };
@@ -293,6 +293,56 @@ class DokoAreaElement extends HTMLElement {
 		// hide the other cards:
 		for (; i < 12; i++)
 			this.hand.children.item(i).classList.add("hidden");
+	}
+
+	NOPRODUCTIONexampleCards() {
+		for (let i = 0; i < this.hand.children.length; i++)
+			this.hand.children[i].setCard(Card.fromBinary((i + 2) * 3));
+		for (let i = 0; i < 2; i++) {
+			this.table.children[i].classList.remove("hidden");
+			this.table.children[i].setCard(Card.fromBinary(41 - 5 * i));
+		}
+	}
+
+	animateHandToTable(which) {
+		var element = this.hand.children[which];
+		var target = this.table.children[2]; // Currently, this is 2, bc 2 cards are visible
+		target.classList.remove("hidden");
+
+		// coords of the target:
+		const tstyle = window.getComputedStyle(target);
+		const tx = tstyle.left;
+		const ty = tstyle.top;
+		const tt = tstyle.transform;
+		const to = tstyle.transformOrigin;
+		
+		// coords of the element;
+		const sstyle = window.getComputedStyle(element);
+		const sx = sstyle.left;
+		const sy = sstyle.top;
+		const st = sstyle.transform;
+		const so = sstyle.transformOrigin;
+
+		console.log(sy);
+		console.log(ty);
+		/*console.log(tx);
+		console.log(ty);
+		console.log(tt);
+		console.log(to);*/
+
+		element.style.left = sx;
+		element.style.top = sy;
+		element.style.transform = st;
+		element.style.transformOrigin = so;
+		element.style.transition = "all 1s";
+		window.setTimeout(function() {
+			element.style.left = tx;
+			element.style.top = ty;
+			element.style.transform = tt;
+			element.style.transformOrigin = to;
+		}, 100);
+
+		target.classList.add("hidden");
 	}
 
 	updateTable() {
