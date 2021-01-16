@@ -64,6 +64,10 @@ func TestStubGame(t *testing.T) {
 
 	t.Log(ds.String())
 
+	for i = 0; i < 4; i++ {
+		doko.PlayerMove(doko.active, logic.NewPacket("call healthy"))
+	}
+
 	var card *logic.Card = doko.hands[0].Get(0)
 	var expCard logic.Card = *logic.NewCard(logic.Hearts, logic.King)
 	var badCard logic.Card = *logic.NewCard(logic.Spades, logic.Ace)
@@ -313,6 +317,10 @@ func TestGameEnd(t *testing.T) {
 	var i int
 	for i = 0; i < 4; i++ {
 		doko.start[i] = doko.hands[i].Clone()
+	}
+
+	for i = 0; i < 4; i++ {
+		doko.PlayerMove(doko.active, logic.NewPacket("call healthy"))
 	}
 
 	// 0 & 2 play together
