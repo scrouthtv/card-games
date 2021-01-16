@@ -54,11 +54,3 @@ if (window["WebSocket"]) {
 } else {
   alert("<b>Your browser does not support WebSockets.</b>");
 }
-
-/*function changeSize() {
-  gameArea.width = window.innerWidth;
-  gameArea.height = window.innerHeight;
-  redraw();
-}
-
-window.onresize = changeSize; */

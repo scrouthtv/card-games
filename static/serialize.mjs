@@ -376,13 +376,15 @@ const reshuffle = new DokoCall("Schmeißen",
 );
 
 const healthy = new DokoCall("Gesund",
+	/* eslint-disable no-unused-vars */
 	function (logic) {
+	/* eslint-enable no-unused-vars */
 		return true;
 	},
 	function (conn) {
 		conn.send("call healthy");
 	}
-)
+);
 
 const calls = [healthy, reshuffle];
 

@@ -332,7 +332,7 @@ class DokoAreaElement extends HTMLElement {
 		element.style.top = sy;
 		element.style.transform = st;
 		element.style.transformOrigin = so;
-		//element.style.transition = "all 1s";
+		// element.style.transition = "all 1s";
 
 		// wait for the properties to apply
 		window.setTimeout(function() {
