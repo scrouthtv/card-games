@@ -15,7 +15,7 @@ class StorageElement extends HTMLElement {
 		this.root.innerHTML = "<link rel=\"stylesheet\" href=\"doko-storage.css\" />";
 
 		var message = document.createElement("span");
-		message.id = "player" + who + "message";
+		message.id = "message";
 		message.innerHTML = "Hier ist ein Stich:";
 		message.classList.add("message");
 		this.root.appendChild(message);
@@ -24,14 +24,27 @@ class StorageElement extends HTMLElement {
 		this.root.appendChild(document.createElement("br"));
 		this.root.appendChild(document.createElement("br"));
 
+		var hand = document.createElement("div");
+		hand.id = "hand";
+		hand.classList.add("hand");
+		this.root.appendChild(hand);
+		this.hand = hand;
+		this.handVisible = false;
+
+		for (let i = 0; i < 12; i++) {
+			let card = new CardElement();
+			card.classList.add("card", "small");
+			this.hand.appendChild(card);
+		}
+
 		var storage = document.createElement("span");
-		storage.id = "storage" + who;
+		storage.id = "storage";
 		storage.classList.add("storage");
 		this.root.appendChild(storage);
 		this.storage = storage;
 
 		var specials = document.createElement("span");
-		specials.id = "special" + who;
+		specials.id = "special";
 		specials.classList.add("special");
 		this.root.appendChild(specials);
 		this.specials = specials;
@@ -58,11 +71,46 @@ class StorageElement extends HTMLElement {
 		}
 	}
 
+	updateHand() {
+		var rs = this.screen.logic.ruleset;
+
+		if (this.who == rs.me) {
+			const hand = rs.hand.cards;
+			const allowed = rs.allowedCards();
+			for (let i = 0; i < hand.length; i++) {
+				if (!this.handVisible) {
+					this.hand.children[i].classList.remove("small");
+					this.hand.children[i].setCard(hand[i]);
+					this.hand.children[i].onclick = (evt) => this.screen.play(evt);
+				}
+
+				if (rs.playingState == 1) { // is playing phase?
+					if (allowed.includes(hand[i])) { // is card allowed?
+						this.hand.children[i].classList.add("allowed");
+					} else {
+						this.hand.children[i].classList.remove("allowed");
+					}
+				} else {
+					this.hand.children[i].classList.remove("allowed");
+				}
+
+				if (rs.playingState == 1 && rs.active == rs.me) {
+					this.hand.children[i].classList.add("active");
+				} else {
+					this.hand.children[i].classList.remove("active");
+				}
+			}
+			if (!this.handVisible) this.handVisible = true;
+		}
+	}
+
 	/**
 	 * @param {playerID} the id of the player to draw
 	 */
 	update() {
 		var rs = this.screen.logic.ruleset;
+
+		this.updateHand();
 
 		if (this.screen.logic.players[this.who] == undefined) {
 			this.message.innerHTML = "noch niemand";
@@ -193,10 +241,10 @@ class DokoAreaElement extends HTMLElement {
 
 		this.logic = null;
 
+		this.hasInit = false;
+
 		this.root = this.attachShadow({ mode: "open" });
 		this.root.innerHTML = "<link rel=\"stylesheet\" href=\"doko.css\" />";
-
-		this.initScreen();
 
 		this.tablecards = [];
 	}
@@ -219,10 +267,17 @@ class DokoAreaElement extends HTMLElement {
 		if (buf.dataView.byteLength > 1) {
 			this.logic = Game.fromBinary(buf);
 		}
-		this.redraw();
+		if (this.hasInit)
+			this.redraw();
+		else {
+			this.initScreen();
+			this.hasInit = true;
+			this.redraw();
+		}
 	}
 
 	initScreen() {
+		console.log(this.logic);
 		var elem = document.createElement("div");
 		elem.id = "textinfo";
 		this.root.appendChild(elem);
@@ -243,7 +298,7 @@ class DokoAreaElement extends HTMLElement {
 		this.table = elem;
 
 		// Create my hand
-		elem = document.createElement("span");
+		/*elem = document.createElement("span");
 		elem.id = "hand";
 		for (i = 1; i <= 12; i++) {
 			card = new CardElement();
@@ -253,11 +308,11 @@ class DokoAreaElement extends HTMLElement {
 			elem.appendChild(card);
 		}
 		this.root.appendChild(elem);
-		this.hand = elem;
+		this.hand = elem;*/
 
 		this.storage = [];
 		for (i = 0; i < 4; i++) {
-			this.storage[i] = new StorageElement(this, i);
+			this.storage[i] = new StorageElement(this, (i + this.logic.ruleset.me) % 4);
 			this.root.appendChild(this.storage[i]);
 			this.storage[i].id = "player" + i;
 		}
@@ -265,36 +320,6 @@ class DokoAreaElement extends HTMLElement {
 		this.caller = new DokoCallerElement(this, this.conn);
 		this.caller.classList.add("hidden");
 		this.root.appendChild(this.caller);
-	}
-
-	updateHand() {
-		var hand = this.logic.ruleset.hand.cards;
-		var allowed = this.logic.ruleset.allowedCards();
-		var elem;
-		for (var i = 0; i < hand.length; i++) {
-			elem = this.hand.children.item(i);
-			elem.setCard(hand[i]);
-			elem.classList.remove("hidden");
-			if (this.logic.ruleset.playingState == 1) {
-				if (allowed.includes(hand[i])) {
-					elem.classList.add("allowed");
-				} else {
-					elem.classList.remove("allowed");
-				}
-			} else {
-				elem.classList.remove("allowed");
-			}
-
-			if (this.logic.ruleset.playingState == 1 && this.logic.ruleset.active == this.logic.ruleset.me) {
-				elem.classList.add("active");
-			} else {
-				elem.classList.remove("active");
-			}
-		}
-
-		// hide the other cards:
-		for (; i < 12; i++)
-			this.hand.children.item(i).classList.add("hidden");
 	}
 
 	NOPRODUCTIONexampleCards() {
@@ -307,7 +332,7 @@ class DokoAreaElement extends HTMLElement {
 		}
 	}
 
-	animateHandToTable(which) {
+	/*animateHandToTable(which) {
 		const element = this.hand.children[which];
 		var target = this.table.children[this.tablecards.length];
 		if (target == undefined) return;
@@ -343,7 +368,7 @@ class DokoAreaElement extends HTMLElement {
 		}, 1);
 
 		target.classList.add("hidden");
-	}
+	}*/
 
 	updateTable() {
 		var table = this.logic.ruleset.table.cards;
@@ -370,6 +395,7 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	redraw() {
+		console.log("voila");
 		if (this.logic == undefined) {
 			return;
 		}
@@ -385,38 +411,20 @@ class DokoAreaElement extends HTMLElement {
 
 		if (this.logic.ruleset.state == statePreparing) {
 			for (let i = 0; i < 4; i++) {
-				if (i < this.logic.ruleset.me) {
-					this.storage[i].update();
-					this.storage[i].id = "player" + i;
-				} else if (i == this.logic.ruleset.me) {
-					this.storage[i].update();
-					this.storage[i].id = "playerme";
-				} else {
-					this.storage[i].update();
-					this.storage[i].id = "player" + (i - 1);
-				}
+				this.storage[i].update();
 			}
 		} else if (this.logic.ruleset.state == statePlaying) {
 			if (this.logic.ruleset.playingState == 0) {
-				this.updateHand();
+				//this.updateHand();
 				this.caller.classList.remove("hidden");
 				this.caller.update();
 			} else {
-				this.updateHand();
+				//this.updateHand();
 				this.updateTable();
 				this.caller.classList.add("hidden");
 
 				for (let i = 0; i < 4; i++) {
-					if (i < this.logic.ruleset.me) {
-						this.storage[i].update();
-						this.storage[i].id = "player" + i;
-					} else if (i == this.logic.ruleset.me) {
-						this.storage[i].update();
-						this.storage[i].id = "playerme";
-					} else {
-						this.storage[i].update();
-						this.storage[i].id = "player" + (i - 1);
-					}
+					this.storage[i].update();
 				} 
 			}
 		} else if (this.logic.ruleset.state == stateEnded) {
