@@ -1,7 +1,5 @@
 package doko
 
-import "log"
-
 import "github.com/scrouthtv/card-games/logic"
 
 type dokoCall struct {
@@ -32,7 +30,6 @@ var callReshuffle dokoCall = dokoCall{
 		return nines >= 5 || highestTrumpValue <= doko.trumpValue(worstTrump)
 	},
 	func(doko *Doko, player int) {
-		log.Println("resetting")
 		doko.Reset()
 	},
 }

@@ -1,5 +1,5 @@
 #contents {
-	background: green;
+	background: gray;
 	width: 25%;
 	height: 70%;
 	position: absolute;
@@ -9,6 +9,10 @@
 	-webkit-filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
 	filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
 	text-align: right;
+}
+
+#contents.active {
+	background: green;
 }
 
 #contents button {

@@ -63,6 +63,7 @@ class StorageElement extends HTMLElement {
 	 */
 	update() {
 		var rs = this.screen.logic.ruleset;
+
 		if (this.screen.logic.players[this.who] == undefined) {
 			this.message.innerHTML = "noch niemand";
 		} else {
@@ -123,29 +124,60 @@ customElements.define("doko-storage", StorageElement);
 
 class DokoCallerElement extends HTMLElement {
 
-	constructor(logic, conn) {
+	constructor(screen, conn) {
 		super();
 
-		let calls = logic.ruleset.availableCalls();
-
-		console.log(calls);
+		this.screen = screen;
+		this.conn = conn;
 
 		this.root = this.attachShadow({ mode: "open" });
 		this.root.innerHTML = "<link rel=\"stylesheet\" href=\"doko-call.css\">";
 
-		var contents = document.createElement("div");
-		contents.id = "contents";
+		this.contents = document.createElement("div");
+		this.contents.id = "contents";
+
+		this.root.appendChild(this.contents);
+	}
+
+	addButtons() {
+		let calls = this.screen.logic.ruleset.availableCalls();
+
+		this.contents.innerHTML = "";
 
 		var btn;
 		for (let call of calls) {
-			contents.appendChild(document.createElement("br"));
+			this.contents.appendChild(document.createElement("br"));
 			btn = document.createElement("button");
 			btn.innerHTML = call.name;
-			btn.onclick = () => call.callback(conn);
-			contents.appendChild(btn);
+			btn.onclick = () => call.callback(this.conn);
+			this.contents.appendChild(btn);
 		}
+	}
 
-		this.root.appendChild(contents);
+	activate() {
+		this.contents.classList.add("active");
+		var nodes = this.contents.children;
+		for (let node of nodes) {
+			if (node.nodeName == "BUTTON") {
+				node.disabled = false;
+			}
+		}
+	}
+
+	deactivate() {
+		this.contents.classList.remove("active");
+		var nodes = this.contents.children;
+		for (let node of nodes) {
+			if (node.nodeName == "BUTTON") {
+				node.disabled = true;
+			}
+		}
+	}
+
+	update() {
+		this.addButtons();
+		if (this.screen.logic.ruleset.active == this.screen.logic.ruleset.me) this.activate();
+		else this.deactivate();
 	}
 
 }
@@ -227,6 +259,10 @@ class DokoAreaElement extends HTMLElement {
 			this.root.appendChild(this.storage[i]);
 			this.storage[i].id = "player" + i;
 		}
+
+		this.caller = new DokoCallerElement(this, this.conn);
+		this.caller.classList.add("hidden");
+		this.root.appendChild(this.caller);
 	}
 
 	updateHand() {
@@ -313,11 +349,12 @@ class DokoAreaElement extends HTMLElement {
 		} else if (this.logic.ruleset.state == statePlaying) {
 			if (this.logic.ruleset.playingState == 0) {
 				this.updateHand();
-				this.caller = new DokoCallerElement(this.logic, this.conn);
-				this.root.appendChild(this.caller);
+				this.caller.classList.remove("hidden");
+				this.caller.update();
 			} else {
 				this.updateHand();
 				this.updateTable();
+				this.caller.classList.add("hidden");
 
 				for (let i = 0; i < 4; i++) {
 					if (i < this.logic.ruleset.me) {
