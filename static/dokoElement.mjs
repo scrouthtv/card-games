@@ -197,6 +197,8 @@ class DokoAreaElement extends HTMLElement {
 		this.root.innerHTML = "<link rel=\"stylesheet\" href=\"doko.css\" />";
 
 		this.initScreen();
+
+		this.tablecards = [];
 	}
 
 	play(evt) {
@@ -301,13 +303,16 @@ class DokoAreaElement extends HTMLElement {
 		for (let i = 0; i < 2; i++) {
 			this.table.children[i].classList.remove("hidden");
 			this.table.children[i].setCard(Card.fromBinary(41 - 5 * i));
+			this.tablecards.push(this.table.children[i]);
 		}
 	}
 
 	animateHandToTable(which) {
-		var element = this.hand.children[which];
-		var target = this.table.children[2]; // Currently, this is 2, bc 2 cards are visible
+		const element = this.hand.children[which];
+		var target = this.table.children[this.tablecards.length];
+		if (target == undefined) return;
 		target.classList.remove("hidden");
+		this.tablecards.push(element);
 
 		// coords of the target:
 		const tstyle = window.getComputedStyle(target);
@@ -323,24 +328,19 @@ class DokoAreaElement extends HTMLElement {
 		const st = sstyle.transform;
 		const so = sstyle.transformOrigin;
 
-		console.log(sy);
-		console.log(ty);
-		/*console.log(tx);
-		console.log(ty);
-		console.log(tt);
-		console.log(to);*/
-
 		element.style.left = sx;
 		element.style.top = sy;
 		element.style.transform = st;
 		element.style.transformOrigin = so;
-		element.style.transition = "all 1s";
+		//element.style.transition = "all 1s";
+
+		// wait for the properties to apply
 		window.setTimeout(function() {
 			element.style.left = tx;
 			element.style.top = ty;
 			element.style.transform = tt;
 			element.style.transformOrigin = to;
-		}, 100);
+		}, 1);
 
 		target.classList.add("hidden");
 	}
