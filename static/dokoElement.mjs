@@ -81,7 +81,9 @@ class StorageElement extends HTMLElement {
 				if (!this.handVisible) {
 					this.hand.children[i].classList.remove("small");
 					this.hand.children[i].setCard(hand[i]);
-					this.hand.children[i].onclick = (evt) => this.screen.play(evt);
+					//this.hand.children[i].onclick = (evt) => this.screen.play(evt);
+					this.hand.children[i].onclick =
+						(evt) => this.screen.animateHandToTable(this.who, evt.target);
 				}
 
 				if (rs.playingState == 1) { // is playing phase?
@@ -253,6 +255,7 @@ class DokoAreaElement extends HTMLElement {
 		if (this.logic.ruleset.active != this.logic.ruleset.me) return;
 		var card = evt.target.getCard();
 		this.conn.send(`card ${card.toString().toLowerCase()}`);
+		this.animateHandToTable(0, evt.target);
 	}
 
 	pickup() {
@@ -332,8 +335,7 @@ class DokoAreaElement extends HTMLElement {
 		}
 	}
 
-	/*animateHandToTable(which) {
-		const element = this.hand.children[which];
+	animateHandToTable(player, element) {
 		var target = this.table.children[this.tablecards.length];
 		if (target == undefined) return;
 		target.classList.remove("hidden");
@@ -345,7 +347,7 @@ class DokoAreaElement extends HTMLElement {
 		const ty = tstyle.top;
 		const tt = tstyle.transform;
 		const to = tstyle.transformOrigin;
-		
+
 		// coords of the element;
 		const sstyle = window.getComputedStyle(element);
 		const sx = sstyle.left;
@@ -353,6 +355,20 @@ class DokoAreaElement extends HTMLElement {
 		const st = sstyle.transform;
 		const so = sstyle.transformOrigin;
 
+		// coords of the parent element:
+		console.log(this.storage[player]);
+		const pstyle = window.getComputedStyle(this.storage[player]);
+		const px = pstyle.offsetLeft;
+		const py = pstyle.top;
+		const pt = this.storage[player].offsetTop;
+
+		// TODO: calculate the true position of element & target, i have to add animate to tx - px since it's still in the absolute positioned parent container
+
+		console.log(sy);
+		console.log(ty);
+		console.log(py);
+		console.log(pt);
+		
 		element.style.left = sx;
 		element.style.top = sy;
 		element.style.transform = st;
@@ -365,12 +381,13 @@ class DokoAreaElement extends HTMLElement {
 			element.style.top = ty;
 			element.style.transform = tt;
 			element.style.transformOrigin = to;
-		}, 1);
+		}, 1000);
 
 		target.classList.add("hidden");
-	}*/
+	}
 
 	updateTable() {
+		return;
 		var table = this.logic.ruleset.table.cards;
 		var elem;
 		for (var i = 0; i < table.length; i++) {
@@ -395,7 +412,6 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	redraw() {
-		console.log("voila");
 		if (this.logic == undefined) {
 			return;
 		}
