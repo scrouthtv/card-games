@@ -364,24 +364,20 @@ class DokoAreaElement extends HTMLElement {
 
 		// TODO: calculate the true position of element & target, i have to add animate to tx - px since it's still in the absolute positioned parent container
 
-		console.log(sy);
-		console.log(ty);
-		console.log(py);
-		console.log(pt);
-		
-		element.style.left = sx;
+		/*element.style.left = sx;
 		element.style.top = sy;
 		element.style.transform = st;
-		element.style.transformOrigin = so;
+		element.style.transformOrigin = so;*/
 		// element.style.transition = "all 1s";
+		element.style.zIndex = this.tablecards.length;
 
 		// wait for the properties to apply
 		window.setTimeout(function() {
-			element.style.left = tx;
-			element.style.top = ty;
+			element.style.left = "151px"; // these numbers are magic,
+			element.style.top = "-340px"; // don't touch them
 			element.style.transform = tt;
 			element.style.transformOrigin = to;
-		}, 1000);
+		}, 1);
 
 		target.classList.add("hidden");
 	}
