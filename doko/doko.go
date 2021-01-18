@@ -25,8 +25,7 @@ type Doko struct {
 
 	features []scoring
 
-	actionQueue []action
-
+	actionQueue map[int][]action
 }
 
 const (
@@ -62,7 +61,7 @@ func dokoCardValue(c *logic.Card) int {
 // supplied game
 func NewDoko(host logic.IGame) *Doko {
 	var d Doko = Doko{host, -1, nil, nil, nil, nil,
-		phaseCall, []scoring{newFox()}, []action{}}
+		phaseCall, []scoring{newFox()}, make(map[int][]action)}
 	d.Reset()
 	return &d
 }
@@ -73,6 +72,7 @@ func (d *Doko) Reset() bool {
 	d.start = make(map[int]*logic.Deck)
 	d.hands = make(map[int]*logic.Deck)
 	d.won = make(map[int]*logic.Deck)
+	d.actionQueue = make(map[int][]action)
 	d.active = 0
 
 	var doko *logic.Deck = logic.NewDeck([]int{logic.Ace, 9, 10, logic.Jack, logic.Queen, logic.King}).Twice().Shuffle()
@@ -179,7 +179,12 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		d.table.AddAll(c)
-		d.actionQueue = append(d.actionQueue, &playAction{d.active, c})
+
+		var i int
+		for i = 0; i < 4; i++ {
+			d.actionQueue[i] = append(d.actionQueue[i], &playAction{d.active, c})
+		}
+
 		if len(*d.table) == 4 {
 			var winner int = d.trickWinner(d.table)
 
@@ -215,7 +220,10 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 			return false
 		}
 
-		d.actionQueue = append(d.actionQueue, &pickupAction{player})
+		var i int
+		for i = 0; i < 4; i++ {
+			d.actionQueue[i] = append(d.actionQueue[i], &pickupAction{d.active})
+		}
 		d.playerWonTrick(player)
 		if len(*d.hands[d.active]) == 0 {
 			d.g.SetState(logic.StateEnded)
