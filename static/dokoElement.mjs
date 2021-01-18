@@ -391,6 +391,12 @@ class DokoAreaElement extends HTMLElement {
 				if (p < 0) p += 4;
 				var elem = this.storage[p].hand.children[idx];
 
+				if (action.player != this.logic.ruleset.me) {
+					elem.setCard(action.card);
+					elem.classList.remove("small");
+					elem.onclick = () => this.pickup();
+				}
+
 				console.log("animating #" + idx + "of " + p);
 				console.log(elem);
 				this.animateHandToTable(elem);
