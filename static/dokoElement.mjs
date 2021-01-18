@@ -81,9 +81,9 @@ class StorageElement extends HTMLElement {
 				if (!this.handVisible) {
 					this.hand.children[i].classList.remove("small");
 					this.hand.children[i].setCard(hand[i]);
-					//this.hand.children[i].onclick = (evt) => this.screen.play(evt);
-					this.hand.children[i].onclick =
-						(evt) => this.screen.animateHandToTable(this.who, evt.target);
+					this.hand.children[i].onclick = (evt) => this.screen.play(evt);
+					// this.hand.children[i].onclick =
+					//	(evt) => this.screen.animateHandToTable(this.who, evt.target);
 				}
 
 				if (rs.playingState == 1) { // is playing phase?
@@ -300,19 +300,6 @@ class DokoAreaElement extends HTMLElement {
 		this.root.appendChild(elem);
 		this.table = elem;
 
-		// Create my hand
-		/*elem = document.createElement("span");
-		elem.id = "hand";
-		for (i = 1; i <= 12; i++) {
-			card = new CardElement();
-			card.classList.add("card");
-			card.id = "hand" + i;
-			card.onclick = (evt) => this.play(evt);
-			elem.appendChild(card);
-		}
-		this.root.appendChild(elem);
-		this.hand = elem;*/
-
 		this.storage = [];
 		for (i = 0; i < 4; i++) {
 			this.storage[i] = new StorageElement(this, (i + this.logic.ruleset.me) % 4);
@@ -343,38 +330,15 @@ class DokoAreaElement extends HTMLElement {
 
 		// coords of the target:
 		const tstyle = window.getComputedStyle(target);
-		const tx = tstyle.left;
-		const ty = tstyle.top;
 		const tt = tstyle.transform;
 		const to = tstyle.transformOrigin;
 
-		// coords of the element;
-		const sstyle = window.getComputedStyle(element);
-		const sx = sstyle.left;
-		const sy = sstyle.top;
-		const st = sstyle.transform;
-		const so = sstyle.transformOrigin;
-
-		// coords of the parent element:
-		console.log(this.storage[player]);
-		const pstyle = window.getComputedStyle(this.storage[player]);
-		const px = pstyle.offsetLeft;
-		const py = pstyle.top;
-		const pt = this.storage[player].offsetTop;
-
-		// TODO: calculate the true position of element & target, i have to add animate to tx - px since it's still in the absolute positioned parent container
-
-		/*element.style.left = sx;
-		element.style.top = sy;
-		element.style.transform = st;
-		element.style.transformOrigin = so;*/
-		// element.style.transition = "all 1s";
 		element.style.zIndex = this.tablecards.length;
 
 		// wait for the properties to apply
 		window.setTimeout(function() {
-			element.style.left = "151px"; // these numbers are magic,
-			element.style.top = "-340px"; // don't touch them
+			element.style.left = "105px"; // these numbers are magic,
+			element.style.top = "-327px"; // don't touch them
 			element.style.transform = tt;
 			element.style.transformOrigin = to;
 		}, 1);
@@ -383,7 +347,6 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	updateTable() {
-		return;
 		var table = this.logic.ruleset.table.cards;
 		var elem;
 		for (var i = 0; i < table.length; i++) {
