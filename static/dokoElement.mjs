@@ -259,7 +259,6 @@ class DokoAreaElement extends HTMLElement {
 		if (this.logic.ruleset.active != this.logic.ruleset.me) return;
 		var card = evt.target.getCard();
 		this.conn.send(`card ${card.toString().toLowerCase()}`);
-		this.animateHandToTable(0, evt.target);
 	}
 
 	pickup() {
@@ -326,31 +325,31 @@ class DokoAreaElement extends HTMLElement {
 		}
 	}
 
-	animateHandToTable(player, element) {
+	animateHandToTable(element) {
 		var target = this.table.children[this.tablecards.length];
 		if (target == undefined) return;
-		target.classList.remove("hidden");
 		this.tablecards.push(element);
 
+		target.classList.remove("hidden");
 		// coords of the target:
 		const tstyle = window.getComputedStyle(target);
 		const tt = tstyle.transform;
 		const to = tstyle.transformOrigin;
-
-		element.style.zIndex = this.tablecards.length;
+		target.classList.add("hidden");
+		var z = this.tablecards.length;
 
 		// wait for the properties to apply
 		window.setTimeout(function() {
+			element.style.zIndex = z;
 			element.style.left = "105px"; // these numbers are magic,
 			element.style.top = "-327px"; // don't touch them
 			element.style.transform = tt;
 			element.style.transformOrigin = to;
 		}, 1);
-
-		target.classList.add("hidden");
 	}
 
 	updateTable() {
+		console.log("table");
 		var table = this.logic.ruleset.table.cards;
 		var elem;
 		for (var i = 0; i < table.length; i++) {
@@ -387,8 +386,14 @@ class DokoAreaElement extends HTMLElement {
 				} else {
 					idx = 4;
 				}
-				console.log("animating #" + idx + "of " + action.player);
-				this.animateHandToTable(idx, action.player);
+
+				var p = action.player - this.logic.ruleset.me;
+				if (p < 0) p += 4;
+				var elem = this.storage[p].hand.children[idx];
+
+				console.log("animating #" + idx + "of " + p);
+				console.log(elem);
+				this.animateHandToTable(elem);
 			} else if (action instanceof PickupAction) {
 				console.log("na, pickup action");
 			} else {
