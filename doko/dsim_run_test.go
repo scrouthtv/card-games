@@ -272,6 +272,23 @@ func TestStubGame(t *testing.T) {
 			2, 0,
 			// specials[3]
 			3, 0,
+			// actions:
+			15,
+			0, 0, 54,
+			0, 1, 38,
+			0, 2, 6,
+			0, 3, 54,
+			1, 2,
+			0, 2, 48,
+			0, 3, 47,
+			0, 0, 5,
+			0, 1, 45,
+			1, 2,
+			0, 2, 53,
+			0, 3, 42,
+			0, 0, 48,
+			0, 1, 42,
+			1, 1,
 		}
 
 		var buf bytes.Buffer
@@ -281,6 +298,8 @@ func TestStubGame(t *testing.T) {
 		if len(isbin) != len(shouldbin) {
 			t.Errorf("Wrong length for binary: %d, should be %d",
 				len(isbin), len(shouldbin))
+			t.Log(isbin)
+			t.Log(shouldbin)
 		}
 
 		var i int
@@ -291,11 +310,6 @@ func TestStubGame(t *testing.T) {
 				t.Errorf("Wrong byte @ %d: %d, should be %d", 
 					i, is, should)
 			}
-		}
-
-		if t.Failed() {
-			t.Log(isbin)
-			t.Log(shouldbin)
 		}
 	})
 

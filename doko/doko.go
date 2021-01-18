@@ -24,6 +24,9 @@ type Doko struct {
 	playingState int
 
 	features []scoring
+
+	actionQueue []action
+
 }
 
 const (
@@ -59,7 +62,7 @@ func dokoCardValue(c *logic.Card) int {
 // supplied game
 func NewDoko(host logic.IGame) *Doko {
 	var d Doko = Doko{host, -1, nil, nil, nil, nil,
-		phaseCall, []scoring{newFox()}}
+		phaseCall, []scoring{newFox()}, []action{}}
 	d.Reset()
 	return &d
 }
@@ -176,6 +179,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		d.table.AddAll(c)
+		d.actionQueue = append(d.actionQueue, &playAction{d.active, c})
 		if len(*d.table) == 4 {
 			var winner int = d.trickWinner(d.table)
 
@@ -211,6 +215,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 			return false
 		}
 
+		d.actionQueue = append(d.actionQueue, &pickupAction{player})
 		d.playerWonTrick(player)
 		if len(*d.hands[d.active]) == 0 {
 			d.g.SetState(logic.StateEnded)

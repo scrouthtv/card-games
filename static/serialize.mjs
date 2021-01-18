@@ -237,6 +237,25 @@ class DokoGame {
           player = buf.getUint8();
           dg.special[player] = Deck.fromBinary(buf);
         }
+
+				dg.actions = [];
+				let alen = buf.getUint8();
+				var actionID;
+				for (i = 0; i < alen; i++) {
+					actionID = buf.getUint8();
+					switch (actionID) {
+						case 0:
+							dg.actions.push(PlayAction.fromBinary(buf));
+							break;
+						case 1:
+							dg.actions.push(PickupAction.fromBinary(buf));
+							break;
+						default:
+							console.log("I don't know action " + actionID);
+							break;
+					}
+				}
+
         break;
 			}
       case stateEnded: {
@@ -447,4 +466,29 @@ class ByteBuffer {
 	}
 }
 
-export { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer };
+class PlayAction {
+
+	constructor() {
+	}
+
+	static fromBinary(buf) {
+		var p = new PlayAction();
+		p.player = buf.getUint8();
+		p.card = Card.fromBinary(buf.getUint8());
+		return p;
+	}
+}
+
+class PickupAction {
+
+	constructor() {
+	}
+
+	static fromBinary(buf) {
+		var p = new PickupAction();
+		p.player = buf.getUint8();
+		return p;
+	}
+}
+
+export { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer, PlayAction, PickupAction };

@@ -57,6 +57,13 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 			deck.WriteBinary(buf)
 		}
 
+		var a action
+		buf.WriteByte(byte(len(d.actionQueue)))
+		for _, a = range d.actionQueue {
+			a.WriteBinary(buf)
+		}
+		d.actionQueue = []action{}
+
 	case logic.StateEnded:
 		buf.WriteByte(logic.StateEnded)
 

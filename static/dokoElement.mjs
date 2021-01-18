@@ -1,4 +1,4 @@
-import { Card, Game } from "./serialize.mjs";
+import { Card, Game, PlayAction, PickupAction } from "./serialize.mjs";
 import { statePreparing, statePlaying, stateEnded } from "./serialize-props.mjs";
 import { CardElement } from "./cardElement.mjs";
 export { DokoAreaElement };
@@ -72,6 +72,10 @@ class StorageElement extends HTMLElement {
 	}
 
 	updateHand() {
+		console.log("uppp");
+		console.log(this.screen.logic);
+		console.log(this.who);
+		console.log(this.handVisible);
 		var rs = this.screen.logic.ruleset;
 
 		if (this.who == rs.me) {
@@ -370,10 +374,47 @@ class DokoAreaElement extends HTMLElement {
 			this.table.children.item(i).classList.add("hidden");
 	}
 
+	animateActions() {
+		if (this.logic.ruleset.actions == undefined) return;
+
+		var action;
+		for (action of this.logic.ruleset.actions) {
+			console.log(action);
+			if (action instanceof PlayAction) {
+				var idx;
+				if (action.player == this.logic.ruleset.me) {
+					idx = this.firstPositionInHand(action.card);
+				} else {
+					idx = 4;
+				}
+				console.log("animating #" + idx + "of " + action.player);
+				this.animateHandToTable(idx, action.player);
+			} else if (action instanceof PickupAction) {
+				console.log("na, pickup action");
+			} else {
+				console.log("unknown action");
+			}
+		}
+	}
+
+	firstPositionInHand(card) {
+		var hand = this.storage[0].hand.children;
+		for (let i = 0; i < hand.length; i++) {
+			if (hand[i].getCard().equal(card)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	redraw() {
+		console.log("redraw");
+		console.log(this.logic);
 		if (this.logic == undefined) {
 			return;
 		}
+
+		this.animateActions();
 
 		if (this.logic.ruleset.state == statePreparing)
 			this.textinfo.innerHTML = "Game is still preparing";
@@ -390,16 +431,18 @@ class DokoAreaElement extends HTMLElement {
 			}
 		} else if (this.logic.ruleset.state == statePlaying) {
 			if (this.logic.ruleset.playingState == 0) {
-				//this.updateHand();
+				console.log("updating hand");
+				this.storage[0].handVisible = false;
+				this.storage[0].updateHand();
 				this.caller.classList.remove("hidden");
 				this.caller.update();
 			} else {
 				//this.updateHand();
-				this.updateTable();
+				//this.updateTable();
 				this.caller.classList.add("hidden");
 
 				for (let i = 0; i < 4; i++) {
-					this.storage[i].update();
+					//this.storage[i].update();
 				} 
 			}
 		} else if (this.logic.ruleset.state == stateEnded) {
