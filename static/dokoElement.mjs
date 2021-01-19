@@ -1,6 +1,7 @@
 import { Card, Game, PlayAction, PickupAction } from "./serialize.mjs";
 import { statePreparing, statePlaying, stateEnded } from "./serialize-props.mjs";
 import { CardElement } from "./cardElement.mjs";
+import { parentOffset } from "./util.mjs";
 export { DokoAreaElement };
 
 class StorageElement extends HTMLElement {
@@ -315,7 +316,6 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	NOPRODUCTIONexampleCards() {
-		console.log(this.storage);
 		for (let i = 0; i < 6; i++) {
 			for (let p = 0; p < 4; p++) {
 				var target = new CardElement();
@@ -323,24 +323,63 @@ class DokoAreaElement extends HTMLElement {
 				this.storage[p].storage.appendChild(target);
 			}
 		}
+
+		for (let i = 0; i < 12; i++) {
+			this.storage[0].hand.children[i].classList.remove("small");
+			this.storage[0].hand.children[i].setCard(Card.fromBinary(4 * i + 5));
+			this.storage[0].hand.children[i].onclick = (evt) => {
+				this.animateHandToTable(evt.target);
+				this.storage[0].hand.children[i].onclick = () => this.animateTableToStorage(2);
+			};
+		}
+	}
+
+	cardOwner(elem) {
+		for (let i = 0; i < 4; i++) {
+			for (let c of this.storage[i].hand.children) {
+				if (c == elem) {
+					return i;
+				}
+			}
+		}
+		return -1;
 	}
 
 	animateTableToStorage(winner) {
 		for (let tableCard of this.tablecards) {
 			var target = new CardElement();
-			target.classList.add("small");
+			target.classList.add("card", "small");
 			this.storage[winner].storage.appendChild(target);
 
 			const tstyle = window.getComputedStyle(target);
 			const tt = tstyle.transform;
 			const to = tstyle.transformOrigin;
-			target.classList.add("hidden");
-			tableCard.backSide();
 
-			window.setTimeout(function() {
-				tableCard.style.transform = tt;
-				tableCard.style.transformOrigin = to;
-			});
+			//target.classList.add("hidden");
+			tableCard.classList.add("small");
+			tableCard.backSide();
+			
+			console.log("----");
+			console.log(parentOffset(tableCard));
+			console.log("top: " + tableCard.offsetTop + " left: " + tableCard.offsetLeft);
+			console.log(parentOffset(target));
+			console.log("top: " + target.offsetTop + " left: " + target.offsetLeft);
+			console.log(target);
+
+
+			var rerotate = "rotate(" + (-360 + this.cardOwner(tableCard) * 90) + "deg)"
+			if (this.cardOwner(tableCard) == 0)
+				rerotate = "";
+			// player's container is rotated, undo this
+
+			// ziel - start
+			const toff = parentOffset(target); // target offset
+			const soff = parentOffset(tableCard); // start offset
+
+			tableCard.left = toff.left - soff.left + target.offsetLeft;
+			tableCard.top = toff.top - soff.top + target.offsetTop;
+			tableCard.style.transform = tt + " " + rerotate;
+			tableCard.style.transformOrigin = to;
 		}
 	}
 
@@ -413,13 +452,13 @@ class DokoAreaElement extends HTMLElement {
 				if (action.player != this.logic.ruleset.me) {
 					elem.setCard(action.card);
 					elem.classList.remove("small");
-					elem.onclick = () => this.pickup();
 				}
 
+				elem.onclick = () => this.pickup();
 				console.log(elem);
 				this.animateHandToTable(elem);
 			} else if (action instanceof PickupAction) {
-				this.animateTableToStorage(action.player);
+				this.animateTableToStorage(action.player - this.logic.ruleset.me);
 			} else {
 				console.log("unknown action");
 			}
