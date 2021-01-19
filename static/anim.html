@@ -12,10 +12,14 @@
 				const screen = document.getElementById("gamescreen");
 				const gscreen = new DokoAreaElement(null);
 				screen.appendChild(gscreen);
+				gscreen.logic = [];
+				gscreen.logic.ruleset = [];
+				gscreen.logic.ruleset.me = 5;
+				gscreen.initScreen();
 				gscreen.NOPRODUCTIONexampleCards();
 
-				window.setTimeout((ev) => gscreen.animateHandToTable(3), 5000);
-				window.setTimeout((ev) => gscreen.animateHandToTable(6), 8000);
+				/*window.setTimeout((ev) => gscreen.animateHandToTable(3), 5000);
+				window.setTimeout((ev) => gscreen.animateHandToTable(6), 8000);*/
 			}
 		</script>
 		<link rel="stylesheet" href="./style.css" />

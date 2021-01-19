@@ -86,8 +86,6 @@ class StorageElement extends HTMLElement {
 					this.hand.children[i].classList.remove("small");
 					this.hand.children[i].setCard(hand[i]);
 					this.hand.children[i].onclick = (evt) => this.screen.play(evt);
-					// this.hand.children[i].onclick =
-					//	(evt) => this.screen.animateHandToTable(this.who, evt.target);
 				}
 
 				if (rs.playingState == 1) { // is playing phase?
@@ -253,6 +251,7 @@ class DokoAreaElement extends HTMLElement {
 		this.root.innerHTML = "<link rel=\"stylesheet\" href=\"doko.css\" />";
 
 		this.tablecards = [];
+		this.storagecards = [];
 	}
 
 	play(evt) {
@@ -316,12 +315,32 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	NOPRODUCTIONexampleCards() {
-		for (let i = 0; i < this.hand.children.length; i++)
-			this.hand.children[i].setCard(Card.fromBinary((i + 2) * 3));
-		for (let i = 0; i < 2; i++) {
-			this.table.children[i].classList.remove("hidden");
-			this.table.children[i].setCard(Card.fromBinary(41 - 5 * i));
-			this.tablecards.push(this.table.children[i]);
+		console.log(this.storage);
+		for (let i = 0; i < 6; i++) {
+			for (let p = 0; p < 4; p++) {
+				var target = new CardElement();
+				target.classList.add("small", "card");
+				this.storage[p].storage.appendChild(target);
+			}
+		}
+	}
+
+	animateTableToStorage(winner) {
+		for (let tableCard of this.tablecards) {
+			var target = new CardElement();
+			target.classList.add("small");
+			this.storage[winner].storage.appendChild(target);
+
+			const tstyle = window.getComputedStyle(target);
+			const tt = tstyle.transform;
+			const to = tstyle.transformOrigin;
+			target.classList.add("hidden");
+			tableCard.backSide();
+
+			window.setTimeout(function() {
+				tableCard.style.transform = tt;
+				tableCard.style.transformOrigin = to;
+			});
 		}
 	}
 
@@ -397,11 +416,10 @@ class DokoAreaElement extends HTMLElement {
 					elem.onclick = () => this.pickup();
 				}
 
-				console.log("animating #" + idx + "of " + p);
 				console.log(elem);
 				this.animateHandToTable(elem);
 			} else if (action instanceof PickupAction) {
-				console.log("na, pickup action");
+				this.animateTableToStorage(action.player);
 			} else {
 				console.log("unknown action");
 			}
