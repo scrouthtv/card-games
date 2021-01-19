@@ -355,31 +355,34 @@ class DokoAreaElement extends HTMLElement {
 			const tt = tstyle.transform;
 			const to = tstyle.transformOrigin;
 
-			//target.classList.add("hidden");
 			tableCard.classList.add("small");
 			tableCard.backSide();
 			
 			console.log("----");
-			console.log(parentOffset(tableCard));
-			console.log("top: " + tableCard.offsetTop + " left: " + tableCard.offsetLeft);
 			console.log(parentOffset(target));
 			console.log("top: " + target.offsetTop + " left: " + target.offsetLeft);
-			console.log(target);
 
+			const startrect = tableCard.getBoundingClientRect();
+			console.log(startrect);
 
 			var rerotate = "rotate(" + (-360 + this.cardOwner(tableCard) * 90) + "deg)"
 			if (this.cardOwner(tableCard) == 0)
 				rerotate = "";
 			// player's container is rotated, undo this
-
-			// ziel - start
+			
 			const toff = parentOffset(target); // target offset
 			const soff = parentOffset(tableCard); // start offset
+			const left = toff.left - soff.left + target.offsetLeft;
+			const top = toff.top - soff.top + target.offsetTop;
+			console.log(left);
 
-			tableCard.left = toff.left - soff.left + target.offsetLeft;
-			tableCard.top = toff.top - soff.top + target.offsetTop;
-			tableCard.style.transform = tt + " " + rerotate;
+			target.classList.add("hidden");
+			tableCard.style.left = "0px";
+			tableCard.style.top = "0px";
+			tableCard.style.transform = tt + " " + rerotate +
+				" translate(" + left + "px, " + top + "px)";
 			tableCard.style.transformOrigin = to;
+			console.log(tableCard);
 		}
 	}
 
