@@ -5,6 +5,8 @@ class CardElement extends HTMLElement {
   constructor() {
     super();
 
+		this.back = true;
+
     this.img = document.createElement("img");
     this.img.src = "deck/card-deck-back.png";
     this.img.style.width = "100%";
@@ -25,6 +27,7 @@ class CardElement extends HTMLElement {
    */
   setCard(card) {
     this.card = card;
+		this.back = false;
     this.img.src = "deck/card-deck-" + card.toString() + ".png";
   }
 

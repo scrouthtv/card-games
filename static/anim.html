@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="module">
+			import { CardElement } from './cardElement.mjs';
+			import { Card } from './serialize.mjs';
+			import { DokoAreaElement } from './dokoElement.mjs';
+			customElements.define("spielekiste-card", CardElement);
+			customElements.define("doko-area", DokoAreaElement);
+
+			window.onload = function () {
+				const screen = document.getElementById("gamescreen");
+				const gscreen = new DokoAreaElement(null);
+				screen.appendChild(gscreen);
+				gscreen.logic = [];
+				gscreen.logic.ruleset = [];
+				gscreen.logic.ruleset.me = 5;
+				gscreen.initScreen();
+				gscreen.NOPRODUCTIONexampleCards();
+
+				window.setTimeout(() => {
+					/*gscreen.animateHandToTable(gscreen.storage[0].hand.children[5]);
+					gscreen.animateHandToTable(gscreen.storage[1].hand.children[3]);
+					gscreen.storage[1].hand.children[3].setCard(Card.fromBinary(50));
+					gscreen.storage[1].hand.children[3].classList.remove("small");
+					gscreen.storage[1].hand.children[3].onclick = () => gscreen.animateTableToStorage(1);*/
+					gscreen.animateHandToTable(gscreen.storage[2].hand.children[4]);
+					gscreen.storage[2].hand.children[4].setCard(Card.fromBinary(9));
+					gscreen.storage[2].hand.children[4].classList.remove("small");
+					gscreen.storage[2].hand.children[4].onclick = () => gscreen.animateTableToStorage(1);
+					gscreen.animateHandToTable(gscreen.storage[3].hand.children[5]);
+					gscreen.storage[3].hand.children[5].setCard(Card.fromBinary(27));
+					gscreen.storage[3].hand.children[5].classList.remove("small");
+					gscreen.storage[3].hand.children[5].onclick = () => gscreen.animateTableToStorage(1);
+				}, 100);
+
+				/*window.setTimeout((ev) => gscreen.animateHandToTable(3), 5000);
+				window.setTimeout((ev) => gscreen.animateHandToTable(6), 8000);*/
+			}
+		</script>
+		<link rel="stylesheet" href="./style.css" />
+		<style>
+			body {
+				background-color: rgb(0, 0, 100);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="gamescreen">
+		</div>
+	</body>
+</html>

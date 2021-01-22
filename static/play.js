@@ -2,11 +2,11 @@ import { ByteBuffer } from "./serialize.mjs";
 import { dokoGameUUID } from "./serialize-props.mjs";
 import { DokoAreaElement } from "./dokoElement.mjs";
 
-function join(id) {
+function join(id, name) {
   if (!conn) {
     console.log("Failed to connect");
   }
-  conn.send(`join ${id}`);
+  conn.send(`join ${id} ${name}`);
 }
 
 var conn;
@@ -15,9 +15,10 @@ var gamearea;
 
 const url = window.location.search;
 const params = new URLSearchParams(url);
-var id = [...params.keys()][0];
+const id = [...params.keys()][0];
+const name = params.get("name");
 
-if (id == undefined) {
+if (id == undefined || name == undefined) {
   window.location.href = "/";
 }
 
@@ -48,16 +49,8 @@ if (window["WebSocket"]) {
   };
   conn.onopen = function () {
     console.log("Connection is open");
-    join(id);
+    join(id, name);
   };
 } else {
   alert("<b>Your browser does not support WebSockets.</b>");
 }
-
-/*function changeSize() {
-  gameArea.width = window.innerWidth;
-  gameArea.height = window.innerHeight;
-  redraw();
-}
-
-window.onresize = changeSize; */

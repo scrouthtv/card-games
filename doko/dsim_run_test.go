@@ -1,6 +1,7 @@
 package doko
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/scrouthtv/card-games/logic"
@@ -62,6 +63,10 @@ func TestStubGame(t *testing.T) {
 	expectedTable = &cpy
 
 	t.Log(ds.String())
+
+	for i = 0; i < 4; i++ {
+		doko.PlayerMove(doko.active, logic.NewPacket("call healthy"))
+	}
 
 	var card *logic.Card = doko.hands[0].Get(0)
 	var expCard logic.Card = *logic.NewCard(logic.Hearts, logic.King)
@@ -249,6 +254,67 @@ func TestStubGame(t *testing.T) {
 		}
 	})
 
+	t.Run("18. Test binary serialization", func(t *testing.T) {
+		var shouldbin []byte = []byte {
+			// state              active       me      playable
+			byte(logic.StatePlaying | (1 << 2) | (0 << 4) | (1 << 6)),
+			// hand
+			9, 4, 40, 4, 38, 37, 43, 44, 45, 53,
+			// table
+			0,
+			// won
+			0, 4, 8, 0,
+			// specials[0]: playerID, length
+			0, 0,
+			// specials[1]: playerID, length
+			1, 0,
+			// specials[2]
+			2, 0,
+			// specials[3]
+			3, 0,
+			// progress: was 0, is 63
+			0, 63,
+			// actions:
+			15,
+			0, 0, 54,
+			0, 1, 38,
+			0, 2, 6,
+			0, 3, 54,
+			1, 2,
+			0, 2, 48,
+			0, 3, 47,
+			0, 0, 5,
+			0, 1, 45,
+			1, 2,
+			0, 2, 53,
+			0, 3, 42,
+			0, 0, 48,
+			0, 1, 42,
+			1, 1,
+		}
+
+		var buf bytes.Buffer
+		doko.WriteBinary(0, &buf)
+		var isbin []byte = buf.Bytes()
+
+		if len(isbin) != len(shouldbin) {
+			t.Errorf("Wrong length for binary: %d, should be %d",
+				len(isbin), len(shouldbin))
+			t.Log(isbin)
+			t.Log(shouldbin)
+		}
+
+		var i int
+		var is, should byte
+		for i, is = range isbin {
+			should = shouldbin[i]
+			if is != should {
+				t.Errorf("Wrong byte @ %d: %d, should be %d", 
+					i, is, should)
+			}
+		}
+	})
+
 	//t.Log(ds.String())
 }
 
@@ -267,6 +333,10 @@ func TestGameEnd(t *testing.T) {
 	var i int
 	for i = 0; i < 4; i++ {
 		doko.start[i] = doko.hands[i].Clone()
+	}
+
+	for i = 0; i < 4; i++ {
+		doko.PlayerMove(doko.active, logic.NewPacket("call healthy"))
 	}
 
 	// 0 & 2 play together

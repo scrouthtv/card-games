@@ -37,6 +37,10 @@ func TestFoxFinder(t *testing.T) {
 		doko.start[i] = doko.hands[i].Clone()
 	}
 
+	for i = 0; i < 4; i++ {
+		doko.PlayerMove(doko.active, logic.NewPacket("call healthy"))
+	}
+
 	var rescore, contrascore int
 
 	t.Run("1. Expecting 2 foxes", func(t *testing.T) {

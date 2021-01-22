@@ -165,7 +165,7 @@ class DokoScore {
 		var ds = new DokoScore();
 		var slen = buf.getUint8();
 		for (var i = 0; i < slen; i++) {
-			ds.scores.push(buf.getUint8());
+			ds.scores[i] = buf.getUint8();
 		}
 		ds.rereasons = arrayFromBuf(buf);
 		ds.contrareasons = arrayFromBuf(buf);
@@ -200,11 +200,12 @@ class DokoGame {
 		this.state = statePreparing;
 		this.active = 0;
 		this.me = 0;
-		this.playable = 0;
+		this.playingState = -1;
 		this.hand = new Deck();
 		this.table = new Deck();
 		this.won = [];
 		this.special = [];
+		this.stamp = -1;
 	}
 
   /**
@@ -218,13 +219,14 @@ class DokoGame {
     switch (state) {
       case statePreparing: {
         dg.state = statePreparing;
+				dg.me = buf.getInt8();
         break;
 			}
       case statePlaying: {
         dg.state = statePlaying;
         dg.active = 	(stateInfo & 0b00001100) >> 2;
         dg.me = (stateInfo & 0b00110000) >> 4;
-				dg.playable = (stateInfo & 0b01000000) >> 6;
+				dg.playingState = (stateInfo & 0b11000000) >> 6;
         dg.hand = Deck.fromBinary(buf);
         dg.table = Deck.fromBinary(buf);
         dg.won = [];
@@ -236,10 +238,40 @@ class DokoGame {
           player = buf.getUint8();
           dg.special[player] = Deck.fromBinary(buf);
         }
+
+				dg.laststamp = buf.getUint8();
+				dg.stamp = buf.getUint8();
+				dg.actions = [];
+				let alen = buf.getUint8();
+				var actionID;
+				for (i = 0; i < alen; i++) {
+					actionID = buf.getUint8();
+					switch (actionID) {
+						case 0:
+							dg.actions.push(PlayAction.fromBinary(buf));
+							break;
+						case 1:
+							dg.actions.push(PickupAction.fromBinary(buf));
+							break;
+						default:
+							console.log("I don't know action " + actionID);
+							break;
+					}
+				}
+
         break;
 			}
       case stateEnded: {
         dg.state = stateEnded;
+
+				dg.me = buf.getUint8();
+				console.log("I am " + this.me);
+
+				var replayers = buf.getUint8();
+				dg.reteam = [];
+				for (let i = 0; i < replayers; i++) {
+					dg.reteam.push(buf.getUint8());
+				}
 
 				dg.scores = DokoScore.fromBinary(buf);
 
@@ -248,6 +280,13 @@ class DokoGame {
 					player = buf.getUint8();
 					dg.won[player] = Deck.fromBinary(buf);
 				}
+
+        dg.special = [];
+        for (let player = 0; player < 4; player++) {
+          player = buf.getUint8();
+          dg.special[player] = Deck.fromBinary(buf);
+        }
+				console.log(dg);
         break;
 			}
       default:
@@ -257,6 +296,15 @@ class DokoGame {
 
     return dg;
   }
+
+	didIWin() {
+		if (this.state != stateEnded) return false;
+
+		var max = this.scores.scores.reduce((a, b) => Math.max(a, b));
+		var mine = this.scores.scores[this.me];
+
+		return mine >= max;
+	}
 
   allowedCards() {
     if (this.table.length() == 0) {
@@ -308,7 +356,59 @@ class DokoGame {
     }
     return -1;
   }
+
+	availableCalls() {
+		var aC = [];
+		for (var call of calls) {
+			if (call.matcher(this)) {
+				aC.push(call);
+			}
+		}
+		return aC;
+	}
+
 }
+
+class DokoCall {
+
+	constructor(name, matcher, callback) {
+		this.name = name;
+		this.matcher = matcher;
+		this.callback = callback;
+	}
+
+}
+
+const reshuffle = new DokoCall("Schmeißen",
+	function (logic) {
+		var mycards = logic.hand.cards;
+		var nines = 0;
+		var highestTrumpValue;
+		const worstTrump = new Card(1, 11); // Diamonds Jack
+		for (let c of mycards) {
+			if (c.value == 9) nines++;
+			if (logic.trumpValue(c) > highestTrumpValue)
+				highestTrumpValue = logic.trumpValue(c);
+		}
+		return nines >= 5 || highestTrumpValue <= logic.trumpValue(worstTrump);
+	},
+	function (conn) {
+		conn.send("call reshuffle");
+	}
+);
+
+const healthy = new DokoCall("Gesund",
+	/* eslint-disable no-unused-vars */
+	function (logic) {
+	/* eslint-enable no-unused-vars */
+		return true;
+	},
+	function (conn) {
+		conn.send("call healthy");
+	}
+);
+
+const calls = [healthy, reshuffle];
 
 class Game {
   /**
@@ -317,7 +417,15 @@ class Game {
   static fromBinary(buf) {
     /** @type {Game} */
     var g = new Game();
-    switch (buf.getInt8()) {
+		var typeID = buf.getInt8();
+
+		g.players = [];
+		var players = buf.getInt8();
+		for (let i = 0; i < players; i++) {
+			g.players.push(buf.readString());
+		}
+
+    switch (typeID) {
       case dokoGameUUID:
 				console.log("This is a doko game");
         g.ruleset = DokoGame.fromBinary(buf);
@@ -326,7 +434,6 @@ class Game {
         console.log("Unknown game");
         break;
     }
-
     return g;
   }
 }
@@ -351,6 +458,40 @@ class ByteBuffer {
   hasNext() {
     return this.offset < this.dataView.byteLength;
   }
+
+	readString() {
+		var length = this.getUint8();
+		var arr = new Uint8Array(length);
+		for (let i = 0; i < length; i++)
+			arr[i] = this.getUint8();
+		var td = new TextDecoder();
+		return td.decode(arr);
+	}
 }
 
-export { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer };
+class PlayAction {
+
+	constructor() {
+	}
+
+	static fromBinary(buf) {
+		var p = new PlayAction();
+		p.player = buf.getUint8();
+		p.card = Card.fromBinary(buf.getUint8());
+		return p;
+	}
+}
+
+class PickupAction {
+
+	constructor() {
+	}
+
+	static fromBinary(buf) {
+		var p = new PickupAction();
+		p.player = buf.getUint8();
+		return p;
+	}
+}
+
+export { Card, Deck, Ruleset, DokoGame, Game, ByteBuffer, PlayAction, PickupAction };

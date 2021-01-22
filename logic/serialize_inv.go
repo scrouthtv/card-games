@@ -16,11 +16,19 @@ var ValueOrder []int = []int{
 
 // ToBinary returns a byte representation fo this card
 func (c *Card) ToBinary() byte {
+	if c == nil {
+		return 0
+	}
 	return byte(c.value*CardMaxSuit + c.suit)
 }
 
 // WriteBinary appends the deck to a bytes buffer
 func (d *Deck) WriteBinary(buf *bytes.Buffer) {
+	if d == nil {
+		buf.WriteByte(0)
+		return
+	}
+
 	buf.WriteByte(byte(d.Length()))
 
 	var c *Card

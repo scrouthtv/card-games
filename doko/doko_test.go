@@ -41,6 +41,10 @@ func TestCardTracer(t *testing.T) {
 		start[i].AddAll(*deck...)
 	}
 
+	for i = 0; i < 4; i++ {
+		doko.PlayerMove(doko.active, logic.NewPacket("call healthy"))
+	}
+
 	// Play some cards
 	for i = 0; i < 5; i++ {
 		ds.playOnce(t)

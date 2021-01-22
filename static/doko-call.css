@@ -1,0 +1,25 @@
+#contents {
+	background: gray;
+	width: 25%;
+	height: 70%;
+	position: absolute;
+	top: 10%;
+	right: 0%;
+	border-radius: 8px 0px 0px 8px;
+	-webkit-filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
+	filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
+	text-align: right;
+}
+
+#contents.active {
+	background: green;
+}
+
+#contents button {
+	margin-top: 20px;
+	margin-right: 3px;
+	width: 60%;
+	font-size: 20px;
+	line-height: 40px;
+	text-align: right;
+}

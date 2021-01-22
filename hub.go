@@ -56,10 +56,11 @@ func (h *Hub) playerMessage(sender logic.Player, p *logic.Packet) bool {
 
 	var g *Game
 	if p.Action() == "join" {
-		if len(p.Args()) < 1 {
+		if len(p.Args()) < 2 {
 			log.Print("Missing game")
 			return false
 		}
+
 		var id int
 		var err error
 		id, err = strconv.Atoi(p.Args()[0])
@@ -67,9 +68,12 @@ func (h *Hub) playerMessage(sender logic.Player, p *logic.Packet) bool {
 			log.Print("Wrong game: ", err)
 			return false
 		}
+
+		var name string = p.Args()[1]
+
 		for _, g = range h.games {
 			if g.id == byte(id) {
-				return g.playerJoin(sender)
+				return g.playerJoin(sender, name)
 			}
 		}
 		log.Print("No game found")
@@ -85,7 +89,7 @@ func (h *Hub) playerMessage(sender logic.Player, p *logic.Packet) bool {
 }
 
 func (h *Hub) createGame(name string) *Game {
-	var g Game = Game{h.gameUUID(), make(map[int]logic.Player), name, h, logic.StatePreparing, nil}
+	var g Game = Game{h.gameUUID(), make(map[int]logic.Player), make(map[int]string), name, h, logic.StatePreparing, nil}
 	g.ruleset = doko.NewDoko(&g)
 	h.games = append(h.games, &g)
 	h.logGames()
@@ -93,7 +97,7 @@ func (h *Hub) createGame(name string) *Game {
 }
 
 func (h *Hub) createGameWithID(id byte, name string) *Game {
-	var g Game = Game{id, make(map[int]logic.Player), name, h, logic.StatePreparing, nil}
+	var g Game = Game{id, make(map[int]logic.Player), make(map[int]string), name, h, logic.StatePreparing, nil}
 	g.ruleset = doko.NewDoko(&g)
 	h.games = append(h.games, &g)
 	h.logGames()

@@ -20,12 +20,20 @@ type Doko struct {
 	// table: inventory
 	table *logic.Deck
 
-	// playable: if set to true, cards can be played,
-	// if set to false, the trick has to be picked up first
-	playable bool
+	// playingState: one of the phases below
+	playingState int
 
 	features []scoring
+
+	actionQueue map[int][]action
+	lastStamps map[int]byte
 }
+
+const (
+	phaseCall = iota
+	phasePlay
+	phasePickup
+)
 
 type scoring interface {
 	Name() string
@@ -54,7 +62,7 @@ func dokoCardValue(c *logic.Card) int {
 // supplied game
 func NewDoko(host logic.IGame) *Doko {
 	var d Doko = Doko{host, -1, nil, nil, nil, nil,
-		true, []scoring{newFox()}}
+		phaseCall, []scoring{newFox()}, make(map[int][]action), make(map[int]byte)}
 	d.Reset()
 	return &d
 }
@@ -65,6 +73,12 @@ func (d *Doko) Reset() bool {
 	d.start = make(map[int]*logic.Deck)
 	d.hands = make(map[int]*logic.Deck)
 	d.won = make(map[int]*logic.Deck)
+	d.actionQueue = make(map[int][]action)
+	d.lastStamps[0] = 0
+	d.lastStamps[1] = 0
+	d.lastStamps[2] = 0
+	d.lastStamps[3] = 0
+	d.active = 0
 
 	var doko *logic.Deck = logic.NewDeck([]int{logic.Ace, 9, 10, logic.Jack, logic.Queen, logic.King}).Twice().Shuffle()
 	var dist []*logic.Deck = doko.DistributeAll(4)
@@ -77,7 +91,7 @@ func (d *Doko) Reset() bool {
 	}
 	d.table = logic.EmptyDeck()
 
-	d.playable = true
+	d.playingState = phaseCall
 
 	return true
 }
@@ -91,7 +105,7 @@ func (d *Doko) Active() int {
 func (d *Doko) Start() {
 	d.active = 0
 	d.g.SetState(logic.StatePlaying)
-	d.playable = true
+	d.playingState = phaseCall
 }
 
 // Info returns the GameInfo for this Doppelkopf game
@@ -127,7 +141,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		// Check 2: does the current trick have to be picked up first
-		if !d.playable {
+		if d.playingState != phasePlay {
 			log.Println("Ignoring because the trick has to be picked up first")
 			return false
 		}
@@ -170,6 +184,12 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		d.table.AddAll(c)
+
+		var i int
+		for i = 0; i < 4; i++ {
+			d.actionQueue[i] = append(d.actionQueue[i], &playAction{d.active, c})
+		}
+
 		if len(*d.table) == 4 {
 			var winner int = d.trickWinner(d.table)
 
@@ -182,7 +202,7 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 				winner -= 4
 			}
 			d.active = winner
-			d.playable = false
+			d.playingState = phasePickup
 		} else {
 			d.active++
 			if d.active == 4 {
@@ -200,16 +220,58 @@ func (d *Doko) PlayerMove(player int, p *logic.Packet) bool {
 		}
 
 		// Check 2: does the current trick have to be picked up
-		if d.playable {
+		if d.playingState != phasePickup {
 			log.Println("Ignoring because the trick has to be played first")
 			return false
 		}
 
+		var i int
+		for i = 0; i < 4; i++ {
+			d.actionQueue[i] = append(d.actionQueue[i], &pickupAction{d.active})
+		}
 		d.playerWonTrick(player)
 		if len(*d.hands[d.active]) == 0 {
 			d.g.SetState(logic.StateEnded)
 		}
-		d.playable = true
+		d.playingState = phasePlay
+		return true
+	case "call":
+		log.Println("Checking call")
+
+		// Check 1: are we currently playing
+		if d.g.State() != logic.StatePlaying {
+			log.Println("Ignoring because we are not playing")
+			return false
+		}
+
+		// Check 2: does the current trick have to be picked up
+		if d.playingState != phaseCall {
+			log.Println("Ignoring because we are not calling")
+			return false
+		}
+
+		// Check 3: enough params?
+		if len(p.Args()) < 1 {
+		log.Println("Missing param")
+			return false
+		}
+
+		// Check 4: do we know that call?
+		var call *dokoCall = callByName(p.Args()[0])
+		if call == nil {
+			log.Println("Unknown call")
+			return false
+		}
+
+		// Check 5: is that call allowed?
+		var ok bool = call.match(d, player)
+		if !ok {
+			log.Println("Invalid call")
+			return false
+		}
+
+		call.runner(d, player)
+
 		return true
 	}
 

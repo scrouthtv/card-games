@@ -2,28 +2,82 @@
 
 .card {
     position: absolute;
+		transition: all 1s;
 }
 
 .card {
     width: 205.75px;
     height: 320.25px;
     -webkit-filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
-    filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5))
+    filter: drop-shadow(12px 12px 25px rgba(0, 0, 0, 0.5));
 }
 
 .card.small {
     width: 102.875px;
     height: 160.0125px;
     -webkit-filter: drop-shadow(6x 6px 12px rgba(0, 0, 0, 0.5));
-    filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5))
+    filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.5));
 }
 
-.storage .card {
-    left: 20%;
-    transform: rotate( calc(var(--nth-child) * 3deg - 20deg) );
+#hand {
+	position: absolute;
+	left: 30%;
 }
 
-.special .card {
+#hand .card {
+    transform:
+        translate(0, 120%)
+        rotate( calc(var(--nth-child) * 7.5deg - 45deg) )
+        translate(50%, -50%);
+    transform-origin: bottom right;
+    bottom: -24%;
+    left: 50%;
+}
+
+.card.allowed.active {
+    cursor: pointer;
+}
+
+.card.allowed::before {
+	background-color: #cacaca;
+	opacity: .5;
+	display: block;
+	content: '';
+	position: absolute;
+	width: 110%;
+	left: -5%;
+	height: 106%;
+	top: -3%;
+	z-index: -1;
+	border-radius: 20px;
+}
+
+.card.allowed.active::before {
+	background-color: #90caf9;
+}
+
+.card.allowed.active:hover::before {
+	background-color: red;
+	transition: background-color 0.05s;
+}
+
+#storage .card {
+		position: absolute;
+    left: 500px;
+		transform: rotate( calc(var(--nth-child) * 2deg - 10deg) );
+}
+
+.special.playing .card {
     left: -80%;
 		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}
+
+/*.special.finished .card {
+    left: 0%;
+		bottom: -900%;
+		transform: rotate( calc(var(--nth-child) * 10deg - 10deg) );
+}*/
+
+.hidden {
+	display: none;
 }
