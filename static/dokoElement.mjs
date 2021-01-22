@@ -271,7 +271,13 @@ class DokoAreaElement extends HTMLElement {
 	 */
 	msg(buf) {
 		if (buf.dataView.byteLength > 1) {
+			if (this.logic != null)
+				var laststamp = this.logic.ruleset.stamp;
 			this.logic = Game.fromBinary(buf);
+			if (this.logic != null)
+				this.logic.ruleset.serverlaststamp = laststamp;
+			else
+				this.logic.ruleset.serverlaststamp = -1;
 		}
 		if (this.hasInit)
 			this.redraw();
@@ -351,13 +357,16 @@ class DokoAreaElement extends HTMLElement {
 			target.classList.add("card", "small");
 			this.storage[winner].storage.appendChild(target);
 
+			tableCard.classList.add("hidden");
+			tableCard.backSide();
+
+			continue;
+			
+			/*
 			const tstyle = window.getComputedStyle(target);
 			const tt = tstyle.transform;
 			const to = tstyle.transformOrigin;
 
-			tableCard.classList.add("small");
-			tableCard.backSide();
-			
 			console.log("----");
 			console.log(parentOffset(target));
 			console.log("top: " + target.offsetTop + " left: " + target.offsetLeft);
@@ -365,7 +374,7 @@ class DokoAreaElement extends HTMLElement {
 			const startrect = tableCard.getBoundingClientRect();
 			console.log(startrect);
 
-			var rerotate = "rotate(" + (-360 + this.cardOwner(tableCard) * 90) + "deg)"
+			var rerotate = "rotate(" + (-360 + this.cardOwner(tableCard) * 90) + "deg)";
 			if (this.cardOwner(tableCard) == 0)
 				rerotate = "";
 			// player's container is rotated, undo this
@@ -383,6 +392,7 @@ class DokoAreaElement extends HTMLElement {
 				" translate(" + left + "px, " + top + "px)";
 			tableCard.style.transformOrigin = to;
 			console.log(tableCard);
+			*/
 		}
 	}
 
@@ -432,6 +442,41 @@ class DokoAreaElement extends HTMLElement {
 		// hide the rest of the table:
 		for (; i < 4; i++)
 			this.table.children.item(i).classList.add("hidden");
+	}
+
+	markHandAllowed() {
+		const hand = this.storage[0].hand;
+		const allowed = this.logic.ruleset.allowedCards();
+		for (let i = 0; i < hand.children.length; i++) {
+			const card = hand.children[i];
+			if (this.logic.ruleset.playingState == 1) {
+				if (this.tablecards.includes(card)) {
+					card.classList.remove("allowed");
+					card.classList.remove("active");
+				} else if (allowed.some(c => c.equal(card.getCard()))) {
+					card.classList.add("allowed");
+					if (this.logic.ruleset.active == this.logic.ruleset.me) {
+						card.classList.add("active");
+					} else {
+						card.classList.remove("active");
+					}
+				} else {
+					card.classList.remove("allowed");
+				}
+			} else if (this.logic.ruleset.playingState == 2) {
+				if (this.tablecards.includes(card)) {
+					card.classList.add("allowed");
+					if (this.logic.ruleset.active == this.logic.ruleset.me) {
+						card.classList.add("active");
+					} else {
+						card.classList.remove("active");
+					}
+				} else {
+					card.classList.remove("allowed");
+					card.classList.remove("active");
+				}
+			}
+		}
 	}
 
 	animateActions() {
@@ -485,7 +530,10 @@ class DokoAreaElement extends HTMLElement {
 			return;
 		}
 
-		this.animateActions();
+		if (this.logic.ruleset.laststamp == this.logic.ruleset.serverlaststamp) {
+			console.log("Stamps match");
+			this.animateActions();
+		}
 
 		if (this.logic.ruleset.state == statePreparing)
 			this.textinfo.innerHTML = "Game is still preparing";
@@ -508,13 +556,15 @@ class DokoAreaElement extends HTMLElement {
 				this.caller.classList.remove("hidden");
 				this.caller.update();
 			} else {
-				//this.updateHand();
-				//this.updateTable();
+				this.markHandAllowed();
 				this.caller.classList.add("hidden");
 
-				for (let i = 0; i < 4; i++) {
-					//this.storage[i].update();
-				} 
+				if (this.logic.ruleset.laststamp != this.logic.ruleset.serverlaststamp) {
+					console.log("Stamp mismatch");
+					this.updateTable();
+					for (let i = 0; i < 4; i++)
+						this.storage[i].update();
+				}
 			}
 		} else if (this.logic.ruleset.state == stateEnded) {
 			console.log("this is the end");
