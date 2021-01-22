@@ -1,7 +1,7 @@
 import { Card, Game, PlayAction, PickupAction } from "./serialize.mjs";
 import { statePreparing, statePlaying, stateEnded } from "./serialize-props.mjs";
 import { CardElement } from "./cardElement.mjs";
-import { parentOffset } from "./util.mjs";
+import { getRandomInt } from "./util.mjs";
 export { DokoAreaElement };
 
 class StorageElement extends HTMLElement {
@@ -73,10 +73,6 @@ class StorageElement extends HTMLElement {
 	}
 
 	updateHand() {
-		console.log("uppp");
-		console.log(this.screen.logic);
-		console.log(this.who);
-		console.log(this.handVisible);
 		var rs = this.screen.logic.ruleset;
 
 		if (this.who == rs.me) {
@@ -289,7 +285,6 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	initScreen() {
-		console.log(this.logic);
 		var elem = document.createElement("div");
 		elem.id = "textinfo";
 		this.root.appendChild(elem);
@@ -360,9 +355,7 @@ class DokoAreaElement extends HTMLElement {
 			tableCard.classList.add("hidden");
 			tableCard.backSide();
 
-			continue;
-			
-			/*
+			/* Animation that does not work because each player is rotated:
 			const tstyle = window.getComputedStyle(target);
 			const tt = tstyle.transform;
 			const to = tstyle.transformOrigin;
@@ -394,6 +387,8 @@ class DokoAreaElement extends HTMLElement {
 			console.log(tableCard);
 			*/
 		}
+
+		this.tablecards = [];
 	}
 
 	animateHandToTable(element) {
@@ -420,7 +415,6 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	updateTable() {
-		console.log("table");
 		var table = this.logic.ruleset.table.cards;
 		var elem;
 		for (var i = 0; i < table.length; i++) {
@@ -477,6 +471,34 @@ class DokoAreaElement extends HTMLElement {
 				}
 			}
 		}
+
+		if (this.logic.ruleset.playingState == 2) {
+			for (let i = 0; i < this.tablecards.length; i++) {
+				const card = this.tablecards[i];
+				card.classList.add("allowed");
+				if (this.logic.ruleset.active == this.logic.ruleset.me) {
+					card.classList.add("active");
+				} else {
+					card.classList.remove("active");
+				}
+			}
+		}
+	}
+
+	/*
+	 * Returns an id to a random card in a player's hand that exists
+	 */
+	randomExistingHandcard(player) {
+		var nexist = [];
+		const hand = this.storage[player].hand.children;
+		for (let i = 0; i < hand.length; i++)
+			if (hand[i].classList.contains("hidden")) nexist.push(i);
+
+		var id = getRandomInt(hand.length);
+		var startid = id;
+		for (let i = 0; i < nexist.length; i++)
+			if (startid == nexist[i]) id++;
+		return id % hand.length;
 	}
 
 	animateActions() {
@@ -484,17 +506,17 @@ class DokoAreaElement extends HTMLElement {
 
 		var action;
 		for (action of this.logic.ruleset.actions) {
-			console.log(action);
 			if (action instanceof PlayAction) {
+				var p = action.player - this.logic.ruleset.me;
+				if (p < 0) p += 4;
+				
 				var idx;
 				if (action.player == this.logic.ruleset.me) {
 					idx = this.firstPositionInHand(action.card);
 				} else {
-					idx = 4;
+					idx = this.randomExistingHandcard(p);
 				}
 
-				var p = action.player - this.logic.ruleset.me;
-				if (p < 0) p += 4;
 				var elem = this.storage[p].hand.children[idx];
 
 				if (action.player != this.logic.ruleset.me) {
@@ -503,10 +525,11 @@ class DokoAreaElement extends HTMLElement {
 				}
 
 				elem.onclick = () => this.pickup();
-				console.log(elem);
 				this.animateHandToTable(elem);
 			} else if (action instanceof PickupAction) {
-				this.animateTableToStorage(action.player - this.logic.ruleset.me);
+				let winner = action.player - this.logic.ruleset.me;
+				if (winner < 0) winner += 4;
+				this.animateTableToStorage(winner % 4);
 			} else {
 				console.log("unknown action");
 			}
@@ -516,7 +539,9 @@ class DokoAreaElement extends HTMLElement {
 	firstPositionInHand(card) {
 		var hand = this.storage[0].hand.children;
 		for (let i = 0; i < hand.length; i++) {
-			if (hand[i].getCard().equal(card)) {
+			if (this.tablecards.includes(card)) continue;
+			const hc = hand[i].getCard();
+			if (hc != null && hc.equal(card)) {
 				return i;
 			}
 		}
@@ -524,14 +549,11 @@ class DokoAreaElement extends HTMLElement {
 	}
 
 	redraw() {
-		console.log("redraw");
-		console.log(this.logic);
 		if (this.logic == undefined) {
 			return;
 		}
 
 		if (this.logic.ruleset.laststamp == this.logic.ruleset.serverlaststamp) {
-			console.log("Stamps match");
 			this.animateActions();
 		}
 
@@ -550,7 +572,6 @@ class DokoAreaElement extends HTMLElement {
 			}
 		} else if (this.logic.ruleset.state == statePlaying) {
 			if (this.logic.ruleset.playingState == 0) {
-				console.log("updating hand");
 				this.storage[0].handVisible = false;
 				this.storage[0].updateHand();
 				this.caller.classList.remove("hidden");
@@ -560,7 +581,6 @@ class DokoAreaElement extends HTMLElement {
 				this.caller.classList.add("hidden");
 
 				if (this.logic.ruleset.laststamp != this.logic.ruleset.serverlaststamp) {
-					console.log("Stamp mismatch");
 					this.updateTable();
 					for (let i = 0; i < 4; i++)
 						this.storage[i].update();
@@ -622,7 +642,6 @@ class DokoAreaElement extends HTMLElement {
 		}
 
 		if (specials == undefined) return;
-		console.log(this.storage[destination]);
 		storage = this.storage[destination].children.item(3);
 
 		// Remove special cards that have become irrelevant since last update:
