@@ -205,6 +205,7 @@ class DokoGame {
 		this.table = new Deck();
 		this.won = [];
 		this.special = [];
+		this.stamp = -1;
 	}
 
   /**
@@ -238,6 +239,8 @@ class DokoGame {
           dg.special[player] = Deck.fromBinary(buf);
         }
 
+				dg.laststamp = buf.getUint8();
+				dg.stamp = buf.getUint8();
 				dg.actions = [];
 				let alen = buf.getUint8();
 				var actionID;

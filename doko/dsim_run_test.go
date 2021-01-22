@@ -272,6 +272,8 @@ func TestStubGame(t *testing.T) {
 			2, 0,
 			// specials[3]
 			3, 0,
+			// progress: was 0, is 63
+			0, 63,
 			// actions:
 			15,
 			0, 0, 54,

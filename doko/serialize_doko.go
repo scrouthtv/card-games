@@ -57,6 +57,9 @@ func (d *Doko) WriteBinary(player int, buf *bytes.Buffer) {
 			deck.WriteBinary(buf)
 		}
 
+		buf.WriteByte(d.lastStamps[player])
+		d.lastStamps[player] = d.currentStamp()
+		buf.WriteByte(d.lastStamps[player])
 		var a action
 		buf.WriteByte(byte(len(d.actionQueue[player])))
 		for _, a = range d.actionQueue[player] {
@@ -138,4 +141,9 @@ func writeIntArray(arr []int, buf *bytes.Buffer) {
 	for _, x = range arr {
 		buf.WriteByte(byte(x))
 	}
+}
+
+func (d *Doko) currentStamp() byte {
+	var progress, total int = d.Progress()
+	return byte(progress * 255 / total)
 }

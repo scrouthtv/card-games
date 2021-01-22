@@ -26,6 +26,7 @@ type Doko struct {
 	features []scoring
 
 	actionQueue map[int][]action
+	lastStamps map[int]byte
 }
 
 const (
@@ -61,7 +62,7 @@ func dokoCardValue(c *logic.Card) int {
 // supplied game
 func NewDoko(host logic.IGame) *Doko {
 	var d Doko = Doko{host, -1, nil, nil, nil, nil,
-		phaseCall, []scoring{newFox()}, make(map[int][]action)}
+		phaseCall, []scoring{newFox()}, make(map[int][]action), make(map[int]byte)}
 	d.Reset()
 	return &d
 }
@@ -73,6 +74,10 @@ func (d *Doko) Reset() bool {
 	d.hands = make(map[int]*logic.Deck)
 	d.won = make(map[int]*logic.Deck)
 	d.actionQueue = make(map[int][]action)
+	d.lastStamps[0] = 0
+	d.lastStamps[1] = 0
+	d.lastStamps[2] = 0
+	d.lastStamps[3] = 0
 	d.active = 0
 
 	var doko *logic.Deck = logic.NewDeck([]int{logic.Ace, 9, 10, logic.Jack, logic.Queen, logic.King}).Twice().Shuffle()
